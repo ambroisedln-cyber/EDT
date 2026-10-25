@@ -115,6 +115,9 @@ nav button i{font-style:normal;font-size:20px}nav .on{color:var(--ac)}
 .evg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .evg>button,.evg>label{display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--ac);border-radius:10px;min-height:44px;padding:0 8px;font-weight:600;font-size:15px;text-align:center;line-height:1.15;flex:none}
 .evg>label::after{content:none}.evg .pri{background:var(--ac);color:#fff}.evg .dng{color:#ff3b30}
+.sun{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.sun div{background:var(--bg);border-radius:12px;padding:10px 4px;min-width:0}.sun span{display:block;font-size:12px;color:var(--mu);margin-bottom:2px}.sun b{font-size:20px;font-weight:700;letter-spacing:-.3px;white-space:nowrap}
+textarea.gn{min-height:84px;background:var(--bg)}
+.shb{display:flex;gap:8px;flex-wrap:wrap}.shb button,.shb a{flex:1 1 auto;white-space:nowrap;min-width:96px;display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;background:var(--bg);color:var(--ac);font-weight:600;font-size:15px;text-decoration:none;text-align:center;padding:0 10px}.shb a.wa{background:#25d366;color:#fff}
 </style>
 </head>
 <body>
@@ -130,7 +133,6 @@ const C={Médical:'#ff3b30',Job:'#007aff',Autre:'#34c759',Resto:'#ff9500',Vacanc
 const sty=c=>'style="--c:'+(C[c]||'#8e8e93')+'"';
 const YMIN=2026,YMAX=2050;
 const SA='Marie,Basile,Geneviève,Odilon,Édouard,Mélaine,Raymond,Lucien,Alix,Guillaume,Paulin,Tatiana,Yvette,Nina,Rémi,Marcel,Roseline,Prisca,Marius,Sébastien,Agnès,Vincent,Barnard,François de Sales,Paul,Paule,Angèle,Thomas d’Aquin,Gildas,Martine,Marcelle|Ella,Théophane,Blaise,Véronique,Agathe,Gaston,Eugénie,Jacqueline,Apolline,Arnaud,N.-D. de Lourdes,Félix,Béatrice,Valentin,Claude,Julienne,Alexis,Bernadette,Gabin,Aimée,Pierre Damien,Isabelle,Lazare,Modeste,Roméo,Nestor,Honorine,Romain,Auguste|Aubin,Charles le Bon,Guénolé,Casimir,Olive,Colette,Félicité,Jean de Dieu,Françoise,Vivien,Rosine,Justine,Rodrigue,Mathilde,Louise,Bénédicte,Patrice,Cyrille,Joseph,Herbert,Clémence,Léa,Victorien,Karine,Humbert,Larissa,Habib,Gontran,Gwladys,Amédée,Benjamin|Hugues,Sandrine,Richard,Isidore,Irène,Marcellin,J.-B. de la Salle,Julie,Gautier,Fulbert,Stanislas,Jules,Ida,Maxime,Paterne,Benoît-Joseph,Anicet,Parfait,Emma,Odette,Anselme,Alexandre,Georges,Fidèle,Marc,Alida,Zita,Valérie,Catherine de Sienne,Robert|Jérémie,Boris,Philippe,Sylvain,Judith,Prudence,Gisèle,Désiré,Pacôme,Solange,Estelle,Achille,Rolande,Matthias,Denise,Honoré,Pascal,Éric,Yves,Bernardin,Constantin,Émile,Didier,Donatien,Sophie,Béranger,Augustin,Germain,Aymar,Ferdinand,Visitation|Justin,Blandine,Kévin,Clotilde,Igor,Norbert,Gilbert,Médard,Diane,Landry,Barnabé,Guy,Antoine de Padoue,Élisée,Germaine,J.-F. Régis,Hervé,Léonce,Romuald,Silvère,Rodolphe,Alban,Audrey,Jean-Baptiste,Prosper,Anthelme,Fernand,Irénée,Pierre et Paul,Martial|Thierry,Martinien,Thomas,Florent,Antoine,Mariette,Raoul,Thibaut,Amandine,Ulrich,Benoît,Olivier,Henri,Camille,Donald,N.-D. du Mont-Carmel,Charlotte,Frédéric,Arsène,Marina,Victor,Marie-Madeleine,Brigitte,Christine,Jacques,Anne et Joachim,Nathalie,Samson,Marthe,Juliette,Ignace de Loyola|Alphonse,Julien Eymard,Lydie,J.-M. Vianney,Abel,Transfiguration,Gaétan,Dominique,Amour,Laurent,Claire,Clarisse,Hippolyte,Evrard,Assomption,Armel,Hyacinthe,Hélène,Jean Eudes,Bernard,Christophe,Fabrice,Rose de Lima,Barthélemy,Louis,Natacha,Monique,Augustin,Sabine,Fiacre,Aristide|Gilles,Ingrid,Grégoire,Rosalie,Raïssa,Bertrand,Reine,Adrien,Alain,Inès,Adelphe,Apollinaire,Aimé,Croix Glorieuse,Roland,Édith,Renaud,Nadège,Émilie,Davy,Matthieu,Maurice,Constant,Thècle,Hermann,Côme et Damien,Vincent de Paul,Venceslas,Michel,Jérôme|Thérèse,Léger,Gérard,François d’Assise,Fleur,Bruno,Serge,Pélagie,Denis,Ghislain,Firmin,Wilfried,Géraud,Juste,Thérèse d’Avila,Edwige,Baudouin,Luc,René,Adeline,Céline,Élodie,Jean de Capistran,Florentin,Crépin,Dimitri,Émeline,Simon,Narcisse,Bienvenue,Quentin|Toussaint,Défunts,Hubert,Charles,Sylvie,Bertille,Carine,Geoffroy,Théodore,Léon,Martin,Christian,Brice,Sidoine,Albert,Marguerite,Élisabeth,Aude,Tanguy,Edmond,Présentation de Marie,Cécile,Clément,Flora,Catherine,Delphine,Séverin,Jacques de la Marche,Saturnin,André|Florence,Viviane,François-Xavier,Barbara,Gérald,Nicolas,Ambroise,Immaculée Conception,Pierre Fourier,Romaric,Daniel,Jeanne de Chantal,Lucie,Odile,Ninon,Alice,Gaël,Gatien,Urbain,Théophile,Pierre Canisius,Françoise-Xavière,Armand,Adèle,Noël,Étienne,Jean,Innocents,David,Roger,Sylvestre'.split('|').map(m=>m.split(','));
-const QU=['Un voyage de mille lieues commence toujours par un premier pas.|Lao Tseu','Il n’y a pas de vent favorable pour celui qui ne sait pas où il va.|Sénèque','Ce qui ne me tue pas me rend plus fort.|Nietzsche','Il faut cultiver notre jardin.|Voltaire','L’essentiel est invisible pour les yeux.|Saint-Exupéry','Rien ne sert de courir ; il faut partir à point.|La Fontaine','Patience et longueur de temps font plus que force ni que rage.|La Fontaine','On ne voit bien qu’avec le cœur.|Saint-Exupéry','Aide-toi, le ciel t’aidera.|La Fontaine','Qui veut voyager loin ménage sa monture.|Racine','Tout vient à point à qui sait attendre.|Proverbe','L’imagination est plus importante que le savoir.|Einstein','Petit à petit, l’oiseau fait son nid.|Proverbe','Le mieux est l’ennemi du bien.|Voltaire','C’est en forgeant qu’on devient forgeron.|Proverbe','Rien n’est permanent, sauf le changement.|Héraclite','Connais-toi toi-même.|Socrate','Je pense, donc je suis.|Descartes','Le courage n’est pas l’absence de peur, mais la capacité de la vaincre.|Nelson Mandela','Chaque jour est une chance de recommencer.|Proverbe','The only way to do great work is to love what you do.|Steve Jobs','Stay hungry, stay foolish.|Steve Jobs','Whether you think you can or you think you can’t, you’re right.|Henry Ford','I have not failed. I’ve just found 10,000 ways that won’t work.|Thomas Edison','I have a dream.|Martin Luther King Jr.','That’s one small step for man, one giant leap for mankind.|Neil Armstrong','Impossible is just a big word thrown around by small men.|Muhammad Ali','I’ve failed over and over and over again in my life. And that is why I succeed.|Michael Jordan','It always seems impossible until it’s done.|Nelson Mandela','The unexamined life is not worth living.|Socrate','Nothing in life is to be feared, it is only to be understood.|Marie Curie','Life is like riding a bicycle. To keep your balance, you must keep moving.|Albert Einstein','The important thing is not to stop questioning.|Albert Einstein','The best way out is always through.|Robert Frost','We are what we repeatedly do. Excellence, then, is not an act, but a habit.|Will Durant','Well begun is half done.|Aristote','The only thing we have to fear is fear itself.|Franklin D. Roosevelt','Do what you can, with what you have, where you are.|Theodore Roosevelt','Courage is grace under pressure.|Ernest Hemingway','It is not death that a man should fear, but never beginning to live.|Marc Aurèle','Fall seven times, stand up eight.|Proverbe japonais','The best way to predict the future is to invent it.|Alan Kay','Hard work beats talent when talent doesn’t work hard.|Tim Notke','You miss 100% of the shots you don’t take.|Wayne Gretzky','It’s not whether you get knocked down, it’s whether you get up.|Vince Lombardi','Run when you can, walk if you have to, crawl if you must; just never give up.|Dean Karnazes','The miracle isn’t that I finished. The miracle is that I had the courage to start.|John Bingham','Everything you’ve ever wanted is on the other side of fear.|George Addair','Not all those who wander are lost.|J.R.R. Tolkien','It does not do to dwell on dreams and forget to live.|J.K. Rowling','I am not afraid of storms, for I am learning how to sail my ship.|Louisa May Alcott','Every child is an artist. The problem is how to remain an artist once we grow up.|Pablo Picasso','Creativity takes courage.|Henri Matisse','Great things are done by a series of small things brought together.|Vincent van Gogh','We are made of star-stuff.|Carl Sagan','If I have seen further, it is by standing on the shoulders of giants.|Isaac Newton','Ce n’est pas parce que les choses sont difficiles que nous n’osons pas, c’est parce que nous n’osons pas qu’elles sont difficiles.|Sénèque','Vivre, c’est naître lentement.|Saint-Exupéry','Il n’y a pas de hasard, il n’y a que des rendez-vous.|Paul Éluard','Un jour sans rire est un jour perdu.|Chamfort','L’art est le plus court chemin de l’homme à l’homme.|André Malraux','Après l’effort, le réconfort.|Proverbe','La vie est un défi à relever.|Mère Teresa','Le plus beau voyage est celui qu’on n’a pas encore fait.|Loïck Peyron','Champions keep playing until they get it right.|Billie Jean King','The happiness of your life depends upon the quality of your thoughts.|Marc Aurèle'];
 let S={days:{},dates:[],vac:[],g:{m:[],j:[],a:[]}};
 try{const r=localStorage.getItem('edt');if(r)Object.assign(S,JSON.parse(r))}catch(e){}
 S.g=Object.assign({m:[],j:[],a:[],p:[],c:[],v:[]},S.g||{});S.vac=S.vac||[];S.dates=S.dates||[];S.days=S.days||{};
@@ -150,7 +152,7 @@ const datesOn=k=>S.dates.filter(x=>x.rec?x.d.slice(5)===k.slice(5):x.d===k);
 const gd=k=>{const o=[];Object.keys(S.g).forEach(s=>(S.g[s]||[]).forEach((x,i)=>{if(x.d===k)o.push({x,s,i})}));return o};
 const has=k=>{const d=S.days[k];return !!((d&&(d.t.some(x=>!x.f&&!x.cx)||d.r.length||(d.w||[]).length||d.n.trim()))||gd(k).some(o=>!o.x.f&&!o.x.cx))};
 const hm=k=>{const d=S.days[k];return d&&d.r.some(x=>x.c==='Médical')};
-const TODAY=key(new Date());
+let TODAY=key(new Date());
 const dots=k=>{const s=new Set(S.days[k]?S.days[k].r.map(x=>x.c):[]);if(datesOn(k).length)s.add('Date');if((S.days[k]&&S.days[k].t.some(q=>!q.f&&!q.cx))||gd(k).some(o=>!o.x.f&&!o.x.cx))s.add('Tâche');if(OFF(k))s.add('Off');return s.size?'<i class="dts">'+[...s].map(c=>'<u style="--c:'+(C[c]||'#8e8e93')+'"></u>').join('')+'</i>':''};
 const DEF={2:['09:00','17:00'],3:['09:00','17:00'],4:['09:00','17:00'],5:['09:00','17:00'],6:['08:00','16:00']};
 const work=k=>{if(vacOn(k))return[];const d=S.days[k];if(d&&(d.ov||(d.w||[]).length))return d.w||[];const g=DEF[parse(k).getDay()];return g?[{a:g[0],b:g[1]}]:[]};
@@ -273,8 +275,8 @@ const evCard=()=>{const e=V.ev,x=e&&S.days[e.k]&&S.days[e.k].r[e.i];if(!x)return
   const more=full?row('👥 avec',esc(x.who))+(x.tele&&x.lk?row('🔗','<a href="'+esc(urlOf(x.lk))+'" target="_blank" rel="noopener">Rejoindre la téléconsultation</a>'):'')+att+row('📞',x.tel?'<a href="tel:'+esc(x.tel.replace(/[^\d+]/g,''))+'">'+esc(x.tel)+'</a>':'')+row('📝 À prévoir',esc(x.pr))+row('💬',esc(x.nt)):'';
   const where=x.tele?row('💻','Téléconsultation'):(x.l?row('📍',esc(x.l)+(full?'<br>'+routeLinks(x.l)+tripHTML(e.k,e.i,x):'')):'');
   return '<div class="card" '+sty(x.c)+'><h2>'+x.c+' · '+fdate(e.k)+'</h2><div style="font-size:18px;font-weight:700">'+esc(x.x)+'</div>'+row('🕐',esc((x.h||'')+(x.du?' · '+x.du:'')))+where+more+(full?calLinks('r|'+e.k+'|'+e.i):'')+'<div class="evg"><button class="pri" data-a="edit" data-d="'+e.k+'" data-i="'+e.i+'">✎ Modifier</button><label class="dpk"><span class="dv">↪ Reporter</span><input type="date" data-evdate="1" value="'+e.k+'"></label><button data-a="evd">'+(full?'Masquer les détails':'Voir les détails')+'</button><button data-a="day" data-d="'+e.k+'">Ouvrir le jour</button><button class="dng" data-a="evx">Annuler le rdv</button><button data-a="evclose">Fermer</button></div></div>'};
-const soonHTML=()=>{const t0=new Date();t0.setHours(0,0,0,0);const R=[];
-  for(let n=0;n<=7;n++){const d=add(t0,n),k=key(d),lab=n===0?'Aujourd’hui':n===1?'Demain':'Dans '+n+' j',v=vacOn(k),day=[];
+const soonHTML=()=>{const t0=new Date(V.d.getFullYear(),V.d.getMonth(),V.d.getDate()),td0=new Date();td0.setHours(0,0,0,0);const R=[];
+  for(let n=0;n<=7;n++){const d=add(t0,n),k=key(d),isT=key(t0)===key(td0),lab=n===0?(isT?'Aujourd’hui':'Ce jour'):n===1?(isT?'Demain':'Dans 1 j'):'Dans '+n+' j',v=vacOn(k),day=[];
     const f=HOL(d.getFullYear())[k];if(f)day.push({s:'00',c:'Férié',t:'🇫🇷 '+f});
     datesOn(k).forEach(q=>day.push({s:'00',c:'Date',t:(q.rec?'🎂 ':'⭐ ')+q.n}));
     gd(k).filter(o=>!o.x.f&&!o.x.cx).forEach(o=>day.push({s:'97',c:'Tâche',t:'☑️ '+o.x.x}));
@@ -282,7 +284,7 @@ const soonHTML=()=>{const t0=new Date();t0.setHours(0,0,0,0);const R=[];
     if(v&&v.a===k)day.push({s:'00',c:'Vacances',t:'🏖️ Départ en vacances'+(v.l?' · '+v.l:'')});
     ((S.days[k]&&S.days[k].r)||[]).forEach(q=>day.push({s:q.h||'98',c:q.c,t:(q.h?q.h+' ':'')+q.x+((q.l&&!q.tele)?' · '+q.l:'')}));
     day.sort((a,b)=>a.s.localeCompare(b.s)).forEach(q=>R.push({k,lab,c:q.c,t:q.t}))}
-  return '<div class="card"><h2>À venir · 7 prochains jours</h2>'+(R.length?R.slice(0,8).map(r=>'<button class="it c" '+sty(r.c)+' data-a="day" data-d="'+r.k+'" data-sc="'+({Tâche:'tasks',Vacances:'vprog'}[r.c]||(['Médical','Resto','Événement','Autre'].includes(r.c)?'plan':''))+'" style="width:100%"><span class="tm" style="min-width:84px;color:var(--mu);font-size:13px">'+r.lab+'</span><span class="t">'+esc(r.t)+'</span><span class="tag">'+(r.c==='Date'?'Anniversaire':r.c)+'</span><span style="color:var(--mu)">›</span></button>').join('')+(R.length>8?'<div class="em">+ '+(R.length-8)+' autres</div>':''):'<div class="em">Rien de prévu cette semaine</div>')+'</div>'};
+  return '<div class="card"><h2>À venir · '+(key(t0)===key(td0)?'7 prochains jours':'7 jours à partir du '+fdate(key(t0)))+'</h2>'+(R.length?R.slice(0,V.soon?99:8).map(r=>'<button class="it c" style="--c:'+(C[r.c]||'#8e8e93')+';width:100%" data-a="day" data-d="'+r.k+'" data-sc="'+({Tâche:'tasks',Vacances:'vprog'}[r.c]||(['Médical','Resto','Événement','Autre'].includes(r.c)?'plan':''))+'"><span class="tm" style="min-width:84px;color:var(--mu);font-size:13px">'+r.lab+'</span><span class="t">'+esc(r.t)+'</span><span class="tag">'+(r.c==='Date'?'Anniversaire':r.c)+'</span><span style="color:var(--mu)">›</span></button>').join('')+(R.length>8?'<button class="em" data-a="soon" style="width:100%;color:var(--ac)">'+(V.soon?'Voir moins':'+ '+(R.length-8)+' autres')+'</button>':''):'<div class="em">Rien de prévu dans les 7 prochains jours</div>')+'</div>'};
 const bagHTML=(v,vi)=>{const bag=v.bag||[],dn=bag.filter(x=>x.f).length;
   return '<div style="margin-top:16px"><b style="font-size:14px">🧳 Valise'+(bag.length?' · '+dn+'/'+bag.length:'')+'</b>'+bag.map((x,j)=>'<div class="it'+(x.f?' done':'')+'"><button class="ck" data-a="bag" data-i="'+vi+'" data-j="'+j+'"></button><span class="t">'+esc(x.x)+'</span><button class="x" data-a="bagx" data-i="'+vi+'" data-j="'+j+'">×</button></div>').join('')+addRow('<input type="text" id="bg" placeholder="Ajouter à la valise">','Ajouter','bagadd','data-i="'+vi+'"')+(bag.length?'':'<div class="add"><button data-a="bagbase" data-i="'+vi+'" style="--c:#8e8e93">Pré-remplir une liste de base</button></div>')+'</div>'};
 const BASE=['Papiers d’identité','Billets / réservations','Chargeur téléphone','Batterie externe','Trousse de toilette','Vêtements','Chaussures','Lunettes de soleil','Adaptateur de prise'];
@@ -310,16 +312,15 @@ function vJour(){
   const k=key(V.d),d=D(k),[,w]=isoWeek(V.d),y=V.d.getFullYear();
   const t=V.d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const sa=(SA[V.d.getMonth()]||[])[V.d.getDate()-1]||'';
-  let h=nv(t,'Semaine '+w+' · Saint du jour : '+sa);h+=lateHTML()+((new Date().getDay()===0&&key(V.d)===key(new Date()))?soonHTML():'');
+  let h=nv(t,'Semaine '+w+' · Saint du jour : '+sa);h+=lateHTML()+soonHTML();
   const f=HOL(y)[k],v=vacOn(k);
   if(f)h+='<span class="chip" '+sty('Férié')+'>🇫🇷 '+f+'</span>';
   if(OFF(k))h+='<span class="chip" '+sty('Job')+'>😴 Off · pas de travail</span>';
   if(v)h+='<span class="chip" '+sty('Vacances')+'>🏖️ Vacances'+(v.l?' · '+esc(v.l):'')+'<button class="x" data-a="vx" data-i="'+S.vac.indexOf(v)+'">×</button></span>';
   datesOn(k).forEach(x=>h+='<span class="chip" '+sty('Date')+'>'+(x.rec?'🎂 ':'⭐ ')+esc(x.n)+'<button class="x" data-a="ddx" data-i="'+S.dates.indexOf(x)+'">×</button></span>');
-  const doy=Math.floor((V.d-new Date(y,0,0))/864e5),q=QU[doy%QU.length].split('|');
-  h+='<div class="card"><p class="q">« '+q[0]+' »<span>— '+q[1]+'</span></p></div>';
+  h+=sunCard(k,placeFor(k));
   const vv=vacOn(k),wl=placeFor(k);
-  h+='<div class="card"><h2>Météo · '+esc(wl)+((vv&&vv.l)?' (vacances)':'')+'</h2><div id="wxb" data-ck="'+esc(wl+'|'+key(V.d))+'">'+(WXH[wl+'|'+key(V.d)]||'<span style="color:var(--mu);font-size:14px">Chargement…</span>')+'</div>'+((vv&&vv.l)?'':'<div class="add"><input type="text" id="wc" placeholder="Autre ville"><button data-a="wcity">Changer de ville</button></div>')+'</div>';
+  h+='<div class="card"><h2>Météo · '+esc(wl)+((vv&&vv.l)?' (vacances)':'')+'</h2><div id="wxb" data-ck="'+esc(wl+'|'+key(V.d))+'">'+(WXH[wl+'|'+key(V.d)]||'<span style="color:var(--mu);font-size:14px">Chargement…</span>')+'</div>'+((vv&&vv.l)?'':'<div class="add"><input type="text" id="wc" placeholder="Autre ville"><button data-a="wcity">Changer de ville</button></div><div class="add" style="margin-top:8px"><button data-a="geo" style="--c:'+(S.auto?'#34c759':'#007aff')+'">'+(S.auto?'📍 Position automatique : activée':'📍 Utiliser ma position')+'</button></div><div id="gmsg" class="sub" style="margin:6px 0 0"></div>')+'</div>';
   h+=vacProg(k);
   const EROW=(x,i)=>{const ia='data-a="edit" data-d="'+k+'" data-i="'+i+'"',att=((x.dl&&x.dl.trim())||(x.df||[]).length)?attach(x.dl,x.df):'',
     m1=x.tele?'💻 Téléconsultation':(x.l?'📍 '+esc(x.l):''),m2=[x.du?'⏱ '+esc(x.du):'',x.who?'👥 avec '+esc(x.who):''].filter(Boolean).join(' · '),
@@ -398,10 +399,43 @@ function catItems(cat,y,m,yr){
   if(cat==='Férié')Object.entries(HOL(y)).forEach(([k,n])=>{if(ok(k))R.push({k,t:'🇫🇷 '+n})});
   return R.sort((a,b)=>a.k.localeCompare(b.k));
 }
+const XCATS=[['Médical','🩺 Rendez-vous médicaux'],['Resto','🍽️ Restaurants'],['Événement','🎟️ Événements'],['Autre','📌 Autres événements'],['Vacances','🏖️ Vacances']];
+const DLC={save:async({filename,data})=>{const ty=/\.csv$/i.test(filename)?'text/csv':'text/plain',b=new Blob([data],{type:ty+';charset=utf-8'}),f=new File([b],filename,{type:ty});try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){if(e&&e.name==='AbortError'){const er=new Error('declined');er.code='declined';throw er}}const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4e3)}};
+const fdl=k=>parse(k).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+const xRange=()=>{const y=V.d.getFullYear(),m=V.d.getMonth(),ym=y+'-'+pad(m+1),td=key(new Date()),r=V.xr||'m';
+  return r==='y'?{lab:String(y),ok:k=>k.slice(0,4)===String(y),ov:(a,b)=>a.slice(0,4)<=String(y)&&b.slice(0,4)>=String(y)}
+   :r==='f'?{lab:'à venir',ok:k=>k>=td,ov:(a,b)=>b>=td}
+   :{lab:MOIS[m]+' '+y,ok:k=>k.slice(0,7)===ym,ov:(a,b)=>a.slice(0,7)<=ym&&b.slice(0,7)>=ym}};
+function xData(){const R=xRange(),G=[];
+  XCATS.forEach(([c,n])=>{if(V.xc&&V.xc[c]===0)return;const A=[];
+    if(c==='Vacances')S.vac.slice().sort((p,q)=>p.a.localeCompare(q.a)).forEach(v=>{if(R.ov(v.a,v.b))A.push({v})});
+    else Object.keys(S.days).sort().forEach(k=>{if(!R.ok(k))return;(S.days[k].r||[]).slice().sort((p,q)=>(p.h||'99').localeCompare(q.h||'99')).forEach(x=>{if(x.c===c)A.push({k,x})})});
+    G.push({c,n,A})});
+  return{R,G}}
+const evTxt=({k,x})=>'• '+fdl(k)+(x.h?' · '+x.h:'')+' — '+x.x+(x.du?' ('+x.du+')':'')+(x.tele?' · 💻 Téléconsultation'+(x.lk?' : '+x.lk:''):(x.l?' · 📍 '+x.l:''))+(x.who?' · 👥 avec '+x.who:'')+(x.tel?' · 📞 '+x.tel:'')+(x.pr?' · 📝 '+x.pr:'')+(x.dl?' · 🔗 '+x.dl:'');
+const vacTxt=v=>{const L=['• '+(v.l||'Vacances')+' · du '+fdl(v.a)+' au '+fdl(v.b)],tr=(e,q)=>{if(!q)return;const s=[(q.m||[]).join(' + '),q.t].filter(Boolean).join(' · ');if(s)L.push('   '+e+' '+s)},P={m:'Matin',a:'Après-midi',s:'Soir'};
+  tr('🛫 Aller :',v.go);tr('🛬 Retour :',v.back);
+  (v.items||[]).slice().sort((p,q)=>(p.d+(p.h||'')).localeCompare(q.d+(q.h||''))).forEach(it=>L.push('   – '+fdl(it.d)+' · '+(P[it.p]||'')+(it.h?' '+it.h:'')+' : '+(it.resto?'🍽️ ':'')+it.x+(it.l?' · 📍 '+it.l:'')+(it.who?' · 👥 avec '+it.who:'')));
+  const bag=(v.bag||[]).filter(q=>!q.f).map(q=>q.x);if(bag.length)L.push('   🧳 Valise : '+bag.join(', '));return L.join('\n')};
+function xText(){const{R,G}=xData(),o=[];G.forEach(g=>{if(g.A.length)o.push(g.n+'\n'+g.A.map(a=>a.v?vacTxt(a.v):evTxt(a)).join('\n'))});return o.length?'📅 Mon planning · '+R.lab+'\n\n'+o.join('\n\n'):''}
+function xCSV(){const{G}=xData(),rows=[['Catégorie','Date','Fin','Heure','Intitulé','Lieu','Durée','Avec','À prévoir','Téléphone','Lien']];
+  G.forEach(g=>g.A.forEach(a=>{if(a.v){const v=a.v;rows.push(['Vacances',v.a,v.b,'',v.l||'Vacances',v.l||'','','','','','']);
+      (v.items||[]).forEach(it=>rows.push(['Vacances · programme',it.d,'',it.h||'',it.x,it.l||'','',it.who||'',it.nt||'','',(it.lk||[]).join(' ')]))}
+    else{const x=a.x;rows.push([g.c,a.k,'',x.h||'',x.x,x.tele?'Téléconsultation':(x.l||''),x.du||'',x.who||'',x.pr||'',x.tel||'',x.tele?(x.lk||''):(x.dl||'')])}}));
+  return '﻿'+rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(';')).join('\r\n')}
+const xpHTML=()=>{const tx=xText(),cur=V.xr||'m',wa='https://wa.me/?text='+encodeURIComponent(tx);
+  return '<div class="card"><h2>Exporter</h2><div class="seg" style="--c:var(--ac)">'+[['m','Ce mois'],['y','Cette année'],['f','À venir']].map(([k,n])=>'<button class="'+(k===cur?'on':'')+'" data-a="xr" data-s="'+k+'">'+n+'</button>').join('')+'</div>'
+  +'<div class="lg" style="margin-bottom:8px">'+XCATS.map(([c,n])=>{const on=!(V.xc&&V.xc[c]===0);return '<button class="chip" data-a="xc" data-c="'+c+'" style="--c:'+C[c]+(on?';background:var(--c);color:#fff':'')+'">'+(on?'✓ ':'')+n.replace(/^\S+\s/,'')+'</button>'}).join('')+'</div>'
+  +(tx?'<textarea id="xt" class="nt" rows="9" style="margin-top:0;background:var(--bg)">'+esc(tx)+'</textarea><div class="shb" style="margin-top:8px">'+((typeof navigator!=='undefined'&&navigator.share)?'<button data-a="xshare">📤 Partager</button>':'')+'<button data-a="xcopy">📋 Copier</button><a class="wa" id="xwa" href="'+wa+'" target="_blank" rel="noopener">💬 WhatsApp</a>'+(DLC?'<button data-a="xdl" data-f="txt">⬇️ Texte</button><button data-a="xdl" data-f="csv">⬇️ Tableur</button>':'')+'</div><div id="xm" class="sub" style="margin:6px 0 0">Tu peux modifier le texte avant de l’envoyer.</div>':'<div class="em">Rien à exporter pour cette période.</div>')+'</div>'};
+const xmsg=m=>{const e=$('#xm');if(e)e.textContent=m};
+function xDownload(f){const fn='planning-'+xRange().lab.replace(/\s+/g,'-')+'.'+f,data=f==='csv'?xCSV():(($('#xt')||{}).value||xText());
+  if(!DLC){xmsg('Téléchargement indisponible ici.');return}
+  DLC.save({filename:fn,data}).then(()=>xmsg('✓ Fichier enregistré'),e=>xmsg(e&&e.code==='declined'?'Téléchargement annulé.':'Téléchargement impossible ici : utilise Copier ou WhatsApp.'))}
 function vMois(){
   const y=V.d.getFullYear(),m=V.d.getMonth();
   let h=nv(MOIS[m]+' '+y,'Touchez un jour, une semaine ou une pastille')+'<div class="card">'+grid(y,m,false)+'</div>';
   h+='<div class="lg">'+[['Médical','Médical'],['Resto','Restaurant'],['Événement','Événement'],['Autre','Autre'],['Date','Anniversaire'],['Vacances','Vacances'],['Férié','Férié'],['Tâche','Tâches à faire']].map(([c,n])=>'<button class="chip" data-a="cat" data-c="'+c+'" style="--c:'+C[c]+(V.cat===c?';background:var(--c);color:#fff':'')+'">● '+n+'</button>').join('')+'<span class="chip" '+sty('Off')+'>● Jour off</span></div>';
+  h+='<div class="lg" style="margin-top:8px"><button class="chip" data-a="xp" style="--c:#007aff'+(V.xp?';background:var(--c);color:#fff':'')+'">'+(V.xp?'× Fermer l’export':'📤 Exporter')+'</button></div>';if(V.xp)h+=xpHTML();
   if(V.cat){const R=catItems(V.cat,y,m,V.catYr);
     h+='<div class="card" '+sty(V.cat)+'><h2>'+CATL[V.cat]+' · '+(V.catYr?y:MOIS[m]+' '+y)+' · '+R.length+'</h2><div class="lg" style="margin-bottom:6px"><button class="chip" data-a="catyr" style="--c:#8e8e93">'+(V.catYr?'Voir ce mois':'Voir toute l’année')+'</button><button class="chip" data-a="cat" data-c="'+V.cat+'" style="--c:#8e8e93">Fermer</button></div>'+(R.length?R.map(r=>'<button class="it c" data-a="day" data-d="'+r.k+'" style="--c:'+C[V.cat]+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+fdate(r.k)+'</span><span class="t">'+esc(r.t)+'</span></button>').join(''):'<div class="em">Rien pour cette catégorie</div>')+'</div>';
     return h}
@@ -416,20 +450,56 @@ function vAnnee(){
   return h+'</div>';
 }
 const GT=[['m','Médical','🩺'],['j','Job','💼'],['a','Autre','✨'],['p','Projets','🚀'],['c','Courses','🛒'],['v','Vacances','🏖️']];
+const CSH={l:'Leclerc',m:'Marché',o:'Autre courses'};
+const courseText=cs=>{const A=(S.g.c||[]).filter(x=>!x.f&&!x.cx&&(x.sh||'o')===cs);return A.length?'🛒 Courses · '+CSH[cs]+'\n'+A.map(x=>'• '+x.x).join('\n'):''};
+async function copyTxt(txt){try{await navigator.clipboard.writeText(txt);return true}catch(e){}
+  try{const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();const ok=document.execCommand('copy');ta.remove();return !!ok}catch(e){return false}}
 function vTodo(){
   const cur=V.gt||'',cs=V.cs||'l',SH=[['l','Leclerc'],['m','Marché'],['o','Autre courses']],shn=(SH.find(q=>q[0]===cs)||SH[2])[1];
+  const shareBar=cs=>{const tx=courseText(cs);if(!tx)return '';
+    return '<div class="shr"><div class="sub" style="margin:12px 0 6px;font-weight:600">Envoyer la liste « '+CSH[cs]+' »</div><div class="shb">'
+    +((typeof navigator!=='undefined'&&navigator.share)?'<button data-a="cshare">📤 Partager</button>':'')
+    +'<button data-a="ccopy">📋 Copier</button><a class="wa" href="https://wa.me/?text='+encodeURIComponent(tx)+'" target="_blank" rel="noopener">💬 WhatsApp</a></div>'
+    +(V.cpy?'<textarea id="cpt" readonly rows="'+Math.min(10,tx.split('\\n').length+1)+'" class="nt" style="margin-top:8px">'+esc(tx)+'</textarea><div class="sub" style="margin:4px 0 0">Appuie longuement sur le texte pour le copier.</div>':'')+'</div>'};
   const bodyOf=s0=>{S.g[s0]=S.g[s0]||[];
     if(s0==='c'){
       const seg='<div class="seg">'+SH.map(([q,n])=>{const o=(S.g.c||[]).filter(x=>!x.f&&!x.cx&&(x.sh||'o')===q).length;return '<button class="'+(q===cs?'on':'')+'" data-a="cs" data-s="'+q+'">'+n+(o?' <i>'+o+'</i>':'')+'</button>'}).join('')+'</div>';
       const dn=S.g.c.some(x=>x.f&&(x.sh||'o')===cs);
-      return seg+todoList(S.g.c,'gt','data-s="c"','c',x=>(x.sh||'o')===cs)+'<div class="add"><input type="text" id="gc" placeholder="Ajouter à '+shn+'"><button data-a="adg" data-s="c">Ajouter</button></div>'+(dn?'<button class="x" data-a="cclear" style="font-size:13px;color:var(--ac);margin-top:8px">Effacer les articles cochés</button>':'');
+      return seg+todoList(S.g.c,'gt','data-s="c"','c',x=>(x.sh||'o')===cs)+'<div class="add"><input type="text" id="gc" placeholder="Ajouter à '+shn+'"><button data-a="adg" data-s="c">Ajouter</button></div>'+(dn?'<button class="x" data-a="cclear" style="font-size:13px;color:var(--ac);margin-top:8px">Effacer les articles cochés</button>':'')+shareBar(cs);
     }
     return todoList(S.g[s0],'gt','data-s="'+s0+'"',s0)+'<div class="add"><input type="text" id="g'+s0+'" placeholder="Nouvelle tâche"><button data-a="adg" data-s="'+s0+'">Ajouter</button></div>'};
   let h='<h1>À faire</h1>'+GT.map(([q,n,ic])=>{const op=(S.g[q]||[]).filter(x=>!x.f&&!x.cx).length,on=q===cur;
-    return '<div class="card gcat'+(on?' on':'')+'" '+sty(n)+'><button class="gh" data-a="gtab" data-s="'+q+'"><span class="ic">'+ic+'</span><b>'+n+'</b>'+(op?'<span class="n">'+op+'</span>':'')+'<span class="chev">›</span></button>'+(on?'<div class="gbody">'+bodyOf(q)+'</div>':'')+'</div>'}).join('');
+    return '<div class="card gcat'+(on?' on':'')+'" '+sty(n)+'><button class="gh" data-a="gtab" data-s="'+q+'"><span class="ic">'+ic+'</span><b>'+n+'</b>'+(op?'<span class="n">'+op+'</span>':'')+((S.gn||{})[q]&&String(S.gn[q]).trim()?'<span title="Note" style="font-size:15px">📝</span>':'')+'<span class="chev">›</span></button>'+(on?'<div class="gbody">'+bodyOf(q)+'<div class="gnote"><span class="sub" style="margin:10px 0 4px;display:block;font-weight:600">📝 Note</span><textarea class="nt gn" rows="3" data-gn="'+q+'" placeholder="Écrire une note…">'+esc((S.gn||{})[q]||'')+'</textarea></div></div>':'')+'</div>'}).join('');
   h+='<details style="margin:20px 0 8px;color:var(--mu);font-size:13px;text-align:center"><summary style="cursor:pointer;list-style:none">⚙️ Sauvegarde des données</summary><div class="card" style="text-align:left"><h2>Sauvegarde</h2><p class="sub" style="margin:0 0 10px">Tes données sont enregistrées sur cet iPhone. Exporte-les régulièrement pour les garder en lieu sûr.</p><div class="add" style="margin-top:0"><button data-bkx="1" style="background:var(--ac);color:#fff;border-radius:10px;padding:10px 14px">Exporter</button><label style="background:var(--bg);border-radius:10px;padding:10px 14px;color:var(--ac);position:relative;overflow:hidden">Importer<input type="file" data-bki="1" accept=".json,application/json,text/plain" style="position:absolute;inset:0;opacity:0"></label></div><div class="bkm sub" style="margin:8px 0 0"></div></div></details>';
   return h;
 }
+const CG0={'Rueil-Malmaison':{lat:48.879,lon:2.189,tz:'Europe/Paris'}};
+const cgOf=c=>(S.cg&&S.cg[c])||CG0[c]||null;
+function sunOf(k,g){const R=Math.PI/180,D=180/Math.PI,[y,m,d]=k.split('-').map(Number),t0=Date.UTC(y,m-1,d),
+  par=jc=>{const L0=((280.46646+jc*(36000.76983+jc*.0003032))%360+360)%360,M=357.52911+jc*(35999.05029-1.537e-4*jc),e=.016708634-jc*(4.2037e-5+1.267e-7*jc),Mr=M*R,
+    C=Math.sin(Mr)*(1.914602-jc*(.004817+1.4e-5*jc))+Math.sin(2*Mr)*(.019993-1.01e-4*jc)+Math.sin(3*Mr)*2.89e-4,al=L0+C-.00569-.00478*Math.sin((125.04-1934.136*jc)*R),
+    ob=23+(26+(21.448-jc*(46.815+jc*(5.9e-4-jc*.001813)))/60)/60+.00256*Math.cos((125.04-1934.136*jc)*R),dec=Math.asin(Math.sin(ob*R)*Math.sin(al*R)),
+    yy=Math.tan(ob*R/2)**2,L0r=L0*R;return{dec,eq:4*D*(yy*Math.sin(2*L0r)-2*e*Math.sin(Mr)+4*e*yy*Math.sin(Mr)*Math.cos(2*L0r)-.5*yy*yy*Math.sin(4*L0r)-1.25*e*e*Math.sin(2*Mr))}},
+  ev=sg=>{let ms=t0+432e5;for(let i=0;i<3;i++){const p=par((ms/864e5+2440587.5-2451545)/36525),ca=Math.cos(90.833*R)/(Math.cos(g.lat*R)*Math.cos(p.dec))-Math.tan(g.lat*R)*Math.tan(p.dec);
+    if(!(ca>=-1&&ca<=1))return null;ms=t0+(720-4*g.lon-p.eq+sg*4*Math.acos(ca)*D)*6e4}return ms},a=ev(-1),b=ev(1);
+  if(a===null||b===null)return null;return{a:new Date(Math.round(a/6e4)*6e4),b:new Date(Math.round(b/6e4)*6e4),len:Math.round((b-a)/6e4)}}
+const hhmm=(dt,tz)=>{const o={hour:'2-digit',minute:'2-digit',hourCycle:'h23'};try{return new Intl.DateTimeFormat('fr-FR',tz?Object.assign({timeZone:tz},o):o).format(dt)}catch(e){return new Intl.DateTimeFormat('fr-FR',o).format(dt)}};
+const sunHTML=(k,c)=>{const g=cgOf(c),s=g&&sunOf(k,g);if(!g)return '';if(!s)return '<div class="sub" style="margin:0">Pas de lever ni de coucher du soleil ce jour-là à cet endroit.</div>';
+  return '<div class="sun"><div><span>🌅 Lever</span><b>'+hhmm(s.a,g.tz)+'</b></div><div><span>🌇 Coucher</span><b>'+hhmm(s.b,g.tz)+'</b></div><div><span>⏳ Durée</span><b>'+Math.floor(s.len/60)+' h '+pad(s.len%60)+'</b></div></div>'};
+const sunCard=(k,c)=>'<div class="card" id="sunc" data-ck="'+esc(c+'|'+k)+'"'+(cgOf(c)?'':' style="display:none"')+'><h2>Soleil · '+esc(c)+'</h2><div id="sunb">'+sunHTML(k,c)+'</div></div>';
+function fillSun(c,k){const e=$('#sunc');if(e&&e.dataset.ck===c+'|'+k){e.style.display='';$('#sunb').innerHTML=sunHTML(k,c)}}
+const devTz=()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||''}catch(e){return ''}};
+const gmsg=m=>{const e=$('#gmsg');if(e)e.textContent=m};
+function locate(quiet){
+  V.lt=Date.now();
+  if(typeof navigator==='undefined'||!navigator.geolocation){if(!quiet)gmsg('Localisation indisponible sur cet appareil.');return}
+  if(!quiet)gmsg('Recherche de ta position…');
+  navigator.geolocation.getCurrentPosition(async p=>{
+    const la=Math.round(p.coords.latitude*100)/100,lo=Math.round(p.coords.longitude*100)/100;let nm='';
+    try{const r=await fetch('https://nominatim.openstreetmap.org/reverse?format=json&zoom=10&accept-language=fr&lat='+la+'&lon='+lo),j=await r.json(),a=(j&&j.address)||{};nm=a.city||a.town||a.village||a.municipality||a.county||''}catch(e){}
+    if(!nm){if(!quiet)gmsg('Position trouvée, mais impossible d’en déduire la ville. Saisis-la dans « Autre ville ».');return}
+    S.cg=S.cg||{};S.cg[nm]={lat:la,lon:lo,tz:devTz()};S.auto=1;const ch=nm!==S.city;S.city=nm;save();if(ch||!quiet)render();
+  },er=>{if(!quiet)gmsg(er&&er.code===1?'Localisation refusée ou bloquée dans cette page. Utilise « Autre ville ».':'Position introuvable pour le moment.')},{timeout:15000,maximumAge:6e5})}
 const SRV='AccuWeather®',WXP={},WXH={};
 const placeFor=k=>{const v=vacOn(k);return(v&&v.l)?v.l:(S.city||'Rueil-Malmaison')};
 const wxi=n=>n<=2?'☀️':n<=5?'🌤️':n===6?'⛅':n<=8?'☁️':n===11?'🌫️':n<=14?'🌦️':n<=17?'⛈️':n===18?'🌧️':n<=23?'❄️':(n<=26||n===29)?'🌨️':n===30?'🥵':n===31?'🥶':n===32?'💨':n<=34?'🌙':n<=38?'☁️':n<=40?'🌧️':n<=42?'⛈️':'🌨️';
@@ -608,13 +678,23 @@ document.addEventListener('click',e=>{
   else if(a==='pick'){V.gt0=Date.now();V.pk={kind:b.dataset.kind,src:b.dataset.src,i};const p=$('#dp');p.value='';try{if(p.showPicker)p.showPicker();else p.click()}catch(x){try{p.click()}catch(y){}}return}
   else if(a==='dtc'){const x=D(k).t[i];if(x){x.cx=x.cx?0:1;if(x.cx)x.f=0}}
   else if(a==='gtc'){const x=S.g[s][i];if(x){x.cx=x.cx?0:1;if(x.cx)x.f=0}}
-  else if(a==='wcity'){const x=v('#wc').trim();if(x)S.city=x}
+  else if(a==='wcity'){const x=v('#wc').trim();if(x){S.city=x;S.auto=0}}
+  else if(a==='geo'){if(S.auto)S.auto=0;else{locate(0);return}}
   else if(a==='undo'){if(UNDO){const sn=UNDO.snap;clearTimeout(UT);UNDO=null;hideToast();S=JSON.parse(sn);mig()}}
   else if(a==='late'){const w0=b.dataset.w,to=key(add(new Date(),+b.dataset.to||0)),src=b.dataset.src;
     if(src==='d'){const k0=b.dataset.k,arr=(S.days[k0]||{}).t||[],x=arr[i];if(x){if(w0==='done')spawn(x,k0,c=>{const dd=c.d;delete c.d;D(dd).t.push(c)});else{arr.splice(i,1);x.f=0;D(to).t.push(x)}}}
     else{const x=(S.g[src]||[])[i];if(x){if(w0==='done')spawn(x,x.d,c=>S.g[src].push(c));else x.d=to}}}
   else if(a==='wkrec'){setD(new Date());V.tab='jour';V.wk=true;V.sc=1}
   else if(a==='wkoff')V.wk=false;
+  else if(a==='ccopy'){const tx=courseText(V.cs||'l');if(!tx)return;copyTxt(tx).then(ok=>{if(ok){b.textContent='✓ Copié';setTimeout(()=>{try{b.textContent='📋 Copier'}catch(e){}},1600)}else{V.cpy=1;render();setTimeout(()=>{const e=$('#cpt');if(e){e.focus();e.select()}},60)}});return}
+  else if(a==='cshare'){const tx=courseText(V.cs||'l');if(!tx)return;let p;try{p=navigator.share({text:tx})}catch(e){p=Promise.reject(e)}p.catch(e=>{if(e&&e.name==='AbortError')return;copyTxt(tx).then(ok=>{if(ok){b.textContent='✓ Copié';setTimeout(()=>{try{b.textContent='📤 Partager'}catch(e2){}},1600)}else{V.cpy=1;render()}})});return}
+  else if(a==='soon')V.soon=!V.soon;
+  else if(a==='xp')V.xp=!V.xp;
+  else if(a==='xr')V.xr=s;
+  else if(a==='xc'){V.xc=V.xc||{};const c0=b.dataset.c;V.xc[c0]=V.xc[c0]===0?1:0}
+  else if(a==='xcopy'){const tx=($('#xt')||{}).value||'';if(!tx)return;copyTxt(tx).then(ok=>{if(ok){b.textContent='✓ Copié';setTimeout(()=>{try{b.textContent='📋 Copier'}catch(e){}},1600)}else{xmsg('Appuie longuement sur le texte pour le copier.');const e=$('#xt');if(e){e.focus();e.select()}}});return}
+  else if(a==='xshare'){const tx=($('#xt')||{}).value||'';if(!tx)return;let p;try{p=navigator.share({text:tx})}catch(e){p=Promise.reject(e)}p.catch(e=>{if(e&&e.name==='AbortError')return;copyTxt(tx).then(ok=>xmsg(ok?'✓ Copié dans le presse-papiers':'Appuie longuement sur le texte pour le copier.'))});return}
+  else if(a==='xdl'){xDownload(b.dataset.f);return}
   else if(a==='exp'){$('#bk').value=JSON.stringify(S);$('#bk').select();return}
   else if(a==='imp'){try{const o=JSON.parse(v('#bk'));if(o&&o.days)Object.assign(S,o)}catch(x){return}}
   else return;
@@ -650,8 +730,10 @@ document.addEventListener('change',e=>{
 document.addEventListener('change',e=>{const t=e.target;if(t.id==='vps'){const r=t.value==='r';$('#vpw').style.display=r?'':'none';$('#vpx').placeholder=r?'Nom du restaurant':'Intitulé'}if(t.id==='qm'){$('#ql').style.display=t.value==='p'?'':'none';$('#qk').style.display=t.value==='t'?'':'none'}if(t.id==='edm'){$('#edlw').style.display=t.value==='p'?'':'none';$('#edkw').style.display=t.value==='t'?'':'none'}});
 document.addEventListener('input',e=>{
   const t=e.target;
+  if(t.id==='xt'){const w=$('#xwa');if(w)w.href='https://wa.me/?text='+encodeURIComponent(t.value)}
   if(t.id==='qx'&&V.qa){const nm=nz(t.value).trim();if(nm.length>2){let f=null;Object.keys(S.days).sort().reverse().some(k=>S.days[k].r.some(x=>{if(x.c===V.qa&&nz(x.x).trim()===nm){f=x;return true}return false}));if(f){const l=$('#ql'),p=$('#qtel');if(l&&!l.value&&f.l)l.value=f.l;if(p&&!p.value&&f.tel)p.value=f.tel}}}
   if(t.id==='sq'){V.q=t.value;$('#sr').innerHTML=searchHTML(V.q)}
+  else if(t.dataset.gn){S.gn=S.gn||{};S.gn[t.dataset.gn]=t.value;save()}
   else if(t.dataset.pg){const d=D(t.dataset.k||key(V.d));d.pg=d.pg||{};d.pg[t.dataset.pg]=t.value;save()}
   else if(t.id==='nt'){D(key(V.d)).n=t.value;save()}
   else if(t.dataset.tn){const[s,i]=t.dataset.tn.split('|'),arr=s==='d'?D(key(V.d)).t:S.g[s],x=arr&&arr[+i];if(x){x.nt=t.value;save()}}
@@ -663,7 +745,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('click',e=>{const q=e.target;if(q&&q.dataset&&(q.dataset.gdate!==undefined||q.dataset.evdate!==undefined||q.dataset.rdate!==undefined)){try{if(q.showPicker)q.showPicker()}catch(x){}}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='date'){const c=e.target.closest('.add,.ef'),bt=c&&[...c.querySelectorAll('button')].find(q=>q.dataset.a&&q.dataset.a!=='gopt');bt&&bt.click()}});
 function mig(){
-  S.g=Object.assign({m:[],j:[],a:[],p:[],c:[],v:[]},S.g||{});
+  S.g=Object.assign({m:[],j:[],a:[],p:[],c:[],v:[]},S.g||{});S.gn=S.gn||{};S.cg=S.cg||{};
   S.vac.forEach(v=>{v.items=v.items||[];if(v.docs||v.links){v.go=v.go||{m:[],t:''};v.go.df=(v.go.df||[]).concat(v.docs||[]);v.go.lk=(v.go.lk||[]).concat(v.links||[]);delete v.docs;delete v.links}});
   Object.keys(S.days).forEach(k=>{const d=S.days[k],g=d.pg,v=g&&vacOn(k);if(!v)return;
     ['m','a','s'].forEach(p=>{if(g[p]&&String(g[p]).trim())v.items.push({d:k,p,h:'',x:String(g[p]).trim(),l:'',nt:'',lk:[],df:[],resto:0})});
@@ -671,6 +753,11 @@ function mig(){
     delete d.pg});
 }
 mig();render();
+if(S.auto)setTimeout(()=>locate(1),700);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){rollover();if(S.auto&&Date.now()-(V.lt||0)>18e5)locate(1)}});
+V.tk=key(new Date());
+function rollover(){const tk=key(new Date());if(tk===V.tk)return;const was=key(V.d)===V.tk;V.tk=tk;TODAY=tk;if(was)V.d=new Date();try{render()}catch(e){}}
+(function nm(){const n=new Date(),ms=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1,0,0,5)-n,h=setTimeout(()=>{rollover();nm()},ms);if(h&&h.unref)h.unref()})();
 function dbPush(){}let dbT=null;
 
 (function(){const m=t=>document.querySelectorAll('.bkm').forEach(e=>e.textContent=t);
