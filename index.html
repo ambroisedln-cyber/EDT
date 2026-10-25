@@ -118,6 +118,16 @@ nav button i{font-style:normal;font-size:20px}nav .on{color:var(--ac)}
 .sun{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.sun div{background:var(--bg);border-radius:12px;padding:10px 4px;min-width:0}.sun span{display:block;font-size:12px;color:var(--mu);margin-bottom:2px}.sun b{font-size:20px;font-weight:700;letter-spacing:-.3px;white-space:nowrap}
 textarea.gn{min-height:84px;background:var(--bg)}
 .shb{display:flex;gap:8px;flex-wrap:wrap}.shb button,.shb a{flex:1 1 auto;white-space:nowrap;min-width:96px;display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;background:var(--bg);color:var(--ac);font-weight:600;font-size:15px;text-decoration:none;text-align:center;padding:0 10px}.shb a.wa{background:#25d366;color:#fff}
+#auth,#cfgo{position:fixed;inset:0;z-index:100;background:var(--bg);overflow-y:auto;padding:calc(24px + env(safe-area-inset-top,0px)) 16px 40px}
+#auth .box,#cfgo .box{max-width:420px;margin:0 auto}
+#auth h1,#cfgo h1{text-transform:none}
+.af{display:flex;flex-direction:column;gap:10px}.af input{background:var(--card);border:0;border-radius:12px;padding:14px;font-size:16px;outline:none}
+.af .pri{background:var(--ac);color:#fff;border-radius:12px;padding:14px;font-weight:700;text-align:center;font-size:16px}
+.af .lnk{color:var(--ac);text-align:center;padding:8px;font-size:15px}
+.amsg{min-height:20px;color:var(--mu);font-size:14px;text-align:center}.amsg.err{color:#ff3b30}
+.cday{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--ln)}.cday:last-child{border:0}
+.cday label{flex:1;min-width:0;display:flex;align-items:center;gap:8px;font-weight:600}.cday input[type=checkbox]{width:22px;height:22px}
+.cday input[type=time]{background:var(--bg);border:0;border-radius:8px;padding:6px 4px;font-size:15px;width:84px;min-width:0;flex:none}.cday.off input[type=time]{opacity:.35}
 </style>
 </head>
 <body>
@@ -125,6 +135,13 @@ textarea.gn{min-height:84px;background:var(--bg)}
 <nav><div id="nav"></div></nav>
 <input type="date" id="dp" tabindex="-1" aria-hidden="true">
 <div id="toast" hidden></div><div id="dls"></div>
+<script src="supabase.js"></script>
+<script>
+const SB_URL='https://rbofulzwbhrnlgbjqasn.supabase.co',SB_KEY='sb_publishable_xxOalgbQ9LqsXMYpST_Xaw_HEemlkQt';
+let LSK='edt:anon',UID=null,UEMAIL='';
+try{const t=JSON.parse(localStorage.getItem('edt-auth')||'null');if(t&&t.user&&t.user.id){UID=t.user.id;UEMAIL=t.user.email||'';LSK='edt:'+UID;
+  if(!localStorage.getItem(LSK)&&localStorage.getItem('edt')){localStorage.setItem(LSK,localStorage.getItem('edt'));localStorage.removeItem('edt')}}}catch(e){}
+</script>
 <script>
 const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0');
 const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
@@ -134,9 +151,9 @@ const sty=c=>'style="--c:'+(C[c]||'#8e8e93')+'"';
 const YMIN=2026,YMAX=2050;
 const SA='Marie,Basile,Geneviève,Odilon,Édouard,Mélaine,Raymond,Lucien,Alix,Guillaume,Paulin,Tatiana,Yvette,Nina,Rémi,Marcel,Roseline,Prisca,Marius,Sébastien,Agnès,Vincent,Barnard,François de Sales,Paul,Paule,Angèle,Thomas d’Aquin,Gildas,Martine,Marcelle|Ella,Théophane,Blaise,Véronique,Agathe,Gaston,Eugénie,Jacqueline,Apolline,Arnaud,N.-D. de Lourdes,Félix,Béatrice,Valentin,Claude,Julienne,Alexis,Bernadette,Gabin,Aimée,Pierre Damien,Isabelle,Lazare,Modeste,Roméo,Nestor,Honorine,Romain,Auguste|Aubin,Charles le Bon,Guénolé,Casimir,Olive,Colette,Félicité,Jean de Dieu,Françoise,Vivien,Rosine,Justine,Rodrigue,Mathilde,Louise,Bénédicte,Patrice,Cyrille,Joseph,Herbert,Clémence,Léa,Victorien,Karine,Humbert,Larissa,Habib,Gontran,Gwladys,Amédée,Benjamin|Hugues,Sandrine,Richard,Isidore,Irène,Marcellin,J.-B. de la Salle,Julie,Gautier,Fulbert,Stanislas,Jules,Ida,Maxime,Paterne,Benoît-Joseph,Anicet,Parfait,Emma,Odette,Anselme,Alexandre,Georges,Fidèle,Marc,Alida,Zita,Valérie,Catherine de Sienne,Robert|Jérémie,Boris,Philippe,Sylvain,Judith,Prudence,Gisèle,Désiré,Pacôme,Solange,Estelle,Achille,Rolande,Matthias,Denise,Honoré,Pascal,Éric,Yves,Bernardin,Constantin,Émile,Didier,Donatien,Sophie,Béranger,Augustin,Germain,Aymar,Ferdinand,Visitation|Justin,Blandine,Kévin,Clotilde,Igor,Norbert,Gilbert,Médard,Diane,Landry,Barnabé,Guy,Antoine de Padoue,Élisée,Germaine,J.-F. Régis,Hervé,Léonce,Romuald,Silvère,Rodolphe,Alban,Audrey,Jean-Baptiste,Prosper,Anthelme,Fernand,Irénée,Pierre et Paul,Martial|Thierry,Martinien,Thomas,Florent,Antoine,Mariette,Raoul,Thibaut,Amandine,Ulrich,Benoît,Olivier,Henri,Camille,Donald,N.-D. du Mont-Carmel,Charlotte,Frédéric,Arsène,Marina,Victor,Marie-Madeleine,Brigitte,Christine,Jacques,Anne et Joachim,Nathalie,Samson,Marthe,Juliette,Ignace de Loyola|Alphonse,Julien Eymard,Lydie,J.-M. Vianney,Abel,Transfiguration,Gaétan,Dominique,Amour,Laurent,Claire,Clarisse,Hippolyte,Evrard,Assomption,Armel,Hyacinthe,Hélène,Jean Eudes,Bernard,Christophe,Fabrice,Rose de Lima,Barthélemy,Louis,Natacha,Monique,Augustin,Sabine,Fiacre,Aristide|Gilles,Ingrid,Grégoire,Rosalie,Raïssa,Bertrand,Reine,Adrien,Alain,Inès,Adelphe,Apollinaire,Aimé,Croix Glorieuse,Roland,Édith,Renaud,Nadège,Émilie,Davy,Matthieu,Maurice,Constant,Thècle,Hermann,Côme et Damien,Vincent de Paul,Venceslas,Michel,Jérôme|Thérèse,Léger,Gérard,François d’Assise,Fleur,Bruno,Serge,Pélagie,Denis,Ghislain,Firmin,Wilfried,Géraud,Juste,Thérèse d’Avila,Edwige,Baudouin,Luc,René,Adeline,Céline,Élodie,Jean de Capistran,Florentin,Crépin,Dimitri,Émeline,Simon,Narcisse,Bienvenue,Quentin|Toussaint,Défunts,Hubert,Charles,Sylvie,Bertille,Carine,Geoffroy,Théodore,Léon,Martin,Christian,Brice,Sidoine,Albert,Marguerite,Élisabeth,Aude,Tanguy,Edmond,Présentation de Marie,Cécile,Clément,Flora,Catherine,Delphine,Séverin,Jacques de la Marche,Saturnin,André|Florence,Viviane,François-Xavier,Barbara,Gérald,Nicolas,Ambroise,Immaculée Conception,Pierre Fourier,Romaric,Daniel,Jeanne de Chantal,Lucie,Odile,Ninon,Alice,Gaël,Gatien,Urbain,Théophile,Pierre Canisius,Françoise-Xavière,Armand,Adèle,Noël,Étienne,Jean,Innocents,David,Roger,Sylvestre'.split('|').map(m=>m.split(','));
 let S={days:{},dates:[],vac:[],g:{m:[],j:[],a:[]}};
-try{const r=localStorage.getItem('edt');if(r)Object.assign(S,JSON.parse(r))}catch(e){}
+try{const r=localStorage.getItem(LSK);if(r)Object.assign(S,JSON.parse(r))}catch(e){}
 S.g=Object.assign({m:[],j:[],a:[],p:[],c:[],v:[]},S.g||{});S.vac=S.vac||[];S.dates=S.dates||[];S.days=S.days||{};
-const save=()=>{S.ts=Date.now();try{localStorage.setItem('edt',JSON.stringify(S))}catch(e){}clearTimeout(dbT);dbT=setTimeout(dbPush,400)};
+const save=()=>{S.ts=Date.now();try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}clearTimeout(dbT);dbT=setTimeout(dbPush,400)};
 const key=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const parse=k=>{const[a,b,c]=k.split('-').map(Number);return new Date(a,b-1,c)};
 const add=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
@@ -154,11 +171,11 @@ const has=k=>{const d=S.days[k];return !!((d&&(d.t.some(x=>!x.f&&!x.cx)||d.r.len
 const hm=k=>{const d=S.days[k];return d&&d.r.some(x=>x.c==='Médical')};
 let TODAY=key(new Date());
 const dots=k=>{const s=new Set(S.days[k]?S.days[k].r.map(x=>x.c):[]);if(datesOn(k).length)s.add('Date');if((S.days[k]&&S.days[k].t.some(q=>!q.f&&!q.cx))||gd(k).some(o=>!o.x.f&&!o.x.cx))s.add('Tâche');if(OFF(k))s.add('Off');return s.size?'<i class="dts">'+[...s].map(c=>'<u style="--c:'+(C[c]||'#8e8e93')+'"></u>').join('')+'</i>':''};
-const DEF={2:['09:00','17:00'],3:['09:00','17:00'],4:['09:00','17:00'],5:['09:00','17:00'],6:['08:00','16:00']};
+let DEF={};const applyCfg=()=>{DEF=(S.cfg&&S.cfg.w)||{}};applyCfg();
 const work=k=>{if(vacOn(k))return[];const d=S.days[k];if(d&&(d.ov||(d.w||[]).length))return d.w||[];const g=DEF[parse(k).getDay()];return g?[{a:g[0],b:g[1]}]:[]};
 const OFF=k=>!vacOn(k)&&!work(k).length;
 const defNote=(k,d)=>d.dn!==undefined?d.dn:'';
-const orc=k=>parse(k).getDay()===6?' <b class="orc">ORC</b>':'';
+const orc=k=>'';
 const workDef=(k,d)=>{const q=work(k)[0];return '<div class="it c" style="--c:#007aff"><span class="tm">'+q.a+' – '+q.b+'</span><span class="t">Travail'+orc(k)+'</span><button class="x" data-a="wmod" style="font-size:14px;color:var(--ac);padding:8px">Modifier</button></div>'};
 let V={tab:'jour',d:new Date()};
 const TABS=[['jour','☀️','Jour'],['semaine','🗓️','Semaine'],['mois','📅','Mois'],['annee','📆','Année'],['todo','✅','À faire'],['rech','🔍','Recherche']];
@@ -223,7 +240,7 @@ function dayItems(k,brief){
   if(v)(v.items||[]).filter(q=>q.d===k).sort((m,n)=>(m.h||'99').localeCompare(n.h||'99')).forEach(q=>o.push({c:q.resto?'Resto':'Vacances',t:({m:'🌅 ',a:'☀️ ',s:'🌙 '})[q.p]+(q.h?q.h+' ':'')+(q.resto?'🍽️ ':'')+q.x+(q.l?' · '+q.l:'')}));
   datesOn(k).forEach(q=>o.push({c:'Date',t:(q.rec?'🎂 ':'⭐ ')+q.n}));
   const ov=x&&(x.ov||(x.w||[]).length);
-  const tl=(brief&&!ov)?[]:work(k).map(q=>{const nt=q.nt!==undefined?q.nt:defNote(k,x||{});return{s:q.a||'99:99',c:'Job',t:'Travail '+(parse(k).getDay()===6?'ORC ':'')+q.a+'–'+q.b+(nt?' · '+nt:'')}});
+  const tl=(brief&&!ov)?[]:work(k).map(q=>{const nt=q.nt!==undefined?q.nt:defNote(k,x||{});return{s:q.a||'99:99',c:'Job',t:'Travail '+''+q.a+'–'+q.b+(nt?' · '+nt:'')}});
   if(x)x.r.forEach((q,ri)=>tl.push({s:q.h||'99:99',ri,c:q.c,t:(q.h?q.h+' ':'')+q.x+(q.tele?' · 💻 Téléconsultation':(q.l?' · '+q.l:''))+(q.pr?' · 📝 '+q.pr:'')}));
   tl.sort((m,n)=>m.s.localeCompare(n.s)).forEach(q=>o.push({c:q.c,t:q.t,ri:q.ri}));
   return o;
@@ -470,10 +487,10 @@ function vTodo(){
     return todoList(S.g[s0],'gt','data-s="'+s0+'"',s0)+'<div class="add"><input type="text" id="g'+s0+'" placeholder="Nouvelle tâche"><button data-a="adg" data-s="'+s0+'">Ajouter</button></div>'};
   let h='<h1>À faire</h1>'+GT.map(([q,n,ic])=>{const op=(S.g[q]||[]).filter(x=>!x.f&&!x.cx).length,on=q===cur;
     return '<div class="card gcat'+(on?' on':'')+'" '+sty(n)+'><button class="gh" data-a="gtab" data-s="'+q+'"><span class="ic">'+ic+'</span><b>'+n+'</b>'+(op?'<span class="n">'+op+'</span>':'')+((S.gn||{})[q]&&String(S.gn[q]).trim()?'<span title="Note" style="font-size:15px">📝</span>':'')+'<span class="chev">›</span></button>'+(on?'<div class="gbody">'+bodyOf(q)+'<div class="gnote"><span class="sub" style="margin:10px 0 4px;display:block;font-weight:600">📝 Note</span><textarea class="nt gn" rows="3" data-gn="'+q+'" placeholder="Écrire une note…">'+esc((S.gn||{})[q]||'')+'</textarea></div></div>':'')+'</div>'}).join('');
-  h+='<details style="margin:20px 0 8px;color:var(--mu);font-size:13px;text-align:center"><summary style="cursor:pointer;list-style:none">⚙️ Sauvegarde des données</summary><div class="card" style="text-align:left"><h2>Sauvegarde</h2><p class="sub" style="margin:0 0 10px">Tes données sont enregistrées sur cet iPhone. Exporte-les régulièrement pour les garder en lieu sûr.</p><div class="add" style="margin-top:0"><button data-bkx="1" style="background:var(--ac);color:#fff;border-radius:10px;padding:10px 14px">Exporter</button><label style="background:var(--bg);border-radius:10px;padding:10px 14px;color:var(--ac);position:relative;overflow:hidden">Importer<input type="file" data-bki="1" accept=".json,application/json,text/plain" style="position:absolute;inset:0;opacity:0"></label></div><div class="bkm sub" style="margin:8px 0 0"></div></div></details>';
+  h+='<details style="margin:20px 0 8px;color:var(--mu);font-size:13px;text-align:center"><summary style="cursor:pointer;list-style:none">⚙️ Sauvegarde des données</summary><div class="card" style="text-align:left"><h2>Sauvegarde</h2><p class="sub" style="margin:0 0 10px">Tes données sont enregistrées sur cet iPhone. Exporte-les régulièrement pour les garder en lieu sûr.</p><div class="add" style="margin-top:0"><button data-bkx="1" style="background:var(--ac);color:#fff;border-radius:10px;padding:10px 14px">Exporter</button><label style="background:var(--bg);border-radius:10px;padding:10px 14px;color:var(--ac);position:relative;overflow:hidden">Importer<input type="file" data-bki="1" accept=".json,application/json,text/plain" style="position:absolute;inset:0;opacity:0"></label></div><div class="bkm sub" style="margin:8px 0 0"></div><h2 style="margin-top:16px">Mon compte</h2><p class="sub" style="margin:0 0 10px">Connecté : '+esc(UEMAIL)+'</p><div class="add" style="margin-top:0"><button data-acc="cfg" style="background:var(--ac);color:#fff;border-radius:10px;padding:10px 14px">Mes horaires et ma ville</button><button data-acc="out" style="background:var(--bg);color:#ff3b30;border-radius:10px;padding:10px 14px">Se déconnecter</button></div></div></details>';
   return h;
 }
-const CG0={'Rueil-Malmaison':{lat:48.879,lon:2.189,tz:'Europe/Paris'}};
+const CG0={};
 const cgOf=c=>(S.cg&&S.cg[c])||CG0[c]||null;
 function sunOf(k,g){const R=Math.PI/180,D=180/Math.PI,[y,m,d]=k.split('-').map(Number),t0=Date.UTC(y,m-1,d),
   par=jc=>{const L0=((280.46646+jc*(36000.76983+jc*.0003032))%360+360)%360,M=357.52911+jc*(35999.05029-1.537e-4*jc),e=.016708634-jc*(4.2037e-5+1.267e-7*jc),Mr=M*R,
@@ -501,7 +518,7 @@ function locate(quiet){
     S.cg=S.cg||{};S.cg[nm]={lat:la,lon:lo,tz:devTz()};S.auto=1;const ch=nm!==S.city;S.city=nm;save();if(ch||!quiet)render();
   },er=>{if(!quiet)gmsg(er&&er.code===1?'Localisation refusée ou bloquée dans cette page. Utilise « Autre ville ».':'Position introuvable pour le moment.')},{timeout:15000,maximumAge:6e5})}
 const SRV='AccuWeather®',WXP={},WXH={};
-const placeFor=k=>{const v=vacOn(k);return(v&&v.l)?v.l:(S.city||'Rueil-Malmaison')};
+const placeFor=k=>{const v=vacOn(k);return(v&&v.l)?v.l:(S.city||'Paris')};
 const wxi=n=>n<=2?'☀️':n<=5?'🌤️':n===6?'⛅':n<=8?'☁️':n===11?'🌫️':n<=14?'🌦️':n<=17?'⛈️':n===18?'🌧️':n<=23?'❄️':(n<=26||n===29)?'🌨️':n===30?'🥵':n===31?'🥶':n===32?'💨':n<=34?'🌙':n<=38?'☁️':n<=40?'🌧️':n<=42?'⛈️':'🌨️';
 const WMO=c=>c===0?['☀️','Ensoleillé']:c===1?['🌤️','Plutôt ensoleillé']:c===2?['⛅','Partiellement nuageux']:c===3?['☁️','Couvert']:c<=48?['🌫️','Brouillard']:c<=57?['🌦️','Bruine']:c<=67?['🌧️','Pluie']:c<=77?['❄️','Neige']:c<=82?['🌦️','Averses']:c<=86?['🌨️','Averses de neige']:['⛈️','Orage'];
 const pl=r=>{let p=r&&(r.payload!==undefined?r.payload:r.structuredContent);if(typeof p==='string'){try{p=JSON.parse(p)}catch(e){}}return p};
@@ -601,7 +618,7 @@ const dataLists=()=>{const T={},L={},R={};
   const o=m=>Object.keys(m).slice(0,40).map(s=>'<option value="'+esc(s)+'">').join('');
   return '<datalist id="dl-l">'+o(L)+'</datalist><datalist id="dl-r">'+o(R)+'</datalist>'+Object.keys(T).map(c=>'<datalist id="dl-t-'+c+'">'+o(T[c])+'</datalist>').join('')};
 const flushPend=()=>{const p=V.gpend,st=V.stale;V.gpend=null;V.stale=0;if(!p)return st?1:0;const it=D(p.k).t.splice(p.i,1)[0];if(it){it.f=0;D(p.nd).t.push(it)}V.tn=null;save();return 1};
-function render(){
+function render(){applyCfg();
   flushPend();
   try{$('#dls').innerHTML=dataLists()}catch(x){}
   $('#app').innerHTML=({jour:vJour,semaine:vSemaine,mois:vMois,annee:vAnnee,todo:vTodo,suivi:vSuivi,rech:vRech})[V.tab]();
@@ -758,7 +775,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden){rollover(
 V.tk=key(new Date());
 function rollover(){const tk=key(new Date());if(tk===V.tk)return;const was=key(V.d)===V.tk;V.tk=tk;TODAY=tk;if(was)V.d=new Date();try{render()}catch(e){}}
 (function nm(){const n=new Date(),ms=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1,0,0,5)-n,h=setTimeout(()=>{rollover();nm()},ms);if(h&&h.unref)h.unref()})();
-function dbPush(){}let dbT=null;
+function dbPush(){if(window.__push)window.__push()}let dbT=null;
 
 (function(){const m=t=>document.querySelectorAll('.bkm').forEach(e=>e.textContent=t);
   const b2d=b=>new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(b)});
@@ -770,9 +787,99 @@ function dbPush(){}let dbT=null;
     try{const o=JSON.parse(await f.text()),d=o.S||o;if(!d||typeof d.days!=='object')throw 0;
       if(!confirm('Remplacer les données de cet appareil par celles du fichier ?'))return;
       for(const k in (o.files||{})){try{await fput(k,await (await fetch(o.files[k])).blob())}catch(er){}}
-      S=Object.assign({days:{},dates:[],vac:[],g:{m:[],j:[],a:[]}},d);mig();save();render();m('Import terminé ✓')}catch(er){m('Fichier non reconnu.')}});
+      S=Object.assign({days:{},dates:[],vac:[],g:{m:[],j:[],a:[]}},d);mig();save();render();if(!S.cfg)openCfg();m('Import terminé ✓')}catch(er){m('Fichier non reconnu.')}});
 })();
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
+<div id="auth" hidden><div class="box">
+<div style="text-align:center;margin:20px 0 24px"><img src="icon-180.png" alt="" style="width:76px;height:76px;border-radius:18px"><h1 style="margin:12px 0 4px">Mon emploi du temps</h1><p class="sub" id="asub">Connecte-toi pour retrouver ton planning.</p></div>
+<div class="af" id="aform">
+<input type="email" id="aem" placeholder="Adresse mail" autocomplete="email" inputmode="email" autocapitalize="off">
+<input type="password" id="apw" placeholder="Mot de passe (6 caractères min.)" autocomplete="current-password">
+<button class="pri" id="ago">Se connecter</button>
+<div class="amsg" id="amsg"></div>
+<button class="lnk" id="asw">Pas encore de compte ? Créer un compte</button>
+<button class="lnk" id="afg" style="color:var(--mu);font-size:14px">Mot de passe oublié ?</button>
+</div>
+<div class="af" id="anew" hidden>
+<input type="password" id="anp" placeholder="Nouveau mot de passe" autocomplete="new-password">
+<button class="pri" id="ansave">Enregistrer le mot de passe</button>
+<div class="amsg" id="anmsg"></div>
+</div>
+</div></div>
+<div id="cfgo" hidden><div class="box">
+<h1 style="margin:10px 0 4px">Tes horaires</h1><p class="sub">Coche tes jours de travail et indique tes horaires habituels. Tu pourras toujours modifier un jour précis dans l’appli.</p>
+<div class="card" id="cdays"></div>
+<div class="card"><h2>Ta ville (pour la météo)</h2><div class="af"><input type="text" id="ccity" placeholder="Ex. Paris" style="background:var(--bg)"></div></div>
+<div class="af"><button class="pri" id="csave">Enregistrer</button><div class="amsg" id="cmsg"></div></div>
+</div></div>
+<script>
+(function(){
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{storageKey:'edt-auth',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+window.SB=sb;
+const show=(id,on)=>{const e=document.getElementById(id);if(e)e.hidden=!on};
+let mode='in';
+const am=(t,err)=>{const m=$('#amsg');m.textContent=t||'';m.className='amsg'+(err?' err':'')};
+const frErr=e=>{const m=(e&&e.message)||'';if(/Invalid login/i.test(m))return 'Adresse mail ou mot de passe incorrect.';if(/not confirmed/i.test(m))return 'Ton adresse mail n’est pas encore confirmée : ouvre le lien reçu par mail.';if(/already registered|already been registered/i.test(m))return 'Un compte existe déjà avec cette adresse : connecte-toi.';if(/at least 6|Password should/i.test(m))return 'Le mot de passe doit faire au moins 6 caractères.';if(/rate limit/i.test(m))return 'Trop de tentatives, réessaie dans quelques minutes.';if(/invalid.*email|Unable to validate email/i.test(m))return 'Adresse mail invalide.';if(/fetch|network/i.test(m))return 'Pas de connexion Internet.';return m||'Une erreur est survenue.'};
+const setMode=m=>{mode=m;$('#ago').textContent=m==='in'?'Se connecter':'Créer mon compte';$('#asw').textContent=m==='in'?'Pas encore de compte ? Créer un compte':'Déjà un compte ? Se connecter';$('#apw').autocomplete=m==='in'?'current-password':'new-password';$('#afg').hidden=m!=='in';am('')};
+$('#asw').onclick=()=>setMode(mode==='in'?'up':'in');
+const back=location.origin+location.pathname;
+$('#ago').onclick=async()=>{const email=$('#aem').value.trim(),password=$('#apw').value;if(!email||!password){am('Renseigne ton adresse mail et un mot de passe.',1);return}
+  $('#ago').disabled=true;am(mode==='in'?'Connexion…':'Création du compte…');
+  try{if(mode==='in'){const{error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;location.replace(back);return}
+    const{data,error}=await sb.auth.signUp({email,password,options:{emailRedirectTo:back}});if(error)throw error;
+    if(data&&data.session){location.replace(back);return}
+    if(data&&data.user&&Array.isArray(data.user.identities)&&!data.user.identities.length){am('Un compte existe déjà avec cette adresse : connecte-toi.',1);setMode('in');return}
+    am('Compte créé ✓ Un mail de confirmation t’a été envoyé : ouvre le lien qu’il contient, puis reviens te connecter ici.');setMode('in');
+  }catch(e){am(frErr(e),1)}finally{$('#ago').disabled=false}};
+$('#apw').onkeydown=e=>{if(e.key==='Enter')$('#ago').click()};
+$('#afg').onclick=async()=>{const email=$('#aem').value.trim();if(!email){am('Écris d’abord ton adresse mail ci-dessus.',1);return}
+  try{const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:back});if(error)throw error;am('Si un compte existe, un mail pour changer ton mot de passe vient d’être envoyé.')}catch(e){am(frErr(e),1)}};
+$('#ansave').onclick=async()=>{const p=$('#anp').value,m=$('#anmsg');if(p.length<6){m.textContent='Au moins 6 caractères.';return}
+  const{error}=await sb.auth.updateUser({password:p});if(error){m.textContent=frErr(error);return}m.textContent='Mot de passe modifié ✓';setTimeout(()=>location.replace(back),900)};
+
+/* --- réglages : jours, horaires, ville --- */
+const JL=[[1,'Lundi'],[2,'Mardi'],[3,'Mercredi'],[4,'Jeudi'],[5,'Vendredi'],[6,'Samedi'],[0,'Dimanche']];
+window.openCfg=()=>{const w=(S.cfg&&S.cfg.w)||(S.cfg?{}:{1:['09:00','17:00'],2:['09:00','17:00'],3:['09:00','17:00'],4:['09:00','17:00'],5:['09:00','17:00']});
+  $('#cdays').innerHTML=JL.map(([d,n])=>{const on=!!w[d],v=w[d]||['09:00','17:00'];return '<div class="cday'+(on?'':' off')+'" data-d="'+d+'"><label><input type="checkbox"'+(on?' checked':'')+'> '+n+'</label><input type="time" value="'+v[0]+'"> <span style="color:var(--mu)">–</span> <input type="time" value="'+v[1]+'"></div>'}).join('');
+  $('#cdays').querySelectorAll('input[type=checkbox]').forEach(c=>c.onchange=()=>c.closest('.cday').classList.toggle('off',!c.checked));
+  $('#ccity').value=(S.cfg&&S.cfg.city)||S.city||'';$('#cmsg').textContent='';show('cfgo',1)};
+$('#csave').onclick=()=>{const w={};let bad=0;$('#cdays').querySelectorAll('.cday').forEach(r=>{const c=r.querySelector('input[type=checkbox]'),t=r.querySelectorAll('input[type=time]');if(c.checked){if(!t[0].value||!t[1].value)bad=1;w[r.dataset.d]=[t[0].value,t[1].value]}});
+  if(bad){$('#cmsg').textContent='Indique une heure de début et de fin pour chaque jour coché.';return}
+  const city=$('#ccity').value.trim();if(!city){$('#cmsg').textContent='Indique ta ville.';return}
+  S.cfg={w,city};if(city!==S.city){S.city=city;S.auto=0}applyCfg();save();render();show('cfgo',0)};
+document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]');if(!b)return;
+  if(b.dataset.acc==='cfg')openCfg();
+  else if(b.dataset.acc==='out'){if(!confirm('Se déconnecter ? Tes données restent enregistrées dans ton compte.'))return;try{await sb.auth.signOut()}catch(er){}try{localStorage.removeItem(LSK);localStorage.removeItem('edt-auth')}catch(er){}location.replace(back)}});
+
+/* --- synchronisation --- */
+let pushing=null,again=false;
+const push=async()=>{if(!UID)return;if(pushing){again=true;return}pushing=1;try{await sb.from('user_data').upsert({user_id:UID,data:S,updated_at:new Date().toISOString()})}catch(e){}pushing=null;if(again){again=false;push()}};
+window.__push=push;
+const norm=()=>{S.g=Object.assign({m:[],j:[],a:[],p:[],c:[],v:[]},S.g||{});S.vac=S.vac||[];S.dates=S.dates||[];S.days=S.days||{}};
+const pull=async()=>{try{const{data,error}=await sb.from('user_data').select('data').eq('user_id',UID).maybeSingle();if(error)throw error;
+    const r=data&&data.data;
+    if(r&&(r.ts||0)>(S.ts||0)){S=r;norm();try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}mig();render();return 1}
+    if(S.ts&&(!r||(r.ts||0)<S.ts))push();return 1}catch(e){return 0}};
+
+/* --- fichiers joints : copie dans le compte --- */
+const _fput=fput,_fget=fget,_fdel=fdel,fp=id=>UID+'/'+id;
+fput=async(id,b)=>{await _fput(id,b);if(UID)sb.storage.from('files').upload(fp(id),b,{upsert:true,contentType:b.type||'application/octet-stream'}).catch(()=>{})};
+fget=async id=>{let b=null;try{b=await _fget(id)}catch(e){}if(!b&&UID){try{const r=await sb.storage.from('files').download(fp(id));if(r&&r.data){b=r.data;_fput(id,b).catch(()=>{})}}catch(e){}}return b};
+fdel=async id=>{await _fdel(id);if(UID)sb.storage.from('files').remove([fp(id)]).catch(()=>{})};
+
+/* --- démarrage --- */
+sb.auth.onAuthStateChange((ev,ses)=>{if(ev==='PASSWORD_RECOVERY'){show('auth',1);show('aform',0);show('anew',1);$('#asub').textContent='Choisis un nouveau mot de passe.'}});
+(async()=>{let ses=null;try{ses=(await sb.auth.getSession()).data.session}catch(e){}
+  if(location.hash&&/type=recovery/.test(location.hash))return;
+  if(!ses){if(UID&&!navigator.onLine){start();return}show('auth',1);return}
+  if(ses.user.id!==UID){location.replace(back);return}
+  if(location.hash||location.search)history.replaceState(null,'',back);
+  UEMAIL=ses.user.email||UEMAIL;start()})();
+async function start(){show('auth',0);render();await pull();if(!S.cfg)openCfg()}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&UID&&navigator.onLine)pull()});
+})();
+</script>
+
 </body>
 </html>
