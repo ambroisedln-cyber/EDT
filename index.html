@@ -1456,6 +1456,15 @@ sb.auth.onAuthStateChange((ev,ses)=>{if(ev==='PASSWORD_RECOVERY'){show('auth',1)
 async function start(){show('auth',0);render();await pull();if(!S.cfg)openCfg()}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&UID&&navigator.onLine)pull()});
 })();
+
+/* Ouvre Google Maps dans l'application sur iPhone (repli sur le site si l'appli n'est pas installée) */
+document.addEventListener('click',e=>{const a=e.target.closest('a[href*="google.com/maps"]');if(!a)return;
+  const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);if(!ios)return;
+  let u;try{u=new URL(a.href)}catch(_){return}const q=u.searchParams,web=a.href;let app;
+  if(u.pathname.includes('/dir/'))app='comgooglemaps://?'+(q.get('origin')?'saddr='+encodeURIComponent(q.get('origin'))+'&':'')+'daddr='+encodeURIComponent(q.get('destination')||'')+'&directionsmode=driving';
+  else app='comgooglemaps://?q='+encodeURIComponent(q.get('query')||q.get('q')||'');
+  e.preventDefault();e.stopPropagation();let gone=false;const vis=()=>{if(document.hidden)gone=true};document.addEventListener('visibilitychange',vis);
+  window.location.href=app;setTimeout(()=>{document.removeEventListener('visibilitychange',vis);if(!gone&&!document.hidden)window.open(web,'_blank')},1600)},true);
 </script>
 
 </body>
