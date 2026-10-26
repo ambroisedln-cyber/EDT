@@ -414,6 +414,19 @@ a.chip{text-decoration:none}
 .rev .rn small{display:flex;align-items:center;gap:5px}
 .rev .rn small u{display:block;width:6px;height:6px;border-radius:50%;background:var(--c);flex:none;text-decoration:none}
 .rev{padding:5px 0}
+
+/* ===== Ligne de rendez-vous unifiée : horaires – type – intitulé ===== */
+.hl{display:block;font-size:15.5px;line-height:1.38;color:var(--tx);word-break:break-word;text-align:left}
+.hl .hh{font-weight:700;color:var(--c);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hl .hc{font-weight:600;color:var(--c)}
+.hl>i{font-style:normal;color:var(--mu);margin:0 5px;font-weight:400}
+.hl b.hx,.ev .et .hl b.hx{display:inline;font-size:inherit;font-weight:600;color:var(--tx);line-height:inherit}
+.hsub{display:block;font-size:13px;color:var(--mu);margin-top:2px;line-height:1.35}
+.ev .et .em2{margin-top:2px}
+.ln{border-left:0;padding:10px 0;margin:0;border-radius:0;align-items:center}
+.ln .ls{margin-top:2px}
+.rev .rn small{display:block;margin-top:1px}
+.it .t .hl{font-size:15px}
 </style>
 </head>
 <body>
@@ -434,6 +447,8 @@ const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','
 const JRS=['dim','lun','mar','mer','jeu','ven','sam'];
 const C={Meeting:'#a2845e',Médical:'#ff3b30',Job:'#007aff',Autre:'#34c759',Resto:'#ff9500',Vacances:'#30b0c7',Férié:'#af52de',Date:'#ff2d92',Off:'#8e8e93',Tâche:'#5856d6',Événement:'#5ac8fa',Projets:'#5856d6',Courses:'#ff9f0a'};
 const sty=c=>'style="--c:'+(C[c]||'#8e8e93')+'"';
+const HM=h=>!h?'':(S.lang==='en'?h:h.replace(/^0?(\d+):00$/,'$1h').replace(/^0?(\d+):(\d\d)$/,'$1h$2'));
+const HEAD=(h,h2,lab,ti,c)=>'<span class="hl" '+sty(c)+'>'+(h?'<span class="hh">'+HM(h)+(h2?'/'+HM(h2):'')+'</span><i>–</i>':'')+(lab?'<span class="hc">'+esc(lab)+'</span><i>–</i>':'')+'<b class="hx">'+esc(ti||'')+'</b></span>';
 const YMIN=2026,YMAX=2050;
 const SA='Marie,Basile,Geneviève,Odilon,Édouard,Mélaine,Raymond,Lucien,Alix,Guillaume,Paulin,Tatiana,Yvette,Nina,Rémi,Marcel,Roseline,Prisca,Marius,Sébastien,Agnès,Vincent,Barnard,François de Sales,Paul,Paule,Angèle,Thomas d’Aquin,Gildas,Martine,Marcelle|Ella,Théophane,Blaise,Véronique,Agathe,Gaston,Eugénie,Jacqueline,Apolline,Arnaud,N.-D. de Lourdes,Félix,Béatrice,Valentin,Claude,Julienne,Alexis,Bernadette,Gabin,Aimée,Pierre Damien,Isabelle,Lazare,Modeste,Roméo,Nestor,Honorine,Romain,Auguste|Aubin,Charles le Bon,Guénolé,Casimir,Olive,Colette,Félicité,Jean de Dieu,Françoise,Vivien,Rosine,Justine,Rodrigue,Mathilde,Louise,Bénédicte,Patrice,Cyrille,Joseph,Herbert,Clémence,Léa,Victorien,Karine,Humbert,Larissa,Habib,Gontran,Gwladys,Amédée,Benjamin|Hugues,Sandrine,Richard,Isidore,Irène,Marcellin,J.-B. de la Salle,Julie,Gautier,Fulbert,Stanislas,Jules,Ida,Maxime,Paterne,Benoît-Joseph,Anicet,Parfait,Emma,Odette,Anselme,Alexandre,Georges,Fidèle,Marc,Alida,Zita,Valérie,Catherine de Sienne,Robert|Jérémie,Boris,Philippe,Sylvain,Judith,Prudence,Gisèle,Désiré,Pacôme,Solange,Estelle,Achille,Rolande,Matthias,Denise,Honoré,Pascal,Éric,Yves,Bernardin,Constantin,Émile,Didier,Donatien,Sophie,Béranger,Augustin,Germain,Aymar,Ferdinand,Visitation|Justin,Blandine,Kévin,Clotilde,Igor,Norbert,Gilbert,Médard,Diane,Landry,Barnabé,Guy,Antoine de Padoue,Élisée,Germaine,J.-F. Régis,Hervé,Léonce,Romuald,Silvère,Rodolphe,Alban,Audrey,Jean-Baptiste,Prosper,Anthelme,Fernand,Irénée,Pierre et Paul,Martial|Thierry,Martinien,Thomas,Florent,Antoine,Mariette,Raoul,Thibaut,Amandine,Ulrich,Benoît,Olivier,Henri,Camille,Donald,N.-D. du Mont-Carmel,Charlotte,Frédéric,Arsène,Marina,Victor,Marie-Madeleine,Brigitte,Christine,Jacques,Anne et Joachim,Nathalie,Samson,Marthe,Juliette,Ignace de Loyola|Alphonse,Julien Eymard,Lydie,J.-M. Vianney,Abel,Transfiguration,Gaétan,Dominique,Amour,Laurent,Claire,Clarisse,Hippolyte,Evrard,Assomption,Armel,Hyacinthe,Hélène,Jean Eudes,Bernard,Christophe,Fabrice,Rose de Lima,Barthélemy,Louis,Natacha,Monique,Augustin,Sabine,Fiacre,Aristide|Gilles,Ingrid,Grégoire,Rosalie,Raïssa,Bertrand,Reine,Adrien,Alain,Inès,Adelphe,Apollinaire,Aimé,Croix Glorieuse,Roland,Édith,Renaud,Nadège,Émilie,Davy,Matthieu,Maurice,Constant,Thècle,Hermann,Côme et Damien,Vincent de Paul,Venceslas,Michel,Jérôme|Thérèse,Léger,Gérard,François d’Assise,Fleur,Bruno,Serge,Pélagie,Denis,Ghislain,Firmin,Wilfried,Géraud,Juste,Thérèse d’Avila,Edwige,Baudouin,Luc,René,Adeline,Céline,Élodie,Jean de Capistran,Florentin,Crépin,Dimitri,Émeline,Simon,Narcisse,Bienvenue,Quentin|Toussaint,Défunts,Hubert,Charles,Sylvie,Bertille,Carine,Geoffroy,Théodore,Léon,Martin,Christian,Brice,Sidoine,Albert,Marguerite,Élisabeth,Aude,Tanguy,Edmond,Présentation de Marie,Cécile,Clément,Flora,Catherine,Delphine,Séverin,Jacques de la Marche,Saturnin,André|Florence,Viviane,François-Xavier,Barbara,Gérald,Nicolas,Ambroise,Immaculée Conception,Pierre Fourier,Romaric,Daniel,Jeanne de Chantal,Lucie,Odile,Ninon,Alice,Gaël,Gatien,Urbain,Théophile,Pierre Canisius,Françoise-Xavière,Armand,Adèle,Noël,Étienne,Jean,Innocents,David,Roger,Sylvestre'.split('|').map(m=>m.split(','));
 let S={days:{},dates:[],vac:[],g:{m:[],j:[],a:[]}};
@@ -553,11 +568,11 @@ function dayItems(k,brief){
   o.forEach(q=>{q.t=[q.h,q.ti,q.sub].filter(Boolean).join(' · ')});
   return o;
 }
-const lineHTML=(x,attrs,right)=>'<button class="ln" '+sty(x.c)+' '+attrs+'><span class="lt">'+(x.h?'<b>'+esc(x.h)+'</b>'+(x.h2?'<small>'+esc(x.h2)+'</small>':''):'<small class="ld">Journée</small>')+'</span><span class="lb"><span class="lc">'+esc(x.lab||x.c)+'</span><b class="lti">'+esc(x.ti||'')+'</b>'+(x.sub?'<span class="ls">'+esc(x.sub)+'</span>':'')+'</span>'+(right||'<span class="lr">›</span>')+'</button>';
+const lineHTML=(x,attrs,right)=>'<button class="ln" '+sty(x.c)+' '+attrs+'><span class="lb">'+HEAD(x.h,x.h2,x.lab||x.c,x.ti,x.c)+(x.sub?'<span class="ls">'+esc(x.sub)+'</span>':'')+'</span>'+(right||'<span class="lr">›</span>')+'</button>';
 const recapHTML=(days,brief)=>{let h='';days.forEach(d=>{const k=key(d),it=dayItems(k,brief);if(!it.length&&brief)return;
   const tags=it.filter(x=>x.wk||(x.ri===undefined&&!x.h)).sort((p,q)=>(q.wk?1:0)-(p.wk?1:0)),evs=it.filter(x=>!x.wk&&(x.ri!==undefined||x.h));
   const tg=tags.map(x=>x.wk?'<span class="rtag" style="--c:#007aff"><b>Travail</b> '+esc(x.h)+'</span>':'<span class="rtag" '+sty(x.c)+'>'+(x.c==='Off'?'Jour off':'<b>'+esc(x.lab||x.c)+'</b> '+esc(x.ti||''))+'</span>').join('');
-  const ev=evs.map(x=>'<button class="rev" '+sty(x.c)+' data-a="'+(x.ri!==undefined?'evt':'day')+'" data-d="'+k+'"'+(x.ri!==undefined?' data-i="'+x.ri+'"':'')+'><span class="rt">'+(x.h?esc(x.h)+(x.h2?'<i>'+esc(x.h2)+'</i>':''):'—')+'</span><span class="rn"><b>'+esc(x.ti||'')+'</b><small><u></u>'+esc(x.lab||x.c)+(x.sub?' · '+esc(x.sub):'')+'</small></span></button>').join('');
+  const ev=evs.map(x=>'<button class="rev" '+sty(x.c)+' data-a="'+(x.ri!==undefined?'evt':'day')+'" data-d="'+k+'"'+(x.ri!==undefined?' data-i="'+x.ri+'"':'')+'><span class="rn">'+HEAD(x.h,x.h2,x.lab||x.c,x.ti,x.c)+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+'</span></button>').join('');
   h+='<div class="rday'+(k===TODAY?' today':'')+'"><button class="rdd" data-a="day" data-d="'+k+'"><span>'+JRS[d.getDay()]+'</span><b>'+d.getDate()+'</b></button><div class="rdb">'+(tg?'<div class="rtags">'+tg+'</div>':'')+ev+((!tg&&!ev)?'<div class="rnone">Rien de prévu</div>':'')+'</div></div>'});return h};
 const SECS=[['m','Matin'],['a','Après-midi'],['s','Soir']];
 const vitems=(v,k,p)=>(v.items||[]).map((it,j)=>[it,j]).filter(([it])=>it.d===k&&it.p===p).sort((a,b)=>(a[0].h||'99').localeCompare(b[0].h||'99'));
@@ -661,7 +676,7 @@ function vJour(){
     chips=(x.tele&&x.lk?'<a class="chip" style="--c:#007aff" href="'+esc(urlOf(x.lk))+'" target="_blank" rel="noopener">Rejoindre</a>':'')+(x.tel?'<a class="chip" style="--c:#34c759" href="tel:'+esc(x.tel.replace(/[^\d+]/g,''))+'">'+esc(x.tel)+'</a>':'')+att,
     body=(chips?'<div class="chips">'+chips+'</div>':'')+'<div class="grp">'+tripHTML(k,i,x)+calLinks('r|'+k+'|'+i)+'</div>';
     const op=(V.eo||{})[k+'|'+i],tg='<button class="evt" data-a="evtog" data-k="'+k+'|'+i+'">'+(op?'Fermer':'Détails')+'<span class="chv'+(op?' up':'')+'">›</span></button>';
-    return '<div class="ev'+(op?' open':'')+'" '+sty(x.c)+'><div class="eh" data-a="evtog" data-k="'+k+'|'+i+'"><span class="tm">'+(x.h||'—')+(endOf(x.h,x.du)?'<small>'+endOf(x.h,x.du)+'</small>':'')+'</span><div class="et"><span class="ec">'+x.c+'</span><b>'+esc(x.x)+'</b>'+(m1?'<div class="em2">'+m1+'</div>':'')+(m2?'<div class="em2">'+m2+'</div>':'')+'</div>'+tg+'</div>'+(op?(body?'<div class="eb">'+body+'</div>':'')+noteIn('r',i,x.nt)
+    return '<div class="ev'+(op?' open':'')+'" '+sty(x.c)+'><div class="eh" data-a="evtog" data-k="'+k+'|'+i+'"><div class="et">'+HEAD(x.h,endOf(x.h,x.du),x.c,x.x,x.c)+(m1?'<div class="em2">'+m1+'</div>':'')+(m2?'<div class="em2">'+m2+'</div>':'')+'</div>'+tg+'</div>'+(op?(body?'<div class="eb">'+body+'</div>':'')+noteIn('r',i,x.nt)
     +'<div class="ea"><button '+ia+'><svg class="ri" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10.5-10.5a2.1 2.1 0 0 0-3-3L5 16l-1 4z"/></svg> Modifier</button><label class="dpk" title="Reporter à une autre date"><span class="dv"><svg class="ri" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h7.5a4 4 0 0 1 0 8H7"/><path d="M10.5 11.5L7 15l3.5 3.5"/></svg> Reporter</span><input type="date" data-rdate="'+i+'" value="'+k+'"></label><button class="shr2" data-a="evshare" data-d="'+k+'" data-i="'+i+'" title="Partager" aria-label="Partager"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M12 15V3.5M7.5 8L12 3.5 16.5 8"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v7A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></button><button class="del" data-a="drx" data-i="'+i+'" title="Supprimer" aria-label="Supprimer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2M6.5 7l1 12.5a1.5 1.5 0 0 0 1.5 1.5h6a1.5 1.5 0 0 0 1.5-1.5L17.5 7M10 11v6M14 11v6"/></svg></button></div>':'')+'</div>'};
   const WROW=(x,i)=>'<div class="wkr"><input type="time" data-wt="a" data-i="'+i+'" value="'+x.a+'"><span>–</span><input type="time" data-wt="b" data-i="'+i+'" value="'+x.b+'"><button class="x" data-a="wx" data-i="'+i+'" title="Supprimer">×</button></div>';
   const rows=[];
@@ -729,7 +744,7 @@ const CATL={Meeting:'Meetings',Médical:'Rendez-vous médicaux',Resto:'Restauran
 function catItems(cat,y,m,yr){
   const ym=y+'-'+pad(m+1),ok=k=>yr?k.slice(0,4)===String(y):k.slice(0,7)===ym,R=[];
   Object.keys(S.days).sort().forEach(k=>{if(!ok(k))return;const d=S.days[k];
-    d.r.forEach(x=>{if(x.c===cat)R.push({k,t:(x.h?x.h+' ':'')+x.x+(x.tele?' · '+TL(x):(x.l?' · '+x.l:''))+(x.pr?' · '+x.pr:'')})});
+    d.r.forEach(x=>{if(x.c===cat)R.push({k,t:x.x,hd:HEAD(x.h,endOf(x.h,x.du),x.c,x.x,x.c)+((x.tele||x.l)?'<small class="hsub">'+esc(x.tele?TL(x):x.l)+'</small>':'')})});
     if(cat==='Tâche')d.t.forEach(x=>{if(!x.f&&!x.cx)R.push({k,t:x.x})})});
   if(cat==='Tâche')Object.keys(S.g).forEach(s=>(S.g[s]||[]).forEach(x=>{if(x.d&&ok(x.d)&&!x.f&&!x.cx)R.push({k:x.d,t:x.x})}));
   if(cat==='Date')S.dates.forEach(x=>{const k=x.rec?y+'-'+x.d.slice(5):x.d;if(ok(k))R.push({k,t:(x.rec?'':'')+x.n})});
@@ -777,7 +792,7 @@ function vMois(){
   let h=nv(MOIS[m]+' '+y,'Touchez un jour, une semaine ou une pastille')+'<div class="card">'+grid(y,m,false)+'</div>';
   h+='<div class="card"><h2>Catégories</h2><div class="lg lgc">'+[['Médical','Médical'],['Meeting','Meeting'],['Resto','Restaurant'],['Événement','Événement'],['Autre','Autre'],['Date','Anniversaire'],['Vacances','Vacances'],['Férié','Férié'],['Tâche','Tâches à faire']].map(([c,n])=>'<button class="chip" data-a="cat" data-c="'+c+'" style="--c:'+C[c]+(V.cat===c?';background:var(--c);color:#fff':'')+'">● '+n+'</button>').join('')+'<span class="chip" '+sty('Off')+'>● Jour off</span></div></div>';
   if(V.cat){const R=catItems(V.cat,y,m,V.catYr);
-    h+='<div class="card" '+sty(V.cat)+'><h2>'+CATL[V.cat]+' · '+(V.catYr?y:MOIS[m]+' '+y)+' · '+R.length+'</h2><div class="lg" style="margin-bottom:6px"><button class="chip" data-a="catyr" style="--c:#8e8e93">'+(V.catYr?'Voir ce mois':'Voir toute l’année')+'</button><button class="chip" data-a="cat" data-c="'+V.cat+'" style="--c:#8e8e93">Fermer</button></div>'+(R.length?R.map(r=>'<button class="it c" data-a="day" data-d="'+r.k+'" style="--c:'+C[V.cat]+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+fdate(r.k)+'</span><span class="t">'+esc(r.t)+'</span></button>').join(''):'<div class="em">Rien pour cette catégorie</div>')+'</div>';
+    h+='<div class="card" '+sty(V.cat)+'><h2>'+CATL[V.cat]+' · '+(V.catYr?y:MOIS[m]+' '+y)+' · '+R.length+'</h2><div class="lg" style="margin-bottom:6px"><button class="chip" data-a="catyr" style="--c:#8e8e93">'+(V.catYr?'Voir ce mois':'Voir toute l’année')+'</button><button class="chip" data-a="cat" data-c="'+V.cat+'" style="--c:#8e8e93">Fermer</button></div>'+(R.length?R.map(r=>'<button class="it c" data-a="day" data-d="'+r.k+'" style="--c:'+C[V.cat]+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+fdate(r.k)+'</span><span class="t">'+(r.hd||esc(r.t))+'</span></button>').join(''):'<div class="em">Rien pour cette catégorie</div>')+'</div>';
     return h}
   if(V.ev)h+=evCard();
   const n=new Date(y,m+1,0).getDate(),rc=recapHTML(Array.from({length:n},(_,i)=>new Date(y,m,i+1)),true);
@@ -917,7 +932,7 @@ function searchHTML(q){
   q=nz(q).trim();if(q.length<2)return '<div class="em">Tapez au moins 2 lettres</div>';
   const R=[],hit=(...a)=>nz(a.join(' ')).includes(q);
   Object.keys(S.days).sort().forEach(k=>{const d=S.days[k];
-    d.r.forEach(x=>{if(hit(x.x,x.l,x.nt,x.pr,x.du,x.c,x.who))R.push({k,c:x.c,g:x.c,t:(x.h?x.h+' ':'')+x.x+(x.l?' · '+x.l:'')})});
+    d.r.forEach(x=>{if(hit(x.x,x.l,x.nt,x.pr,x.du,x.c,x.who))R.push({k,c:x.c,g:x.c,t:x.x,hd:HEAD(x.h,endOf(x.h,x.du),x.c,x.x,x.c)+((x.tele||x.l)?'<small class="hsub">'+esc(x.tele?TL(x):x.l)+'</small>':'')})});
     d.t.forEach(x=>{if(hit(x.x,x.nt))R.push({k,c:'Tâche',g:'Tâche',t:x.x})});
     if(d.n&&hit(d.n))R.push({k,c:'Autre',g:'Note',t:d.n.slice(0,90)});
     (d.w||[]).forEach(x=>{if(hit(x.nt))R.push({k,c:'Job',g:'Travail',t:x.nt})});
@@ -928,7 +943,7 @@ function searchHTML(q){
   S.vac.forEach(v=>(v.items||[]).forEach(it=>{if(hit(it.x,it.l,it.nt,it.who))R.push({k:it.d,c:it.resto?'Resto':'Vacances',g:'Programme',t:it.x})}));
   GT.forEach(([f,n])=>(S.g[f]||[]).forEach(x=>{if(hit(x.x,x.nt))R.push({k:x.d||'',c:n,g:'À faire',t:x.x})}));
   if(!R.length)return '<div class="em">Aucun résultat</div>';
-  return R.slice(0,80).map(r=>'<button class="it c" data-a="'+(r.k?'day':'tab')+'" '+(r.k?'data-d="'+r.k+'"':'data-t="todo"')+' style="--c:'+(C[r.c]||'#8e8e93')+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+(r.k?fdate(r.k):'—')+'</span><span class="t">'+esc(r.t)+'</span><span class="tag">'+r.g+'</span></button>').join('');
+  return R.slice(0,80).map(r=>'<button class="it c" data-a="'+(r.k?'day':'tab')+'" '+(r.k?'data-d="'+r.k+'"':'data-t="todo"')+' style="--c:'+(C[r.c]||'#8e8e93')+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+(r.k?fdate(r.k):'—')+'</span><span class="t">'+(r.hd||esc(r.t))+'</span>'+(r.hd?'':'<span class="tag">'+r.g+'</span>')+'</button>').join('');
 }
 
 const JL=[[1,'Lundi'],[2,'Mardi'],[3,'Mercredi'],[4,'Jeudi'],[5,'Vendredi'],[6,'Samedi'],[0,'Dimanche']];
@@ -982,7 +997,7 @@ function vSuivi(){
   all.sort((a,b)=>(a.k+(a.x.h||'')).localeCompare(b.k+(b.x.h||'')));
   const dn=e=>e.x.fa&&e.x.su,todo=all.filter(e=>e.k<=TODAY&&!dn(e)),up=all.filter(e=>e.k>TODAY),fin=all.filter(e=>e.k<=TODAY&&dn(e));
   const pill=(e,f,n)=>'<button class="chip" data-a="mf" data-d="'+e.k+'" data-i="'+e.i+'" data-f="'+f+'" style="'+(e.x[f]?'':'opacity:.5')+'">'+(e.x[f]?'✓':'○')+' '+n+'</button>';
-  const row=e=>'<div class="ev" '+sty('Médical')+'><button class="it" data-a="day" data-d="'+e.k+'" style="width:100%;padding:0;border:0"><span class="tm" style="min-width:74px">'+fdate(e.k)+'</span><span class="t"><b>'+esc(e.x.x)+'</b>'+(e.x.l?'<br><small>'+esc(e.x.l)+'</small>':'')+'</span></button><div style="margin-top:6px">'+pill(e,'fa','Facture demandée')+pill(e,'su','Suivi mis à jour')+'</div></div>';
+  const row=e=>'<div class="ev" '+sty('Médical')+'><button class="it" data-a="day" data-d="'+e.k+'" style="width:100%;padding:0;border:0"><span class="tm" style="min-width:74px">'+fdate(e.k)+'</span><span class="t">'+HEAD(e.x.h,endOf(e.x.h,e.x.du),e.x.c,e.x.x,e.x.c)+(e.x.l?'<small class="hsub">'+esc(e.x.l)+'</small>':'')+'</span></button><div style="margin-top:6px">'+pill(e,'fa','Facture demandée')+pill(e,'su','Suivi mis à jour')+'</div></div>';
   const sec=(t,a,c)=>'<div class="card" '+sty('Médical')+'><h2>'+t+' · '+a.length+'</h2>'+(a.length?(c?a.slice().reverse():a).map(row).join(''):'<div class="em">Rien ici</div>')+'</div>';
   return '<h1>Suivi médical</h1><p class="sub">Tous vos rendez-vous médicaux, avec facture et suivi</p>'+sec('À traiter',todo,1)+sec('À venir',up)+sec('Terminé',fin,1);
 }
