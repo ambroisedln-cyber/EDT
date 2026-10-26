@@ -272,6 +272,24 @@ textarea.tna{display:block;width:100%;min-height:0;resize:none;font-size:16px;li
 .xbt{display:flex;gap:8px;margin-top:10px}
 .xbt button{flex:1;min-height:42px;border-radius:11px;background:var(--bg);color:var(--ac);font-weight:600;text-align:center}
 .xbt .xpri{background:var(--ac);color:#fff}
+
+/* ===== Gabarit commun des lignes (planning + récap) ===== */
+.ev .eh .tm,.ln .lt{flex:none;width:52px;min-width:52px;display:flex;flex-direction:column;line-height:1.25}
+.ev .eh .tm{font-size:16px;font-weight:700;color:var(--c)}
+.ev .eh .tm small,.ln .lt small{font-size:12.5px;font-weight:500;color:var(--mu);margin-top:2px}
+.ev .ec,.ln .lc{display:block;font-size:10.5px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--c);margin-bottom:1px}
+.ev .et b{font-size:16px;font-weight:650}
+.ev .em2,.ln .ls{font-size:13.5px;color:var(--mu);margin-top:1px;line-height:1.35}
+.ev .evt{color:var(--c);font-size:13px;font-weight:600}
+.wrow .eh{cursor:default}
+.ln{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;border-left:3px solid var(--c);padding:9px 0 9px 10px;margin:6px 0;border-bottom:1px solid var(--ln);border-radius:2px;color:var(--tx)}
+.ln .lt b{font-size:16px;font-weight:700;color:var(--c)}
+.ln .lt .ld{margin-top:3px}
+.ln .lb{flex:1;min-width:0}
+.ln .lti{display:block;font-size:16px;font-weight:650;line-height:1.3;word-break:break-word}
+.ln .lr{flex:none;color:var(--mu);font-size:20px;line-height:1;align-self:center;padding-right:2px}
+.rdh{font-size:15px}
+.sdh{font-size:13px;font-weight:600;color:var(--tx);margin:12px 0 0}.sdh:first-of-type{margin-top:4px}
 </style>
 </head>
 <body>
@@ -320,7 +338,7 @@ const work=k=>{if(vacOn(k))return[];const d=S.days[k];if(d&&(d.ov||(d.w||[]).len
 const OFF=k=>!vacOn(k)&&!work(k).length;
 const defNote=(k,d)=>d.dn!==undefined?d.dn:'';
 const orc=k=>'';
-const workDef=(k,d)=>{const q=work(k)[0];return '<div class="it c" style="--c:#007aff"><span class="tm">'+q.a+' – '+q.b+'</span><span class="t">Travail'+orc(k)+'</span><button class="x" data-a="wmod" style="font-size:14px;color:var(--ac);padding:8px">Modifier</button></div>'};
+const workDef=(k,d)=>{const q=work(k)[0];return '<div class="ev wrow" style="--c:#007aff"><div class="eh"><span class="tm">'+q.a+'<small>'+q.b+'</small></span><div class="et"><span class="ec">Job</span><b>Travail</b></div><button class="evt" data-a="wmod">Modifier</button></div></div>'};
 let V={tab:'jour',d:new Date()};
 const TABS=[['jour','<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>','Jour'],['semaine','<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9.5h17M8 2.8v3.4M16 2.8v3.4M9.5 9.5v11M14.5 9.5v11"/></svg>','Semaine'],['mois','<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="3"/><path d="M3.5 9.5h17M8 2.8v3.4M16 2.8v3.4"/><path d="M7.5 13h.01M12 13h.01M16.5 13h.01M7.5 16.5h.01M12 16.5h.01" stroke-width="2.4"/></svg>','Mois'],['annee','<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>','Année'],['todo','<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.3 12.2l2.5 2.5 4.9-5.2"/></svg>','À faire'],['rech','<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.8" cy="10.8" r="6.3"/><path d="M15.5 15.5l4.5 4.5"/></svg>','Recherche']];
 const setD=d=>{const y=d.getFullYear();if(y>=YMIN&&y<=YMAX)V.d=d};
@@ -350,8 +368,10 @@ const calObj=ref=>{const p=ref.split('|');
   return null};
 const esci=s=>String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\;').replace(/,/g,'\\,').replace(/\n/g,'\\n');
 const icsOf=(o,ref)=>{const c=calTimes(o);return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Emploi du temps//FR','BEGIN:VEVENT','UID:'+ref.replace(/\W/g,'')+c.s+'@edt','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',c.allday?'DTSTART;VALUE=DATE:'+c.s:'DTSTART:'+c.s,c.allday?'DTEND;VALUE=DATE:'+c.e:'DTEND:'+c.e,'SUMMARY:'+esci(o.t),o.rc?'RRULE:FREQ='+RRL[o.rc]:'',o.l?'LOCATION:'+esci(o.l):'',o.n?'DESCRIPTION:'+esci(o.n):'',c.allday?'':'BEGIN:VALARM\r\nTRIGGER:-PT30M\r\nACTION:DISPLAY\r\nDESCRIPTION:'+esci(o.t)+'\r\nEND:VALARM','END:VEVENT','END:VCALENDAR'].filter(Boolean).join('\r\n')};
-const calLinks=ref=>{const o=calObj(ref);if(!o||!/^\d{4}-\d\d-\d\d$/.test(o.d||''))return '';const c=calTimes(o),g='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(o.t)+'&dates='+c.s+'/'+c.e+(o.l?'&location='+encodeURIComponent(o.l):'')+(o.n?'&details='+encodeURIComponent(o.n):'')+(c.allday?'':'&ctz=Europe/Paris')+(o.rc?'&recur='+encodeURIComponent('RRULE:FREQ='+RRL[o.rc]):'');
-  return '<div class="row cl"><svg class="ri" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg><span class="rl">Calendrier</span><span class="rr"><a href="data:text/calendar;charset=utf-8,'+encodeURIComponent(icsOf(o,ref))+'" download="evenement.ics" target="_blank" rel="noopener">Apple</a><a href="'+esc(g)+'" target="_blank" rel="noopener">Google</a></span></div>'};
+const gcalUrl=o=>{const c=calTimes(o);return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(o.t)+'&dates='+c.s+'/'+c.e+(o.l?'&location='+encodeURIComponent(o.l):'')+(o.n?'&details='+encodeURIComponent(o.n):'')+(c.allday?'':'&ctz=Europe/Paris')+(o.rc?'&recur='+encodeURIComponent('RRULE:FREQ='+RRL[o.rc]):'')};
+const icsUrl=o=>{const q=new URLSearchParams({t:o.t,d:o.d});if(o.h&&/^\d\d:\d\d$/.test(o.h)){q.set('h',o.h);q.set('m',pdur(o.du))}if(o.e)q.set('e',o.e);if(o.l)q.set('l',o.l);if(o.n)q.set('n',o.n);if(o.rc)q.set('rc',o.rc);return location.origin+'/api/ics?'+q.toString()};
+const calLinks=ref=>{const o=calObj(ref);if(!o||!/^\d{4}-\d\d-\d\d$/.test(o.d||''))return '';const g=gcalUrl(o);
+  return '<div class="row cl"><svg class="ri" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg><span class="rl">Calendrier</span><span class="rr"><a href="'+esc(icsUrl(o))+'" target="_blank" rel="noopener">Apple</a><a href="'+esc(g)+'" target="_blank" rel="noopener">Google</a></span></div>'};
 const RCO=[['','Ne se répète pas'],['d','Tous les jours'],['w','Toutes les semaines'],['m','Tous les mois'],['y','Tous les ans']],RCL={d:'jour',w:'semaine',m:'mois',y:'an'},RRL={d:'DAILY',w:'WEEKLY',m:'MONTHLY',y:'YEARLY'};
 const NEXT=(b,rc)=>{const d=parse(b);let n;if(rc==='d')n=add(d,1);else if(rc==='w')n=add(d,7);else if(rc==='m'){const f=new Date(d.getFullYear(),d.getMonth()+1,1);n=new Date(f.getFullYear(),f.getMonth(),Math.min(d.getDate(),new Date(f.getFullYear(),f.getMonth()+1,0).getDate()))}else{const yy=d.getFullYear()+1;n=new Date(yy,d.getMonth(),Math.min(d.getDate(),new Date(yy,d.getMonth()+1,0).getDate()))}return key(n)};
 const spawn=(x,base,put)=>{x.f^=1;if(x.f&&x.rc&&!x.sp){x.sp=1;const td=key(new Date()),c={x:x.x,f:0,rc:x.rc};if(x.nt)c.nt=x.nt;c.d=NEXT(base<td?td:base,x.rc);put(c)}};
@@ -376,20 +396,23 @@ const urlOf=u=>/^https?:\/\//i.test(u)?u:'https://'+u;
 const routeLinks=a=>'<span class="mp"><a href="https://www.google.com/maps/search/?api=1&amp;query='+encodeURIComponent(a)+'" target="_blank" rel="noopener" style="font-size:14px;font-weight:600">Ouvrir dans Google Maps</a></span>';
 const attach=(lk,df)=>{lk=typeof lk==='string'?lk.split(/\s+/).filter(Boolean):(lk||[]);df=df||[];return lk.map(u=>'<a class="chip" style="--c:#007aff" href="'+esc(urlOf(u))+'" target="_blank" rel="noopener">'+esc(u.replace(/^https?:\/\/(www\.)?/,'').slice(0,26))+'</a>').join('')+df.map(f=>'<a class="chip" style="--c:#8e8e93" href="#" data-fid="'+esc(f.id)+'">'+(f.t==='application/pdf'?'':'')+esc(f.n)+'</a>').join('')};
 const trj=(t,l)=>{if(!t)return '';const m=(t.m||[]).join(' + '),ha=(t.lk&&t.lk.length)||(t.df&&t.df.length);if(!m&&!t.t&&!ha)return '';return '<div style="margin-top:6px;font-size:14px">'+l+(m||t.t?' : ':'')+(m?'<b>'+esc(m)+'</b>':'')+(t.t?(m?' · ':'')+esc(t.t):'')+(ha?'<div>'+attach(t.lk,t.df)+'</div>':'')+'</div>'};
+const endOf=(h,du)=>{if(!h||!/^\d\d:\d\d$/.test(h)||!du)return '';const[a,b]=h.split(':').map(Number),m=a*60+b+pdur(du);return pad(Math.floor(m/60)%24)+':'+pad(m%60)};
 function dayItems(k,brief){
   const o=[],f=HOL(+k.slice(0,4))[k],v=vacOn(k),x=S.days[k];
-  if(f)o.push({c:'Férié',t:''+f});
-  if(!brief&&OFF(k))o.push({c:'Job',t:'Jour off'});
-  if(v&&(!brief||v.a===k))o.push({c:'Vacances',t:'Vacances'+(v.l?' · '+v.l:'')+(brief?' (du '+fdate(v.a)+' au '+fdate(v.b)+')':'')});
-  if(v)(v.items||[]).filter(q=>q.d===k).sort((m,n)=>(m.h||'99').localeCompare(n.h||'99')).forEach(q=>o.push({c:q.resto?'Resto':'Vacances',t:({m:'',a:'',s:''})[q.p]+(q.h?q.h+' ':'')+(q.resto?'':'')+q.x+(q.l?' · '+q.l:'')}));
-  datesOn(k).forEach(q=>o.push({c:'Date',t:(q.rec?'':'')+q.n}));
+  if(f)o.push({c:'Férié',lab:'Jour férié',ti:f});
+  if(!brief&&OFF(k))o.push({c:'Off',lab:'Repos',ti:'Jour off'});
+  if(v&&(!brief||v.a===k))o.push({c:'Vacances',lab:'Vacances',ti:v.l||'Vacances',sub:brief?'du '+fdate(v.a)+' au '+fdate(v.b):''});
+  if(v)(v.items||[]).filter(q=>q.d===k).sort((m,n)=>(m.h||'99').localeCompare(n.h||'99')).forEach(q=>o.push({c:q.resto?'Resto':'Vacances',lab:q.resto?'Resto':({m:'Matin',a:'Après-midi',s:'Soir'})[q.p]||'Vacances',h:q.h,ti:q.x,sub:q.l||''}));
+  datesOn(k).forEach(q=>o.push({c:'Date',lab:'Anniversaire',ti:q.n}));
   const ov=x&&(x.ov||(x.w||[]).length);
-  const tl=(brief&&!ov)?[]:work(k).map(q=>{const nt=q.nt!==undefined?q.nt:defNote(k,x||{});return{s:q.a||'99:99',c:'Job',t:'Travail '+''+q.a+'–'+q.b+(nt?' · '+nt:'')}});
-  if(x)x.r.forEach((q,ri)=>tl.push({s:q.h||'99:99',ri,c:q.c,t:(q.h?q.h+' ':'')+q.x+(q.tele?' · Téléconsultation':(q.l?' · '+q.l:''))+(q.pr?' · '+q.pr:'')}));
-  tl.sort((m,n)=>m.s.localeCompare(n.s)).forEach(q=>o.push({c:q.c,t:q.t,ri:q.ri}));
+  const tl=(brief&&!ov)?[]:work(k).map(q=>{const nt=q.nt!==undefined?q.nt:defNote(k,x||{});return{s:q.a||'99:99',c:'Job',lab:'Job',h:q.a,h2:q.b,ti:'Travail',sub:nt||''}});
+  if(x)x.r.forEach((q,ri)=>tl.push({s:q.h||'99:99',ri,c:q.c,lab:q.c,h:q.h,h2:endOf(q.h,q.du),ti:q.x,sub:[q.tele?'Téléconsultation':(q.l||''),q.who?'avec '+q.who:''].filter(Boolean).join(' · ')}));
+  tl.sort((m,n)=>m.s.localeCompare(n.s)).forEach(q=>o.push(q));
+  o.forEach(q=>{q.t=[q.h,q.ti,q.sub].filter(Boolean).join(' · ')});
   return o;
 }
-const recapHTML=(days,brief)=>{let h='';days.forEach(d=>{const k=key(d),it=dayItems(k,brief);if(!it.length)return;h+='<div class="rd"><button class="rdh" data-a="day" data-d="'+k+'">'+JRS[d.getDay()]+' '+d.getDate()+' ›</button>'+it.map(x=>'<button class="it c" '+sty(x.c)+' data-a="'+(x.ri!==undefined?'evt':'day')+'" data-d="'+k+'"'+(x.ri!==undefined?' data-i="'+x.ri+'"':'')+'><span class="t">'+esc(x.t)+'</span><span class="tag">'+(x.c==='Date'?'Anniversaire':x.c)+'</span></button>').join('')+'</div>'});return h};
+const lineHTML=(x,attrs,right)=>'<button class="ln" '+sty(x.c)+' '+attrs+'><span class="lt">'+(x.h?'<b>'+esc(x.h)+'</b>'+(x.h2?'<small>'+esc(x.h2)+'</small>':''):'<small class="ld">Journée</small>')+'</span><span class="lb"><span class="lc">'+esc(x.lab||x.c)+'</span><b class="lti">'+esc(x.ti||'')+'</b>'+(x.sub?'<span class="ls">'+esc(x.sub)+'</span>':'')+'</span>'+(right||'<span class="lr">›</span>')+'</button>';
+const recapHTML=(days,brief)=>{let h='';days.forEach(d=>{const k=key(d),it=dayItems(k,brief);if(!it.length)return;h+='<div class="rd"><button class="rdh" data-a="day" data-d="'+k+'">'+JRS[d.getDay()]+' '+d.getDate()+' ›</button>'+it.map(x=>lineHTML(x,'data-a="'+(x.ri!==undefined?'evt':'day')+'" data-d="'+k+'"'+(x.ri!==undefined?' data-i="'+x.ri+'"':''))).join('')+'</div>'});return h};
 const SECS=[['m','Matin'],['a','Après-midi'],['s','Soir']];
 const vitems=(v,k,p)=>(v.items||[]).map((it,j)=>[it,j]).filter(([it])=>it.d===k&&it.p===p).sort((a,b)=>(a[0].h||'99').localeCompare(b[0].h||'99'));
 const vpItem=(it,vi,j,sd,ref)=>'<div class="ev" style="--c:'+(it.resto?'#ff9500':'#30b0c7')+'"><div class="it"><span class="tm">'+esc(it.h||'—')+'</span><span class="t"><b>'+(it.resto?'':'')+esc(it.x)+'</b>'+((sd||it.l||it.who)?'<br><small>'+(sd?''+fdate(it.d)+' · '+({m:'Matin',a:'Après-midi',s:'Soir'})[it.p]:'')+(it.l?(sd?' · ':'')+''+esc(it.l):'')+(it.who?' · avec '+esc(it.who):'')+'</small>':'')+(it.l?'<br>'+routeLinks(it.l):'')+(it.nt?'<br><small>'+esc(it.nt)+'</small>':'')+(((it.lk||[]).length||(it.df||[]).length)?'<div>'+attach(it.lk,it.df)+'</div>':'')+(ref?calLinks(ref):'')+'</span>'+(vi===undefined?'':(vi===null?'<button class="x" data-a="vpdel" data-j="'+j+'">×</button>':'<button class="x" data-a="vpx" data-i="'+vi+'" data-j="'+j+'">×</button>'))+'</div></div>';
@@ -438,14 +461,14 @@ const evCard=()=>{const e=V.ev,x=e&&S.days[e.k]&&S.days[e.k].r[e.i];if(!x)return
   return '<div class="card" '+sty(x.c)+'><h2>'+x.c+' · '+fdate(e.k)+'</h2><div style="font-size:18px;font-weight:700">'+esc(x.x)+'</div>'+row('Heure',esc((x.h||'')+(x.du?' · '+x.du:'')))+where+more+(full?calLinks('r|'+e.k+'|'+e.i):'')+'<div class="evg"><button class="pri" data-a="edit" data-d="'+e.k+'" data-i="'+e.i+'"><svg class="ri" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10.5-10.5a2.1 2.1 0 0 0-3-3L5 16l-1 4z"/></svg> Modifier</button><label class="dpk"><span class="dv"><svg class="ri" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h7.5a4 4 0 0 1 0 8H7"/><path d="M10.5 11.5L7 15l3.5 3.5"/></svg> Reporter</span><input type="date" data-evdate="1" value="'+e.k+'"></label><button data-a="evshare" data-d="'+e.k+'" data-i="'+e.i+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M12 15V3.5M7.5 8L12 3.5 16.5 8"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v7A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg> Partager</button><button data-a="evd">'+(full?'Masquer les détails':'Voir les détails')+'</button><button data-a="day" data-d="'+e.k+'">Ouvrir le jour</button><button class="dng" data-a="evx">Annuler le rdv</button><button class="evcl" data-a="evclose">Fermer</button></div></div>'};
 const soonHTML=()=>{const t0=new Date(V.d.getFullYear(),V.d.getMonth(),V.d.getDate()),td0=new Date();td0.setHours(0,0,0,0);const R=[];
   for(let n=0;n<=7;n++){const d=add(t0,n),k=key(d),isT=key(t0)===key(td0),lab=n===0?(isT?'Aujourd’hui':'Ce jour'):n===1?(isT?'Demain':'Dans 1 j'):'Dans '+n+' j',v=vacOn(k),day=[];
-    const f=HOL(d.getFullYear())[k];if(f)day.push({s:'00',c:'Férié',t:''+f});
-    datesOn(k).forEach(q=>day.push({s:'00',c:'Date',t:(q.rec?'':'')+q.n}));
-    gd(k).filter(o=>!o.x.f&&!o.x.cx).forEach(o=>day.push({s:'97',c:'Tâche',t:''+o.x.x}));
-    ((S.days[k]&&S.days[k].t)||[]).filter(q=>!q.f&&!q.cx).forEach(q=>day.push({s:'97',c:'Tâche',t:''+q.x}));
-    if(v&&v.a===k)day.push({s:'00',c:'Vacances',t:'Départ en vacances'+(v.l?' · '+v.l:'')});
-    ((S.days[k]&&S.days[k].r)||[]).forEach(q=>day.push({s:q.h||'98',c:q.c,t:(q.h?q.h+' ':'')+q.x+((q.l&&!q.tele)?' · '+q.l:'')}));
-    day.sort((a,b)=>a.s.localeCompare(b.s)).forEach(q=>R.push({k,lab,c:q.c,t:q.t}))}
-  return '<div class="card"><h2>À venir · '+(key(t0)===key(td0)?'7 prochains jours':'7 jours à partir du '+fdate(key(t0)))+'</h2>'+(R.length?R.slice(0,V.soon?99:8).map(r=>'<button class="it c" style="--c:'+(C[r.c]||'#8e8e93')+';width:100%" data-a="day" data-d="'+r.k+'" data-sc="'+({Tâche:'tasks',Vacances:'vprog'}[r.c]||(['Médical','Resto','Événement','Autre'].includes(r.c)?'plan':''))+'"><span class="tm" style="min-width:84px;color:var(--mu);font-size:13px">'+r.lab+'</span><span class="t">'+esc(r.t)+'</span><span class="tag">'+(r.c==='Date'?'Anniversaire':r.c)+'</span><span style="color:var(--mu)">›</span></button>').join('')+(R.length>8?'<button class="em" data-a="soon" style="width:100%;color:var(--ac)">'+(V.soon?'Voir moins':'+ '+(R.length-8)+' autres')+'</button>':''):'<div class="em">Rien de prévu dans les 7 prochains jours</div>')+'</div>'};
+    const f=HOL(d.getFullYear())[k];if(f)day.push({s:'00',c:'Férié',lab:'Jour férié',ti:f});
+    datesOn(k).forEach(q=>day.push({s:'00',c:'Date',lab:'Anniversaire',ti:q.n}));
+    gd(k).filter(o=>!o.x.f&&!o.x.cx).forEach(o=>day.push({s:'97',c:'Tâche',lab:'Tâche · '+gname(o.s),ti:o.x.x}));
+    ((S.days[k]&&S.days[k].t)||[]).filter(q=>!q.f&&!q.cx).forEach(q=>day.push({s:'97',c:'Tâche',lab:'Tâche',ti:q.x}));
+    if(v&&v.a===k)day.push({s:'00',c:'Vacances',lab:'Vacances',ti:'Départ en vacances',sub:v.l||''});
+    ((S.days[k]&&S.days[k].r)||[]).forEach(q=>day.push({s:q.h||'98',c:q.c,lab:q.c,h:q.h,h2:endOf(q.h,q.du),ti:q.x,sub:q.tele?'Téléconsultation':(q.l||'')}));
+    day.sort((a,b)=>a.s.localeCompare(b.s)).forEach(q=>R.push(Object.assign({k,dl:lab},q)))}
+  return '<div class="card"><h2>À venir · '+(key(t0)===key(td0)?'7 prochains jours':'7 jours à partir du '+fdate(key(t0)))+'</h2>'+(R.length?(()=>{let pd='';return R.slice(0,V.soon?99:8).map(r=>{const hd=r.dl!==pd?'<div class="sdh">'+r.dl+'</div>':'';pd=r.dl;return hd+lineHTML(r,'data-a="day" data-d="'+r.k+'" data-sc="'+({Tâche:'tasks',Vacances:'vprog'}[r.c]||(['Médical','Resto','Événement','Autre'].includes(r.c)?'plan':''))+'"')}).join('')})()+(R.length>8?'<button class="em" data-a="soon" style="width:100%;color:var(--ac)">'+(V.soon?'Voir moins':'+ '+(R.length-8)+' autres')+'</button>':''):'<div class="em">Rien de prévu dans les 7 prochains jours</div>')+'</div>'};
 const bagHTML=(v,vi)=>{const bag=v.bag||[],dn=bag.filter(x=>x.f).length;
   return '<div style="margin-top:16px"><b style="font-size:14px">Valise'+(bag.length?' · '+dn+'/'+bag.length:'')+'</b>'+bag.map((x,j)=>'<div class="it'+(x.f?' done':'')+'"><button class="ck" data-a="bag" data-i="'+vi+'" data-j="'+j+'"></button><span class="t">'+esc(x.x)+'</span><button class="x" data-a="bagx" data-i="'+vi+'" data-j="'+j+'">×</button></div>').join('')+addRow('<input type="text" id="bg" placeholder="Ajouter à la valise">','Ajouter','bagadd','data-i="'+vi+'"')+(bag.length?'':'<div class="add"><button data-a="bagbase" data-i="'+vi+'" style="--c:#8e8e93">Pré-remplir une liste de base</button></div>')+'</div>'};
 const BASE=['Papiers d’identité','Billets / réservations','Chargeur téléphone','Batterie externe','Trousse de toilette','Vêtements','Chaussures','Lunettes de soleil','Adaptateur de prise'];
@@ -486,11 +509,11 @@ function vJour(){
   h+='<div class="card"><h2>Météo · '+esc(wl)+((vv&&vv.l)?' (vacances)':'')+'</h2><div id="wxb" data-ck="'+esc(wl+'|'+key(V.d))+'">'+(WXH[wl+'|'+key(V.d)]||'<span style="color:var(--mu);font-size:14px">Chargement…</span>')+'</div>'+((vv&&vv.l)?'':'<div class="add"><input type="text" id="wc" placeholder="Autre ville"><button data-a="wcity">Changer de ville</button></div><div class="add" style="margin-top:8px"><button data-a="geo" style="--c:'+(S.auto?'#34c759':'#007aff')+'">'+(S.auto?'Position automatique : activée':'Utiliser ma position')+'</button></div><div id="gmsg" class="sub" style="margin:6px 0 0"></div>')+'</div>';
   h+=vacProg(k);
   const EROW=(x,i)=>{const ia='data-a="edit" data-d="'+k+'" data-i="'+i+'"',att=((x.dl&&x.dl.trim())||(x.df||[]).length)?attach(x.dl,x.df):'',
-    m1=x.tele?'Téléconsultation':(x.l?''+esc(x.l):''),m2=[x.du?''+esc(x.du):'',x.who?'avec '+esc(x.who):''].filter(Boolean).join(' · '),
+    m1=x.tele?'Téléconsultation':(x.l?''+esc(x.l):''),m2=[x.du&&!x.h?esc(x.du):'',x.who?'avec '+esc(x.who):''].filter(Boolean).join(' · '),
     chips=(x.tele&&x.lk?'<a class="chip" style="--c:#007aff" href="'+esc(urlOf(x.lk))+'" target="_blank" rel="noopener">Rejoindre</a>':'')+(x.tel?'<a class="chip" style="--c:#34c759" href="tel:'+esc(x.tel.replace(/[^\d+]/g,''))+'">'+esc(x.tel)+'</a>':'')+att,
     body=(chips?'<div class="chips">'+chips+'</div>':'')+'<div class="grp">'+tripHTML(k,i,x)+calLinks('r|'+k+'|'+i)+'</div>';
     const op=(V.eo||{})[k+'|'+i],tg='<button class="evt" data-a="evtog" data-k="'+k+'|'+i+'">'+(op?'Fermer':'Détails')+'<span class="chv'+(op?' up':'')+'">›</span></button>';
-    return '<div class="ev'+(op?' open':'')+'" '+sty(x.c)+'><div class="eh" data-a="evtog" data-k="'+k+'|'+i+'"><span class="tm">'+(x.h||'—')+'</span><div class="et"><span class="ec">'+x.c+'</span><b>'+esc(x.x)+'</b>'+(m1?'<div class="em2">'+m1+'</div>':'')+(m2?'<div class="em2">'+m2+'</div>':'')+'</div>'+tg+'</div>'+(op?(body?'<div class="eb">'+body+'</div>':'')+noteIn('r',i,x.nt)
+    return '<div class="ev'+(op?' open':'')+'" '+sty(x.c)+'><div class="eh" data-a="evtog" data-k="'+k+'|'+i+'"><span class="tm">'+(x.h||'—')+(endOf(x.h,x.du)?'<small>'+endOf(x.h,x.du)+'</small>':'')+'</span><div class="et"><span class="ec">'+x.c+'</span><b>'+esc(x.x)+'</b>'+(m1?'<div class="em2">'+m1+'</div>':'')+(m2?'<div class="em2">'+m2+'</div>':'')+'</div>'+tg+'</div>'+(op?(body?'<div class="eb">'+body+'</div>':'')+noteIn('r',i,x.nt)
     +'<div class="ea"><button '+ia+'><svg class="ri" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10.5-10.5a2.1 2.1 0 0 0-3-3L5 16l-1 4z"/></svg> Modifier</button><label class="dpk" title="Reporter à une autre date"><span class="dv"><svg class="ri" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h7.5a4 4 0 0 1 0 8H7"/><path d="M10.5 11.5L7 15l3.5 3.5"/></svg> Reporter</span><input type="date" data-rdate="'+i+'" value="'+k+'"></label><button class="shr2" data-a="evshare" data-d="'+k+'" data-i="'+i+'" title="Partager" aria-label="Partager"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M12 15V3.5M7.5 8L12 3.5 16.5 8"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v7A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></button><button class="del" data-a="drx" data-i="'+i+'" title="Supprimer" aria-label="Supprimer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2M6.5 7l1 12.5a1.5 1.5 0 0 0 1.5 1.5h6a1.5 1.5 0 0 0 1.5-1.5L17.5 7M10 11v6M14 11v6"/></svg></button></div>':'')+'</div>'};
   const WROW=(x,i)=>'<div class="ev" '+sty('Job')+'><div class="it"><span class="tm" style="display:flex;gap:4px;align-items:center"><input type="time" class="nt" style="width:auto;margin:0" data-wt="a" data-i="'+i+'" value="'+x.a+'"> → <input type="time" class="nt" style="width:auto;margin:0" data-wt="b" data-i="'+i+'" value="'+x.b+'"></span><span class="t">Travail'+orc(k)+'</span><button class="x" data-a="wx" data-i="'+i+'">×</button></div>'+noteIn('w',i,x.nt)+'</div>';
   const rows=[];
@@ -621,10 +644,12 @@ const CSH={l:'Leclerc',m:'Marché',o:'Autre courses'};
 const courseText=cs=>{const A=(S.g.c||[]).filter(x=>!x.f&&!x.cx&&(x.sh||'o')===cs);return A.length?'🛒 Courses · '+CSH[cs]+'\n'+A.map(x=>'• '+x.x).join('\n'):''};
 function noteToast(t){const e=$('#toast');if(!e)return;e.innerHTML='<span>'+esc(t)+'</span>';e.hidden=false;clearTimeout(window.__nt);window.__nt=setTimeout(()=>{if(!e.querySelector('[data-a=undo]'))e.hidden=true},2600)}
 async function shareEv(k,i){const x=S.days[k]&&S.days[k].r[+i];if(!x)return;
-  const L=[x.x,''+parse(k).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+(x.h?' à '+x.h.replace(':','h'):'')+(x.du?' ('+x.du+')':'')];
-  if(x.tele)L.push('Téléconsultation'+(x.lk?' : '+x.lk:''));
-  else if(x.l){L.push(''+x.l);L.push('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.l))}
+  const dt=parse(k).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  const L=[x.x,dt.charAt(0).toUpperCase()+dt.slice(1)+(x.h?' à '+x.h.replace(':','h'):'')+(x.du?' ('+x.du+')':'')];
+  if(x.tele)L.push('Téléconsultation'+(x.lk?' : '+x.lk:''));else if(x.l)L.push(x.l);
   if(x.who)L.push('Avec '+x.who);
+  if(!x.tele&&x.l)L.push('','Itinéraire :','https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(x.l));
+  const o=calObj('r|'+k+'|'+i);if(o){o.n='';L.push('','Ajouter à mon calendrier :','iPhone : '+icsUrl(o),'Google : '+gcalUrl(o))}
   const tx=L.join('\n');
   if(navigator.share){try{await navigator.share({text:tx});return}catch(e){if(e&&e.name==='AbortError')return}}
   noteToast((await copyTxt(tx))?'✓ Copié : colle-le dans ton message':'Partage indisponible sur cet appareil')}
