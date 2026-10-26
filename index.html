@@ -757,7 +757,6 @@ function vJour(){
   let h=nv(t,'Semaine '+w+((SH('saint')&&sa)?' · Saint du jour : '+sa:''));h+=lateHTML()+(SH('soon')?soonHTML():'<button class="showb" data-a="showsoon">Afficher « À venir »</button>');
   const f=HOL(y)[k],v=vacOn(k);
   if(f)h+='<span class="chip" '+sty('Férié')+'>'+f+'</span>';
-  if(OFF(k))h+='<span class="chip" '+sty('Job')+'>Jour off</span>';
   if(v)h+='<span class="chip" '+sty('Vacances')+'>Vacances'+(v.l?' · '+esc(v.l):'')+'<button class="x" data-a="vx" data-i="'+S.vac.indexOf(v)+'">×</button></span>';
   datesOn(k).forEach(x=>h+='<span class="chip" '+sty('Date')+'>'+(x.rec?'':'')+esc(x.n)+'<button class="x" data-a="ddx" data-i="'+S.dates.indexOf(x)+'">×</button></span>');
   const vv=vacOn(k),wl=placeFor(k);
