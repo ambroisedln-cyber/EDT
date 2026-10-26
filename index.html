@@ -363,6 +363,17 @@ label.row{cursor:pointer}
 .wkb .wke:active{background:color-mix(in srgb,#007aff 12%,transparent)}
 /* heure de fin : même typographie que l'heure de début */
 .ev .eh .tm small,.ln .lt small:not(.ld){font-size:16px;font-weight:700;color:var(--c);margin-top:1px;opacity:1}
+
+/* météo : contrôles intégrés à l'en-tête */
+.hh .wcity{font:inherit;color:var(--ac);letter-spacing:inherit;text-transform:inherit;padding:0;display:inline-flex;align-items:center;gap:3px}
+.hh .wcity .chv{display:inline-block;transform:rotate(90deg);font-size:13px;transition:transform .2s}.hh .wcity .chv.up{transform:rotate(-90deg)}
+.hha{display:flex;align-items:center;gap:10px}
+.geoi{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--mu);background:var(--bg)}
+.geoi.on{color:#fff;background:#34c759}
+.wxi{margin:-2px 0 10px}
+#gmsg:empty{display:none}
+/* heures alignées */
+.ev .eh .tm,.ln .lt,.wkb .wkh{font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -598,7 +609,7 @@ function vJour(){
   const vv=vacOn(k),wl=placeFor(k);
   if(SH('wx')&&!cgOf(wl))setTimeout(()=>ensureCg(wl,k),0);
   if(!SH('wx'))h+='<button class="showb" data-a="showwx">Afficher la météo</button>';
-  if(SH('wx'))h+='<div class="card"><h2 class="hh"><span>Météo · '+esc(wl)+((vv&&vv.l)?' (vacances)':'')+'</span><button class="hide" data-a="hidewx">Masquer</button></h2><div id="wxb" data-ck="'+esc(wl+'|'+key(V.d))+'">'+(WXH[wl+'|'+key(V.d)]||'<span style="color:var(--mu);font-size:14px">Chargement…</span>')+'</div>'+'<div id="sunc" class="sunin" data-ck="'+esc(wl+'|'+k)+'"'+(cgOf(wl)?'':' style="display:none"')+'><div id="sunb">'+sunHTML(k,wl)+'</div></div>'+((vv&&vv.l)?'':'<div class="wxa"><button data-a="wxc">Changer de ville</button><span>·</span><button data-a="geo"'+(S.auto?' class="on"':'')+'>'+(S.auto?'Position automatique : activée':'Utiliser ma position')+'</button></div>'+(V.wxc?'<div class="wxi"><input type="text" id="wc" placeholder="Autre ville" autocomplete="off"><button data-a="wcity">OK</button></div>':'')+'<div id="gmsg" class="sub" style="margin:6px 0 0"></div>')+'</div>';
+  if(SH('wx'))h+='<div class="card"><h2 class="hh"><span>Météo · '+((vv&&vv.l)?esc(wl)+' (vacances)':'<button class="wcity" data-a="wxc" title="Changer de ville">'+esc(wl)+' <span class="chv'+(V.wxc?' up':'')+'">›</span></button>')+'</span><span class="hha">'+((vv&&vv.l)?'':'<button class="geoi'+(S.auto?' on':'')+'" data-a="geo" title="'+(S.auto?'Position automatique : activée':'Utiliser ma position')+'" aria-label="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L4 11l7 2 2 7 7-16z"/></svg></button>')+'<button class="hide" data-a="hidewx">Masquer</button></span></h2>'+((V.wxc&&!(vv&&vv.l))?'<div class="wxi"><input type="text" id="wc" placeholder="Autre ville" autocomplete="off"><button data-a="wcity">OK</button></div>':'')+'<div id="wxb" data-ck="'+esc(wl+'|'+key(V.d))+'">'+(WXH[wl+'|'+key(V.d)]||'<span style="color:var(--mu);font-size:14px">Chargement…</span>')+'</div>'+'<div id="sunc" class="sunin" data-ck="'+esc(wl+'|'+k)+'"'+(cgOf(wl)?'':' style="display:none"')+'><div id="sunb">'+sunHTML(k,wl)+'</div></div>'+'<div id="gmsg" class="sub" style="margin:6px 0 0"></div></div>';
   h+=vacProg(k);
   const EROW=(x,i)=>{const ia='data-a="edit" data-d="'+k+'" data-i="'+i+'"',att=((x.dl&&x.dl.trim())||(x.df||[]).length)?attach(x.dl,x.df):'',
     m1=x.tele?'Téléconsultation':(x.l?''+esc(x.l):''),m2=[x.du&&!x.h?esc(x.du):'',x.who?'avec '+esc(x.who):''].filter(Boolean).join(' · '),
