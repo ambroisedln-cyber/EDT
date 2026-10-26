@@ -575,6 +575,16 @@ textarea.tna{max-height:none!important;overflow-y:auto}
 .ef .remw .rmd{flex:1.4 1 0}
 .ef .ff>.trem{display:flex}
 .ef .fg>.ff:has(.remw){grid-column:1/-1;order:5}
+
+/* Rappel : deux pastilles lisibles Date / Heure sur une ligne */
+.remw{display:flex!important;flex-wrap:nowrap;align-items:center;gap:6px;flex:1;min-width:0}
+.rmf{position:relative;display:flex;align-items:center;justify-content:center;gap:5px;height:36px;padding:0 12px;border-radius:10px;background:var(--bg);color:var(--mu);font-size:14.5px;white-space:nowrap;overflow:hidden;flex:1 1 0;min-width:0}
+.rmf:first-child{flex:1.3 1 0}
+.rmf.set{color:var(--tx);font-weight:500}
+.rmf .rmv::before{content:"";display:inline-block;width:14px;height:14px;margin-right:5px;vertical-align:-2px;background:currentColor;opacity:.55;-webkit-mask:var(--ic) center/contain no-repeat;mask:var(--ic) center/contain no-repeat}
+.rmf:first-child{--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3.5' y='5' width='17' height='15' rx='2.5'/%3E%3Cpath d='M3.5 9.5h17M8 3v4M16 3v4'/%3E%3C/svg%3E")}
+.rmf:nth-child(2){--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.5V12l3 2'/%3E%3C/svg%3E")}
+.rmf input{position:absolute!important;inset:0;width:100%!important;height:100%!important;opacity:0;border:0;padding:0!important;margin:0;min-height:0!important;-webkit-appearance:none;appearance:none;background:transparent!important}
 </style>
 </head>
 <body>
@@ -682,7 +692,9 @@ const remSel=(id,v)=>{const dv=+((S.cfg||{}).rem||0),dl=dv>0?(dv>=60?(dv/60)+' h
 const fdt=ra=>{const m=/^(\d{4})-(\d\d)-(\d\d)T(\d\d):(\d\d)/.exec(ra||'');return m?m[3]+'/'+m[2]+' '+m[4]+':'+m[5]:''};
 const BELL='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px;margin-right:3px"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>';
 const XSVG='<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-const remIn=(id,ra,kk)=>{const m=/^(\d{4}-\d\d-\d\d)T(\d\d:\d\d)/.exec(ra||'')||[];return '<span class="remw" id="'+id+'"'+(kk?' data-gra="'+kk+'"':'')+'><input type="date" class="rmd" value="'+(m[1]||'')+'"><input type="time" class="rmt" value="'+(m[2]||'')+'"><button type="button" class="rmx" data-a="remclr" data-w="'+id+'" aria-label="Retirer le rappel">'+XSVG+'</button></span>'};
+const rmDisp=(v,k)=>!v?(k==='d'?'Date':'Heure'):k==='d'?v.slice(8,10)+'/'+v.slice(5,7)+'/'+v.slice(0,4):v.replace(':','h');
+const rmSync=t=>{const l=t.closest('.rmf');if(!l)return;l.querySelector('.rmv').textContent=rmDisp(t.value,t.classList.contains('rmd')?'d':'t');l.classList.toggle('set',!!t.value)};
+const remIn=(id,ra,kk)=>{const m=/^(\d{4}-\d\d-\d\d)T(\d\d:\d\d)/.exec(ra||'')||[];return '<span class="remw" id="'+id+'"'+(kk?' data-gra="'+kk+'"':'')+'><label class="rmf'+(m[1]?' set':'')+'"><span class="rmv">'+(m[1]?rmDisp(m[1],'d'):'Date')+'</span><input type="date" class="rmd" value="'+(m[1]||'')+'"></label><label class="rmf'+(m[2]?' set':'')+'"><span class="rmv">'+(m[2]?rmDisp(m[2],'t'):'Heure')+'</span><input type="time" class="rmt" value="'+(m[2]||'')+'"></label><button type="button" class="rmx" data-a="remclr" data-w="'+id+'" aria-label="Retirer le rappel">'+XSVG+'</button></span>'};
 const remVal=(id,dk)=>{const w=document.getElementById(id);if(!w)return '';const d=w.querySelector('.rmd').value,t=w.querySelector('.rmt').value;if(!d&&!t)return '';return (d||dk||key(new Date()))+'T'+(t||'09:00')};
 const RCO=[['','Ne se répète pas'],['d','Tous les jours'],['w','Toutes les semaines'],['m','Tous les mois'],['y','Tous les ans']],RCL={d:'jour',w:'semaine',m:'mois',y:'an'},RRL={d:'DAILY',w:'WEEKLY',m:'MONTHLY',y:'YEARLY'};
 const NEXT=(b,rc)=>{const d=parse(b);let n;if(rc==='d')n=add(d,1);else if(rc==='w')n=add(d,7);else if(rc==='m'){const f=new Date(d.getFullYear(),d.getMonth()+1,1);n=new Date(f.getFullYear(),f.getMonth(),Math.min(d.getDate(),new Date(f.getFullYear(),f.getMonth()+1,0).getDate()))}else{const yy=d.getFullYear()+1;n=new Date(yy,d.getMonth(),Math.min(d.getDate(),new Date(yy,d.getMonth()+1,0).getDate()))}return key(n)};
@@ -1310,7 +1322,7 @@ document.addEventListener('click',e=>{
   else if(a==='ccopy'){const tx=courseText(V.cs||'l');if(!tx)return;copyTxt(tx).then(ok=>{if(ok){b.textContent='✓ Copié';setTimeout(()=>{try{b.textContent='Copier'}catch(e){}},1600)}else{V.cpy=1;render();setTimeout(()=>{const e=$('#cpt');if(e){e.focus();e.select()}},60)}});return}
   else if(a==='cshare'){const tx=courseText(V.cs||'l');if(!tx)return;let p;try{p=navigator.share({text:tx})}catch(e){p=Promise.reject(e)}p.catch(e=>{if(e&&e.name==='AbortError')return;copyTxt(tx).then(ok=>{if(ok){b.textContent='✓ Copié';setTimeout(render,1600)}})});return}
   else if(a==='soon')V.soon=!V.soon;
-  else if(a==='remclr'){const w=document.getElementById(b.dataset.w);if(w){w.querySelectorAll('input').forEach(q=>q.value='');w.dataset.cl=1;const hh=w.closest('.ff');if(hh&&hh.querySelector('.remh'))hh.querySelector('.remh').textContent='Aucun rappel';if(w.dataset.gra){const[s0,i0]=w.dataset.gra.split('|'),x=s0==='d'?D(key(V.d)).t[+i0]:(S.g[s0]||[])[+i0];if(x){delete x.ra;save();render()}}}return}
+  else if(a==='remclr'){const w=document.getElementById(b.dataset.w);if(w){w.querySelectorAll('input').forEach(q=>{q.value='';rmSync(q)});w.dataset.cl=1;const hh=w.closest('.ff');if(hh&&hh.querySelector('.remh'))hh.querySelector('.remh').textContent='Aucun rappel';if(w.dataset.gra){const[s0,i0]=w.dataset.gra.split('|'),x=s0==='d'?D(key(V.d)).t[+i0]:(S.g[s0]||[])[+i0];if(x){delete x.ra;save();render()}}}return}
   else if(a==='sotk'){V.sot=V.sot||{};V.sot[b.dataset.d]=!V.sot[b.dataset.d]}
   else if(a==='xp')V.xp=!V.xp;
   else if(a==='xr')V.xr=s;
@@ -1331,6 +1343,7 @@ document.addEventListener('change',e=>{
     const arr=S.days[from]&&S.days[from].r,it=arr&&arr.splice(idx,1)[0];
     if(it){D(nd).r.push(it);if(t.dataset.evdate!==undefined)V.ev={k:nd,i:S.days[nd].r.length-1};V.stale=1;save();try{const dv=t.parentNode.querySelector('.dv');if(dv)dv.textContent='✓ Reporté au '+fdate(nd)}catch(x){}}
     return}
+  if(t.classList&&(t.classList.contains('rmd')||t.classList.contains('rmt')))rmSync(t);
   {const w=t.closest&&t.closest('.remw[data-gra]');if(w){const[s,i]=w.dataset.gra.split('|'),x=s==='d'?D(key(V.d)).t[+i]:(S.g[s]||[])[+i];if(x){const ra=remVal(w.id,s==='d'?key(V.d):x.d);if(ra)x.ra=ra;else delete x.ra;save()}return}}
   if(t.dataset.grc!==undefined){const[s,i]=t.dataset.grc.split('|'),x=s==='d'?D(key(V.d)).t[+i]:(S.g[s]||[])[+i];if(x){if(t.value)x.rc=t.value;else delete x.rc;delete x.sp}save();render();return}
   if(t.dataset.gdate!==undefined){const[s,i]=t.dataset.gdate.split('|'),nd=t.value,prev=s==='d'?key(V.d):((S.g[s]||[])[+i]||{}).d||'';
@@ -1515,6 +1528,8 @@ const drgEnd=()=>{if(!DRG)return;const r=DRG.row;DRG=null;r.classList.remove('dr
   const rs=r.dataset.rs,ord=[...r.parentElement.children].filter(x=>x.matches('.tk[data-rs="'+rs+'"]')).map(x=>+x.dataset.ci),pos=ord.slice().sort((a,b)=>a-b),A=rs==='d'?D(key(V.d)).t:S.g[rs];
   if(A&&ord.some((v,j)=>v!==pos[j])){const B=A.slice();pos.forEach((p,j)=>{B[p]=A[ord[j]]});A.splice(0,A.length,...B);V.tn=null;save()}render()};
 document.addEventListener('pointerup',drgEnd);document.addEventListener('pointercancel',drgEnd);
+
+document.addEventListener('input',e=>{const t=e.target;if(t.classList&&(t.classList.contains('rmd')||t.classList.contains('rmt')))rmSync(t)});
 </script>
 
 </body>
