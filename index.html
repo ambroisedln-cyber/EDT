@@ -499,6 +499,13 @@ a.chip{text-decoration:none}
 
 /* Intitulé toujours sur sa propre ligne */
 .hl b.hx,.ev .et .hl b.hx{display:block!important;margin-top:1px}
+
+/* En-tête centré avec flèches */
+.hnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:18px}
+.hnav h1{flex:1;min-width:0;text-align:center;margin:0;font-size:22px;line-height:1.2;cursor:pointer}
+.harr{flex:none;width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:var(--ac);background:none}
+.harr:active{opacity:.6}
+.hsubc{text-align:center;margin-top:4px}
 </style>
 </head>
 <body>
@@ -617,7 +624,7 @@ function todoList(arr,a,extra,src,flt){
   const rows=[];arr.forEach((x,i)=>{if(!flt||flt(x))rows.push(taskRow(x,i,a,extra,src,'',0,src==='c'))});
   return rows.length?rows.join(''):'<div class="em">Rien pour l’instant</div>';
 }
-const nv=(t,s,nt)=>(nt?'<div style="height:14px"></div>':'<div class="top"><div class="nv"><button data-a="prev">‹</button></div><div class="nv"><button class="td" data-a="today">Aujourd’hui</button></div><div class="nv"><button data-a="next">›</button></div></div>')+'<h1>'+t+'</h1><p class="sub">'+s+'</p>';
+const nv=(t,s,nt)=>(nt?'<div style="height:14px"></div><h1>'+t+'</h1><p class="sub">'+s+'</p>':'<div class="hnav"><button class="harr" data-a="prev" aria-label="Précédent"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h1 data-a="today">'+t+'</h1><button class="harr" data-a="next" aria-label="Suivant"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button></div><p class="sub hsubc">'+s+'</p>');
 const prIn=(i,v)=>'<input class="nt" data-nt="r" data-f="pr" data-i="'+i+'" placeholder="À prévoir…" value="'+esc(v)+'">';
 const noteIn=(k,i,v)=>(v&&(v.length>32||/\n/.test(v)))?'<textarea class="nt" rows="2" data-nt="'+k+'" data-i="'+i+'" placeholder="Remarques…">'+esc(v)+'</textarea>':'<input class="nt" data-nt="'+k+'" data-i="'+i+'" placeholder="Remarques…" value="'+esc(v)+'">';
 
