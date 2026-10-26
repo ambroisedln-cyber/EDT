@@ -640,12 +640,14 @@ const soonHTML=()=>{const t0=new Date(V.d.getFullYear(),V.d.getMonth(),V.d.getDa
     ((S.days[k]&&S.days[k].t)||[]).filter(q=>!q.f&&!q.cx).forEach(q=>tk.push({k,c:'Tâche',lab:'',ti:q.x}));
     if(v&&v.a===k)day.push({s:'00',c:'Vacances',lab:'Vacances',ti:'Départ en vacances',sub:v.l||''});
     ((S.days[k]&&S.days[k].r)||[]).forEach(q=>day.push({s:q.h||'98',c:q.c,lab:q.c,h:q.h,h2:endOf(q.h,q.du),ti:q.x,sub:q.tele?TL(q):(q.l||'')}));
-    day.sort((a,b)=>a.s.localeCompare(b.s));if(day.length)R.push({k,dl:lab,it:day});tk.forEach(t=>{t.dl=lab;TK.push(t)})}
+    day.sort((a,b)=>a.s.localeCompare(b.s));if(day.length||tk.length)R.push({k,dl:lab,it:day,tk})}
   const SC=c=>({Vacances:'vprog'}[c]||(['Médical','Meeting','Resto','Événement','Autre'].includes(c)?'plan':'')),nEv=R.reduce((a,g)=>a+g.it.length,0);let cnt=0;
-  const body=R.map(g=>{if(!V.soon&&cnt>=8)return '';const it=g.it.filter(()=>V.soon||cnt++<8);if(!it.length)return '';
-    return '<div class="sdh"><span>'+g.dl+'</span></div>'+it.map(r=>lineHTML(r,'data-a="day" data-d="'+r.k+'" data-sc="'+SC(r.c)+'"')).join('')}).join('');
-  const nt=TK.length,op=V.sotk,tasks=nt?'<div class="stk0"><span>'+(S.lang==='en'?nt+' task'+(nt>1?'s':'')+' to do':nt+' tâche'+(nt>1?'s':'')+' à faire')+'</span><button class="stk'+(op?' on':'')+'" data-a="sotk" aria-label="Voir les tâches"><i>'+(op?'−':'+')+'</i></button></div>'+(op?'<div class="stl">'+TK.map(t=>'<button class="stt" data-a="day" data-d="'+t.k+'" data-sc="tasks"><span class="ck0"></span><span>'+esc(t.ti)+'</span><small>'+esc(t.dl)+'</small></button>').join('')+'</div>':''):'';
-  return '<div class="card"><h2>À venir · '+(key(t0)===key(td0)?'7 prochains jours':'7 jours à partir du '+fdate(key(t0)))+'</h2>'+(R.length?body+(nEv>8?'<button class="em" data-a="soon" style="width:100%;color:var(--ac)">'+(V.soon?'Voir moins':'+ '+(nEv-8)+' autres')+'</button>':''):'<div class="em">Rien de prévu dans les 7 prochains jours</div>')+tasks+'</div>'};
+  V.sot=V.sot||{};const tw=n=>S.lang==='en'?n+' task'+(n>1?'s':''):n+' tâche'+(n>1?'s':'');
+  const body=R.map(g=>{if(!V.soon&&cnt>=8)return '';const it=g.it.filter(()=>V.soon||cnt++<8),nt=g.tk.length,op=V.sot[g.k];if(!it.length&&!nt)return '';
+    return '<div class="sdh"><span>'+g.dl+'</span>'+(nt?'<button class="stk'+(op?' on':'')+'" data-a="sotk" data-d="'+g.k+'">'+tw(nt)+'<i>'+(op?'−':'+')+'</i></button>':'')+'</div>'
+      +it.map(r=>lineHTML(r,'data-a="day" data-d="'+r.k+'" data-sc="'+SC(r.c)+'"')).join('')
+      +(op?'<div class="stl">'+g.tk.map(t=>'<button class="stt" data-a="day" data-d="'+t.k+'" data-sc="tasks"><span class="ck0"></span><span>'+esc(t.ti)+'</span>'+(t.lab?'<small>'+esc(t.lab)+'</small>':'')+'</button>').join('')+'</div>':'')}).join('');
+  return '<div class="card"><h2>À venir · '+(key(t0)===key(td0)?'7 prochains jours':'7 jours à partir du '+fdate(key(t0)))+'</h2>'+(R.length?body+(nEv>8?'<button class="em" data-a="soon" style="width:100%;color:var(--ac)">'+(V.soon?'Voir moins':'+ '+(nEv-8)+' autres')+'</button>':''):'<div class="em">Rien de prévu dans les 7 prochains jours</div>')+'</div>'};
 const bagHTML=(v,vi)=>{const bag=v.bag||[],dn=bag.filter(x=>x.f).length;
   return '<div style="margin-top:16px"><b style="font-size:14px">Valise'+(bag.length?' · '+dn+'/'+bag.length:'')+'</b>'+bag.map((x,j)=>'<div class="it'+(x.f?' done':'')+'"><button class="ck" data-a="bag" data-i="'+vi+'" data-j="'+j+'"></button><span class="t">'+esc(x.x)+'</span><button class="x" data-a="bagx" data-i="'+vi+'" data-j="'+j+'">×</button></div>').join('')+addRow('<input type="text" id="bg" placeholder="Ajouter à la valise">','Ajouter','bagadd','data-i="'+vi+'"')+(bag.length?'':'<div class="add"><button data-a="bagbase" data-i="'+vi+'" style="--c:#8e8e93">Pré-remplir une liste de base</button></div>')+'</div>'};
 const BASE=['Papiers d’identité','Billets / réservations','Chargeur téléphone','Batterie externe','Trousse de toilette','Vêtements','Chaussures','Lunettes de soleil','Adaptateur de prise'];
@@ -1158,7 +1160,7 @@ document.addEventListener('click',e=>{
   else if(a==='ccopy'){const tx=courseText(V.cs||'l');if(!tx)return;copyTxt(tx).then(ok=>{if(ok){b.textContent='✓ Copié';setTimeout(()=>{try{b.textContent='Copier'}catch(e){}},1600)}else{V.cpy=1;render();setTimeout(()=>{const e=$('#cpt');if(e){e.focus();e.select()}},60)}});return}
   else if(a==='cshare'){const tx=courseText(V.cs||'l');if(!tx)return;let p;try{p=navigator.share({text:tx})}catch(e){p=Promise.reject(e)}p.catch(e=>{if(e&&e.name==='AbortError')return;copyTxt(tx).then(ok=>{if(ok){b.textContent='✓ Copié';setTimeout(()=>{try{b.textContent='Partager'}catch(e2){}},1600)}else{V.cpy=1;render()}})});return}
   else if(a==='soon')V.soon=!V.soon;
-  else if(a==='sotk')V.sotk=!V.sotk;
+  else if(a==='sotk'){V.sot=V.sot||{};V.sot[b.dataset.d]=!V.sot[b.dataset.d]}
   else if(a==='xp')V.xp=!V.xp;
   else if(a==='xr')V.xr=s;
   else if(a==='xc'){V.xc=V.xc||{};const c0=b.dataset.c;V.xc[c0]=V.xc[c0]===0?1:0}
