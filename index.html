@@ -537,9 +537,9 @@ a.chip{text-decoration:none}
 textarea.tna{max-height:none!important;overflow-y:auto}
 
 /* Anniversaire dans le planning du jour */
-.bdb{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;padding:9px 40px;margin:2px 0 8px;border-radius:10px;background:color-mix(in srgb,var(--c) 10%,transparent);color:var(--c);font-size:15px}
-.bdb b{font-weight:600}
-.bdx{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:26px;height:26px;display:flex;align-items:center;justify-content:center;color:var(--c);opacity:.6}
+.bdb{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;width:fit-content;max-width:100%;margin:0 auto 8px;padding:4px 30px 4px 12px;border-radius:999px;background:color-mix(in srgb,var(--c) 8%,transparent);color:var(--c);font-size:13px;line-height:1.3}
+.bdb b{font-weight:500}
+.bdx{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--c);opacity:.6}
 </style>
 </head>
 <body>
@@ -804,7 +804,7 @@ function vJour(){
     if(V.wed===k&&d.w.length)wk+='<div class="wked">'+d.w.map((x,i)=>WROW(x,i)).join('')+'<div class="wkea"><button data-a="wadd">＋ Ajouter une plage</button><button data-a="wreset">↺ Horaires habituels</button></div></div>'}
   d.r.forEach((x,i)=>rows.push({t:x.h||'99:99',h:(V.edit&&V.edit.k===k&&V.edit.i===i)?editForm(k,i):EROW(x,i)}));
   rows.sort((m,n)=>m.t.localeCompare(n.t));
-  h+='<div class="card" id="plan"><h2 style="display:flex;justify-content:space-between;align-items:center">Planning de la journée<button class="plus" data-a="jplus">'+(V.jp?'×':'＋')+'</button></h2>'+datesOn(k).map(x=>'<div class="bdb" '+sty('Date')+'><span><b>Anniversaire</b> · '+esc(x.n)+'</span><button class="bdx" data-a="ddx" data-i="'+S.dates.indexOf(x)+'" aria-label="Supprimer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>').join('')+wk+(V.jp?qaChips()+(V.qa?qaCard():''):'')+(rows.length?rows.map(r=>r.h).join(''):'<div class="em">Rien de prévu</div>')+'</div>';
+  h+='<div class="card" id="plan"><h2 style="display:flex;justify-content:space-between;align-items:center">Planning de la journée<button class="plus" data-a="jplus">'+(V.jp?'×':'＋')+'</button></h2>'+datesOn(k).map(x=>'<div class="bdb" '+sty('Date')+'><span><b>Anniversaire</b> · '+esc(x.n)+'</span><button class="bdx" data-a="ddx" data-i="'+S.dates.indexOf(x)+'" aria-label="Supprimer"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>').join('')+wk+(V.jp?qaChips()+(V.qa?qaCard():''):'')+(rows.length?rows.map(r=>r.h).join(''):'<div class="em">Rien de prévu</div>')+'</div>';
   h+='<div class="card" id="tasks"><h2>À faire ce jour</h2>'+(d.t.length||!gd(k).length?todoList(d.t,'dt','','d'):'')+gd(k).map(o=>taskRow(o.x,o.i,'gt','data-s="'+o.s+'"',o.s,gname(o.s),1)).join('')+addRow('<input type="text" id="ti" placeholder="Nouvelle tâche">','Ajouter','adt')+'<p class="sub" style="margin:8px 0 0">Touchez une tâche pour ajouter une remarque ou la reporter.</p></div>';
   h+='<div class="card"><h2>Notes</h2><textarea id="nt" placeholder="Écrire ici…">'+esc(d.n)+'</textarea></div>';
   return h;
