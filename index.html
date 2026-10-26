@@ -492,6 +492,10 @@ a.chip{text-decoration:none}
 
 /* + centré verticalement sur toute la tâche */
 .tk>.it .tacts{align-self:center;margin-top:0!important}
+
+/* Intitulés jamais coupés : retour à la ligne */
+.rtag,.rev .rn small,.ln .ls,.hsub,.hl,.hl .hx{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+.rtag{max-width:100%;line-height:1.35}
 </style>
 </head>
 <body>
@@ -610,7 +614,7 @@ function todoList(arr,a,extra,src,flt){
   const rows=[];arr.forEach((x,i)=>{if(!flt||flt(x))rows.push(taskRow(x,i,a,extra,src,'',0,src==='c'))});
   return rows.length?rows.join(''):'<div class="em">Rien pour l’instant</div>';
 }
-const nv=(t,s)=>'<div class="top"><div class="nv"><button data-a="prev">‹</button></div><div class="nv"><button class="td" data-a="today">Aujourd’hui</button></div><div class="nv"><button data-a="next">›</button></div></div><h1>'+t+'</h1><p class="sub">'+s+'</p>';
+const nv=(t,s,nt)=>(nt?'<div style="height:14px"></div>':'<div class="top"><div class="nv"><button data-a="prev">‹</button></div><div class="nv"><button class="td" data-a="today">Aujourd’hui</button></div><div class="nv"><button data-a="next">›</button></div></div>')+'<h1>'+t+'</h1><p class="sub">'+s+'</p>';
 const prIn=(i,v)=>'<input class="nt" data-nt="r" data-f="pr" data-i="'+i+'" placeholder="À prévoir…" value="'+esc(v)+'">';
 const noteIn=(k,i,v)=>(v&&(v.length>32||/\n/.test(v)))?'<textarea class="nt" rows="2" data-nt="'+k+'" data-i="'+i+'" placeholder="Remarques…">'+esc(v)+'</textarea>':'<input class="nt" data-nt="'+k+'" data-i="'+i+'" placeholder="Remarques…" value="'+esc(v)+'">';
 
@@ -871,7 +875,7 @@ function vMois(){
 }
 function vAnnee(){
   const y=V.d.getFullYear();
-  let h=nv(String(y),'Les 12 mois avec leurs numéros de semaine')+'<div class="srch"><input type="search" id="sq" placeholder="Rechercher un rendez-vous, une tâche, un lieu…" value="'+esc(V.q||'')+'" autocomplete="off"></div><div class="card" id="sr"'+((V.q||'').trim().length<2?' hidden':'')+'>'+searchHTML(V.q||'')+'</div>'+'<div class="pills ypl">'+Array.from({length:YMAX-YMIN+1},(_,i)=>i).map(i=>'<button data-a="yr" data-y="'+(YMIN+i)+'" class="'+(YMIN+i===y?'on':'')+'">'+(YMIN+i)+'</button>').join('')+'</div><div class="yr">';
+  let h=nv(String(y),'Les 12 mois avec leurs numéros de semaine',1)+'<div class="srch"><input type="search" id="sq" placeholder="Rechercher un rendez-vous, une tâche, un lieu…" value="'+esc(V.q||'')+'" autocomplete="off"></div><div class="card" id="sr"'+((V.q||'').trim().length<2?' hidden':'')+'>'+searchHTML(V.q||'')+'</div>'+'<div class="pills ypl">'+Array.from({length:YMAX-YMIN+1},(_,i)=>i).map(i=>'<button data-a="yr" data-y="'+(YMIN+i)+'" class="'+(YMIN+i===y?'on':'')+'">'+(YMIN+i)+'</button>').join('')+'</div><div class="yr">';
   for(let m=0;m<12;m++)h+='<div class="card"><h3><button data-a="mo" data-m="'+m+'">'+MOIS[m]+'</button></h3>'+grid(y,m,true)+'</div>';
   return h+'</div>';
 }
