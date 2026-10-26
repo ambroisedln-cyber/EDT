@@ -459,6 +459,17 @@ a.chip{text-decoration:none}
 .rday{align-items:center}
 .rdd,.rdb{padding-top:0}
 .rday:first-child{padding-top:8px}
+
+/* ===== Bulles pour tout ce qui est planifié ===== */
+.ln,.rev,.it.c:has(.hl){position:relative;display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:color-mix(in srgb,var(--c) 6%,var(--card))!important;border:0!important;border-radius:12px!important;padding:10px 10px 10px 18px!important;margin:6px 0!important;box-shadow:none!important;color:var(--tx)}
+.ln::before,.rev::before,.it.c:has(.hl)::before{content:"";position:absolute;left:7px;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--c)}
+.ln .lb,.rev .rn{flex:1;min-width:0}
+.ln .lr{font-size:17px;color:var(--mu);align-self:center}
+.ln .ls,.rev .rn small{font-size:13px;color:var(--mu);margin-top:1px}
+.rev:active,.ln:active,.it.c:has(.hl):active{opacity:.7}
+.rdb{gap:0}.rdb .rtags{margin-bottom:2px}
+.sdh{margin-top:10px}
+.it.c:has(.hl) .tm{font-size:12.5px}
 </style>
 </head>
 <body>
