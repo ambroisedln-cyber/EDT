@@ -488,7 +488,7 @@ try{const t=JSON.parse(localStorage.getItem('edt-auth')||'null');if(t&&t.user&&t
 const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0');
 const MOIS=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 const JRS=['dim','lun','mar','mer','jeu','ven','sam'];
-const C={Meeting:'#a2845e',Médical:'#ff3b30',Job:'#007aff',Autre:'#34c759',Resto:'#ff9500',Vacances:'#30b0c7',Férié:'#af52de',Date:'#ff2d92',Off:'#8e8e93',Tâche:'#5856d6',Événement:'#5ac8fa',Projets:'#5856d6',Courses:'#ff9f0a'};
+const C={Meeting:'#a2845e',Médical:'#ff3b30',Job:'#007aff',Autre:'#34c759',Resto:'#ff9500',Vacances:'#30b0c7',Férié:'#af52de',Date:'#ff2d92',Off:'#8e8e93',Tâche:'#5856d6',Événement:'#5ac8fa',Sport:'#d9a400',Projets:'#5856d6',Courses:'#ff9f0a'};
 const sty=c=>'style="--c:'+(C[c]||'#8e8e93')+'"';
 const HM=h=>!h?'':(S.lang==='en'?h:h.replace(/^0?(\d+):00$/,'$1h').replace(/^0?(\d+):(\d\d)$/,'$1h$2'));
 const HEAD=(h,h2,lab,ti,c)=>'<span class="hl" '+sty(c)+'>'+(h?'<span class="hh">'+HM(h)+(h2?'/'+HM(h2):'')+'</span><i>–</i>':'')+(lab?'<span class="hc">'+esc(lab)+'</span><i>–</i>':'')+'<b class="hx">'+esc(ti||'')+'</b></span>';
@@ -637,7 +637,7 @@ const editForm=(k,i,card)=>{const x=(S.days[k]||{r:[]}).r[i];if(!x)return '';con
   +'<div class="fg">'+'<label class="ff"><span>Durée</span>'+durSel('eddu',x.du||'')+'</label>'+(med?'<label class="ff"><span>Type</span><select id="edm"><option value="p"'+(x.tele?'':' selected')+'>Présentiel</option><option value="t"'+(x.tele?' selected':'')+'>'+TL(x)+'</option></select></label>':'')+'</div>'
   +ff(med?'Adresse':'Lieu','edl',x.l,'',0,' id="edlw"'+(x.tele?' style="display:none"':''))
   +(med?ff(x.c==='Meeting'?'Lien de la visio':'Lien de la téléconsultation','edk',x.lk,'https://…',0,' id="edkw"'+(x.tele?'':' style="display:none"')):'')
-  +((x.c==='Resto'||x.c==='Meeting'||x.who)?ff(x.c==='Meeting'?'Participants':'Avec qui','edw',x.who):'')
+  +((x.c==='Resto'||x.c==='Sport'||x.c==='Meeting'||x.who)?ff(x.c==='Meeting'?'Participants':'Avec qui','edw',x.who):'')
   +ff('Remarques','edp',x.nt)+ff('Téléphone','edtel',x.tel,'','tel')+ff('Lien (mail, réservation…)','eddl',x.dl,'https://…')
   +'<label class="ff"><span>Joindre un fichier'+(nf?' · '+nf+' déjà joint'+(nf>1?'s':''):'')+'</span><input type="file" id="edf" multiple></label>'
   +'<div id="edmsg" class="sub" style="margin:6px 0 0"></div><div class="fb"><button data-a="edsave">Enregistrer</button><button class="sec" data-a="edcancel">Annuler</button></div></div>'};
@@ -672,7 +672,7 @@ const soonHTML=()=>{const t0=new Date(V.d.getFullYear(),V.d.getMonth(),V.d.getDa
     if(v&&v.a===k)day.push({s:'00',c:'Vacances',lab:'Vacances',ti:'Départ en vacances',sub:v.l||''});
     ((S.days[k]&&S.days[k].r)||[]).forEach(q=>day.push({s:q.h||'98',c:q.c,lab:q.c,h:q.h,h2:endOf(q.h,q.du),ti:q.x,sub:q.tele?TL(q):(q.l||'')}));
     day.sort((a,b)=>a.s.localeCompare(b.s));if(day.length||tk.length)R.push({k,dl:lab,it:day,tk})}
-  const SC=c=>({Vacances:'vprog'}[c]||(['Médical','Meeting','Resto','Événement','Autre'].includes(c)?'plan':'')),nEv=R.reduce((a,g)=>a+g.it.length,0);let cnt=0;
+  const SC=c=>({Vacances:'vprog'}[c]||(['Médical','Meeting','Resto','Sport','Événement','Autre'].includes(c)?'plan':'')),nEv=R.reduce((a,g)=>a+g.it.length,0);let cnt=0;
   V.sot=V.sot||{};const tw=n=>S.lang==='en'?n+' task'+(n>1?'s':''):n+' tâche'+(n>1?'s':'');
   const body=R.map(g=>{if(!V.soon&&cnt>=8)return '';const it=g.it.filter(()=>V.soon||cnt++<8),nt=g.tk.length,op=V.sot[g.k];if(!it.length&&!nt)return '';
     return '<div class="sdh"><span>'+g.dl+'</span>'+(nt?'<button class="stk'+(op?' on':'')+'" data-a="sotk" data-d="'+g.k+'">'+tw(nt)+'<i>'+(op?'−':'+')+'</i></button>':'')+'</div>'
@@ -789,7 +789,7 @@ async function addEv(dk,x,c,btn){
   rec.df=df;D(dk).r.push(rec);V.qa=null;V.jp=false;setD(parse(dk));save();render();
 }
 async function delAsset(id){await fdel(id)}
-const CATL={Meeting:'Meetings',Médical:'Rendez-vous médicaux',Resto:'Restaurants',Événement:'Événements',Autre:'Autres événements',Date:'Anniversaires',Vacances:'Vacances',Férié:'Jours fériés',Tâche:'Tâches à faire'};
+const CATL={Meeting:'Meetings',Médical:'Rendez-vous médicaux',Resto:'Restaurants',Événement:'Événements',Sport:'Sport',Autre:'Autres événements',Date:'Anniversaires',Vacances:'Vacances',Férié:'Jours fériés',Tâche:'Tâches à faire'};
 function catItems(cat,y,m,yr){
   const ym=y+'-'+pad(m+1),ok=k=>yr?k.slice(0,4)===String(y):k.slice(0,7)===ym,R=[];
   Object.keys(S.days).sort().forEach(k=>{if(!ok(k))return;const d=S.days[k];
@@ -801,7 +801,7 @@ function catItems(cat,y,m,yr){
   if(cat==='Férié')Object.entries(HOL(y)).forEach(([k,n])=>{if(ok(k))R.push({k,t:''+n})});
   return R.sort((a,b)=>a.k.localeCompare(b.k));
 }
-const XCATS=[['Médical','Rendez-vous médicaux'],['Meeting','Meetings'],['Resto','Restaurants'],['Événement','Événements'],['Autre','Autres événements'],['Vacances','Vacances']];
+const XCATS=[['Médical','Rendez-vous médicaux'],['Meeting','Meetings'],['Resto','Restaurants'],['Sport','Sport'],['Événement','Événements'],['Autre','Autres événements'],['Vacances','Vacances']];
 const DLC={save:async({filename,data})=>{const ty=/\.csv$/i.test(filename)?'text/csv':'text/plain',b=new Blob([data],{type:ty+';charset=utf-8'}),f=new File([b],filename,{type:ty});try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){if(e&&e.name==='AbortError'){const er=new Error('declined');er.code='declined';throw er}}const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4e3)}};
 const fdl=k=>parse(k).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short',year:'numeric'});
 const xRange=()=>{const y=V.d.getFullYear(),m=V.d.getMonth(),ym=y+'-'+pad(m+1),td=key(new Date()),r=V.xr||'m';
@@ -839,7 +839,7 @@ function xDownload(f){const fn='planning-'+xRange().lab.replace(/\s+/g,'-')+'.'+
 function vMois(){
   const y=V.d.getFullYear(),m=V.d.getMonth();
   let h=nv(MOIS[m]+' '+y,'Touchez un jour, une semaine ou une pastille')+'<div class="card">'+grid(y,m,false)+'</div>';
-  h+='<div class="card"><h2>Catégories</h2><div class="lg lgc">'+[['Médical','Médical'],['Meeting','Meeting'],['Resto','Restaurant'],['Événement','Événement'],['Autre','Autre'],['Date','Anniversaire'],['Vacances','Vacances'],['Férié','Férié'],['Tâche','Tâches à faire']].map(([c,n])=>'<button class="chip" data-a="cat" data-c="'+c+'" style="--c:'+C[c]+(V.cat===c?';background:var(--c);color:#fff':'')+'">● '+n+'</button>').join('')+'<span class="chip" '+sty('Off')+'>● Jour off</span></div></div>';
+  h+='<div class="card"><h2>Catégories</h2><div class="lg lgc">'+[['Médical','Médical'],['Meeting','Meeting'],['Resto','Restaurant'],['Sport','Sport'],['Événement','Événement'],['Autre','Autre'],['Date','Anniversaire'],['Vacances','Vacances'],['Férié','Férié'],['Tâche','Tâches à faire']].map(([c,n])=>'<button class="chip" data-a="cat" data-c="'+c+'" style="--c:'+C[c]+(V.cat===c?';background:var(--c);color:#fff':'')+'">● '+n+'</button>').join('')+'<span class="chip" '+sty('Off')+'>● Jour off</span></div></div>';
   if(V.cat){const R=catItems(V.cat,y,m,V.catYr);
     h+='<div class="card" '+sty(V.cat)+'><h2>'+CATL[V.cat]+' · '+(V.catYr?y:MOIS[m]+' '+y)+' · '+R.length+'</h2><div class="lg" style="margin-bottom:6px"><button class="chip" data-a="catyr" style="--c:#8e8e93">'+(V.catYr?'Voir ce mois':'Voir toute l’année')+'</button><button class="chip" data-a="cat" data-c="'+V.cat+'" style="--c:#8e8e93">Fermer</button></div>'+(R.length?R.map(r=>'<button class="it c" data-a="day" data-d="'+r.k+'" style="--c:'+C[V.cat]+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+fdate(r.k)+'</span><span class="t">'+(r.hd||esc(r.t))+'</span></button>').join(''):'<div class="em">Rien pour cette catégorie</div>')+'</div>';
     return h}
@@ -964,7 +964,7 @@ async function loadWx(tried){
   }
 }
 const MEDNOTE='Demander une facture · Mettre à jour mon suivi médical';
-const QL={Meeting:'Meeting',Médical:'Rdv médical',Resto:'Restaurant',Événement:'Événement',Vacances:'Vacances',Date:'Anniversaire',Autre:'Autre'};
+const QL={Meeting:'Meeting',Médical:'Rdv médical',Resto:'Restaurant',Événement:'Événement',Sport:'Sport',Vacances:'Vacances',Date:'Anniversaire',Autre:'Autre'};
 const tmodes=n=>['Train','Avion','Voiture','Bus'].map(t=>'<label class="chip" style="--c:#8e8e93"><input type="checkbox" name="'+n+'" value="'+t+'"> '+t+'</label>').join('');
 const qaCard=()=>{const c=V.qa,lb=t=>'<span class="sub" style="margin:0;align-self:center">'+t+'</span>';
   let f='';
@@ -972,9 +972,9 @@ const qaCard=()=>{const c=V.qa,lb=t=>'<span class="sub" style="margin:0;align-se
   else if(c==='Vacances')f='<label class="fld"><span>Du</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>au</span><input type="date" id="qe" value="'+key(V.d)+'"></label><input type="text" id="ql" autocomplete="off" placeholder="Lieu">'+[['Aller','qg'],['Retour','qr']].map(([t,n])=>'<div style="width:100%"><b style="font-size:14px">'+t+'</b><div class="lg" style="margin:4px 0">'+tmodes(n)+'</div><input type="text" id="'+n+'d" placeholder="Détails '+t.toLowerCase()+' (horaires, n° de vol…)" style="width:100%"><input type="text" id="'+n+'l" placeholder="Lien (billet, réservation…)" style="width:100%;margin-top:6px"><input type="file" id="'+n+'f" multiple style="max-width:100%;margin-top:6px"></div>').join('')+'<div style="width:100%"><b style="font-size:14px">Programme</b><div id="vplist"></div>'+vpForm('',null)+'</div><div id="qmsg" class="sub" style="width:100%;margin:0"></div>';
   else{f='<label class="fld"><span>Date</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>Heure</span><input type="time" id="qh"></label><input type="text" id="qx" list="dl-t-'+c+'" placeholder="Intitulé">'+durSel('qdu','')+'';
     f+=HASMODE(c)?'<select id="qm"><option value="p">Présentiel</option><option value="t">'+(c==='Meeting'?'Visio':'Téléconsultation')+'</option></select><input type="text" id="ql" autocomplete="off" placeholder="Adresse"><input type="text" id="qk" placeholder="'+(c==='Meeting'?'Lien Teams, Zoom, Meet…':'Lien de la téléconsultation')+'" style="display:none">':'<input type="text" id="ql" autocomplete="off" placeholder="Lieu">';
-    f+=(c==='Resto'?'<input type="text" id="qw" placeholder="Avec qui">':c==='Meeting'?'<input type="text" id="qw" placeholder="Participants" style="width:100%">':'')+(c==='Meeting'?'<textarea id="qp" class="nt tna" rows="2" placeholder="Ordre du jour / remarques (facultatif)" style="width:100%"></textarea>':'<input type="text" id="qp" placeholder="Remarques (facultatif)">')+'<input type="tel" id="qtel" placeholder="Téléphone (facultatif)"><input type="text" id="qdl" placeholder="Lien d’un mail, d’une réservation…" style="width:100%"><span class="sub" style="width:100%;margin:0">'+(c==='Meeting'?'Joindre un fichier (présentation, document, PDF…)':'Joindre un fichier (ordonnance, confirmation, PDF, photo…)')+'</span><input type="file" id="qdf" multiple style="max-width:100%"><div id="qmsg" class="sub" style="width:100%;margin:0"></div>'}
+    f+=((c==='Resto'||c==='Sport')?'<input type="text" id="qw" placeholder="Avec qui">':c==='Meeting'?'<input type="text" id="qw" placeholder="Participants" style="width:100%">':'')+(c==='Meeting'?'<textarea id="qp" class="nt tna" rows="2" placeholder="Ordre du jour / remarques (facultatif)" style="width:100%"></textarea>':'<input type="text" id="qp" placeholder="Remarques (facultatif)">')+'<input type="tel" id="qtel" placeholder="Téléphone (facultatif)"><input type="text" id="qdl" placeholder="Lien d’un mail, d’une réservation…" style="width:100%"><span class="sub" style="width:100%;margin:0">'+(c==='Meeting'?'Joindre un fichier (présentation, document, PDF…)':'Joindre un fichier (ordonnance, confirmation, PDF, photo…)')+'</span><input type="file" id="qdf" multiple style="max-width:100%"><div id="qmsg" class="sub" style="width:100%;margin:0"></div>'}
   return '<div class="card" '+sty(c)+'><h2>Ajouter · '+QL[c]+'</h2><div class="add" style="margin-top:0">'+f+'<button data-a="qadd">Ajouter</button><button class="x" data-a="qcancel" style="font-size:15px">Annuler</button></div></div>'};
-const qaChips=()=>'<div class="lg lgc">'+[['Médical','Rdv médical'],['Meeting','Meeting'],['Resto','Restaurant'],['Événement','Événement'],['Vacances','Vacances'],['Date','Anniversaire'],['Autre','Autre']].map(([c,n])=>'<button class="chip" data-a="qa" data-c="'+c+'" style="--c:'+(C[c]||'#8e8e93')+(V.qa===c?';background:var(--c);color:#fff':'')+'">'+(V.qa===c?'× ':'＋ ')+n+'</button>').join('')+'</div>';
+const qaChips=()=>'<div class="lg lgc">'+[['Médical','Rdv médical'],['Meeting','Meeting'],['Resto','Restaurant'],['Sport','Sport'],['Événement','Événement'],['Vacances','Vacances'],['Date','Anniversaire'],['Autre','Autre']].map(([c,n])=>'<button class="chip" data-a="qa" data-c="'+c+'" style="--c:'+(C[c]||'#8e8e93')+(V.qa===c?';background:var(--c);color:#fff':'')+'">'+(V.qa===c?'× ':'＋ ')+n+'</button>').join('')+'</div>';
 const nz=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 const fdate=k=>k.slice(8)+'/'+k.slice(5,7)+'/'+k.slice(2,4);
 function searchHTML(q){
