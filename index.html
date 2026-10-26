@@ -1146,7 +1146,7 @@ document.addEventListener('click',e=>{
   if(flushPend()){render();return}
   const a=b.dataset.a,i=+b.dataset.i,s=b.dataset.s,k=key(V.d),v=id=>($(id)||{}).value||'';
   if(DEL[a]){finalizeUndo();UNDO={snap:JSON.stringify(S),label:DEL[a],ids:[]}}
-  if(V.edit&&a!=='edsave')V.edit=null;
+  if(V.edit&&a!=='edsave'&&a!=='sgpick'&&!b.closest('.ef'))V.edit=null;
   if(a==='tab'){V.tab=b.dataset.t;if(V.tab==='jour'||V.tab==='semaine'||V.tab==='mois')setD(new Date());V.qa=null;V.cat=null;V.ev=null;V.jp=false}
   else if(a==='day'){setD(parse(b.dataset.d));V.tab='jour';V.sc=b.dataset.sc||1}
   else if(a==='wk'){setD(parse(b.dataset.d));V.tab='semaine'}
