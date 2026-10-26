@@ -27,7 +27,7 @@ export function dueReminders(S: any, now = parisNow()) {
   // Rendez-vous : rappel propre (x.rem) ou rappel par défaut des réglages
   for (const k of [now.key, addDay(now.key, 1), addDay(now.key, 2)]) {
     ((days[k] && days[k].r) || []).forEach((x: any) => {
-      if (!x || !x.x || !/^\d{2}:\d{2}$/.test(x.h || "")) return;
+      if (!x || !x.x || !/^\d{2}:\d{2}$/.test(x.h || "") || typeof x.ra === "string") return;
       const rem = (x.rem !== undefined && x.rem !== null && x.rem !== "") ? +x.rem : (defRem > 0 ? defRem : -1);
       if (!(rem >= 0)) return;
       const at = locMin(k, x.h), when = at - rem;
@@ -47,6 +47,17 @@ export function dueReminders(S: any, now = parisNow()) {
     if (when <= now.min && when > now.min - 15) out.push({ key: "t|" + x.ra + "|" + x.x, title: en ? "Reminder" : "Rappel", body: x.x + (where ? " · " + where : "") + (x.nt ? "\n" + String(x.nt).slice(0, 120) : "") });
   };
   Object.keys(days).forEach((k) => ((days[k] && days[k].t) || []).forEach((x: any) => taskRem(x, "")));
+  // Rendez-vous avec un rappel à date et heure précises
+  Object.keys(days).forEach((k) => ((days[k] && days[k].r) || []).forEach((x: any) => {
+    if (!x || !x.x || typeof x.ra !== "string") return;
+    const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(x.ra);
+    if (!m) return;
+    const when = locMin(m[1], m[2]);
+    if (!(when <= now.min && when > now.min - 15)) return;
+    const place = x.tele ? (en ? "Video call" : (x.c === "Meeting" ? "Visio" : "Téléconsultation")) : (x.l || "");
+    const dd = k.slice(8, 10) + "/" + k.slice(5, 7);
+    out.push({ key: "a|" + k + "|" + x.ra + "|" + x.x, title: x.x, body: (k === now.key ? (en ? "Today" : "Aujourd’hui") : dd) + (x.h ? (en ? " at " : " à ") + fmtH(x.h) : "") + (place ? " · " + place : "") });
+  }));
   const GN: Record<string, string> = { m: "Médical", j: "Job", a: "Autre", p: "Projets", c: "Courses", k: "Commandes", v: "Vacances" };
   Object.keys(S.g || {}).forEach((g) => (S.g[g] || []).forEach((x: any) => taskRem(x, GN[g] || "")));
   if (cfg.remv && now.hour === 20 && now.minute < 20) {
