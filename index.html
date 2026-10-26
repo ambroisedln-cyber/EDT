@@ -804,7 +804,7 @@ function vJour(){
   let wk='';
   if(!vacOn(k)){const W=work(k);
     if(W.length)wk='<div class="wkb"><span class="wkt">Travail</span><span class="wkh">'+W.map(q=>q.a+' – '+q.b).join(' · ')+'</span><button class="wke" data-a="wmod" title="Modifier les horaires" aria-label="Modifier les horaires">'+(V.wed===k?'×':'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10.5-10.5a2.1 2.1 0 0 0-3-3L5 16l-1 4z"/></svg>')+'</button></div>';
-    else wk='<div class="wkb off"><span class="wkt">Jour off</span>'+((d.ov)?'<button data-a="wreset">Horaires habituels</button>':'')+'</div>';
+    else wk='<div class="wkb off"><span class="wkt">Jour off</span></div>';
     if(V.wed===k&&d.w.length)wk+='<div class="wked">'+d.w.map((x,i)=>WROW(x,i)).join('')+'<div class="wkea"><button data-a="wadd">＋ Ajouter une plage</button><button data-a="wreset">↺ Horaires habituels</button></div></div>'}
   d.r.forEach((x,i)=>rows.push({t:x.h||'99:99',h:(V.edit&&V.edit.k===k&&V.edit.i===i)?editForm(k,i):EROW(x,i)}));
   rows.sort((m,n)=>m.t.localeCompare(n.t));
