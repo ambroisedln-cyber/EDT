@@ -10,3 +10,6 @@ python3 outils/build_design.py  etape2.html index.html   # affinage du design (b
 
 Puis déposer `index.html` sur `main` : Vercel (projet `emploi-du-temps`) publie sur https://emploi-du-temps-tau.vercel.app.
 Supabase : projet `emploi-du-temps` (rbofulzwbhrnlgbjqasn), table `public.user_data`, bucket privé `files`.
+
+## Important
+Depuis le 26/10/2026, `index.html` de ce dépôt est la **version de référence** : les modifications se font directement dessus (onglet À faire avec notes par tâche, design affiné, comptes…). Ne plus repartir d'un export de l'artefact Claude, sinon ces changements seraient perdus.

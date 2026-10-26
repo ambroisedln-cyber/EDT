@@ -175,6 +175,21 @@ nav .on i svg{stroke-width:2.1}
 /* écran de connexion */
 .af input{box-shadow:var(--sh)}
 .af .pri{border-radius:12px;padding:13px;font-weight:600}
+
+/* ===== Onglet À faire : tâches et notes ===== */
+.gbody .tk>.it{align-items:flex-start}.gbody .tk>.it .ck{margin-top:1px}.gbody .tk>.it .opt2,.gbody .tk>.it>.x{margin-top:-4px}
+.gbody .tt{font-weight:600;font-size:16px;line-height:1.3;letter-spacing:-.1px}
+.gbody .it.done .tt,.gbody .it.cx .tt{font-weight:500}
+.tnd{display:block;margin-top:4px;font-weight:400;font-size:14.5px;line-height:1.45;color:color-mix(in srgb,var(--tx) 72%,transparent);white-space:pre-wrap;word-break:break-word}
+.it.done .tnd{color:var(--mu)}
+.gbody .tk{padding:2px 0}
+.gbody .tp{padding:2px 0 12px 32px}
+textarea.tna{display:block;width:100%;min-height:0;resize:none;font-size:16px;line-height:1.45;padding:10px 12px;border-radius:12px;background:var(--bg);overflow:hidden}
+.tadd{flex-direction:column;align-items:stretch;gap:8px;margin-top:12px;padding-top:12px;border-top:.5px solid var(--ln)}
+.tadd input[type=text]{width:100%;font-weight:600}
+.tadd textarea.tna{font-size:16px}
+.tadd button{align-self:flex-end}
+.gnote .sub{color:var(--tx)!important;font-size:13px}
 </style>
 </head>
 <body>
@@ -263,9 +278,9 @@ const taskRow=(x,i,a,extra,src,tag,nd,min)=>{const kk=src+'|'+i,open=!min&&V.tn=
   const ck='<button class="ck" data-a="'+a+'" data-i="'+i+'" '+extra+'></button>',dl='<button class="x" title="Supprimer" data-a="'+a+'x" data-i="'+i+'" '+extra+'>×</button>';
   const pl='<button class="opt2" title="Date, remarque, récurrence" data-a="tnote" data-src="'+src+'" data-i="'+i+'">'+(open?'−':'＋')+'</button>';
   if(min)return '<div class="tk"><div class="'+cls+'">'+ck+'<span class="t">'+esc(x.x)+'</span>'+dl+'</div></div>';
-  const sub=(x.cx?' <small>(annulée)</small>':'')+(tag?' <span class="tag">'+esc(tag)+'</span>':'')+((x.d&&!nd)?' <span class="tag" style="--c:#007aff">📅 '+fdate(x.d)+'</span>':'')+(x.rc?' <span class="tag" style="--c:#5856d6">🔁 '+RCL[x.rc]+'</span>':'')+((x.nt&&!open)?'<br><small>'+esc(x.nt)+'</small>':'');
+  const sub=(x.cx?' <small>(annulée)</small>':'')+(tag?' <span class="tag">'+esc(tag)+'</span>':'')+((x.d&&!nd)?' <span class="tag" style="--c:#007aff">📅 '+fdate(x.d)+'</span>':'')+(x.rc?' <span class="tag" style="--c:#5856d6">🔁 '+RCL[x.rc]+'</span>':'')+((x.nt&&!open)?(src==='d'?'<br><small>'+esc(x.nt)+'</small>':'<span class="tnd">'+esc(x.nt)+'</span>'):'');
   const pk=src==='d'?key(V.d):(x.d||''),dvt=src==='d'?'📅 Reporter à une autre date':(x.d?'📅 '+fdate(x.d):'📅 Choisir une date');
-  const panel=open?'<div class="tp"><input class="nt" data-tn="'+kk+'" placeholder="Remarque…" value="'+esc(x.nt||'')+'"><div class="tpr"><label class="dpk"><span class="dv">'+dvt+'</span><input type="date" data-gdate="'+kk+'" value="'+pk+'"></label>'+((x.d&&src!=='d')?'<button class="x" data-a="gundate" data-src="'+src+'" data-i="'+i+'" style="font-size:13px;color:var(--ac)">Retirer</button>':'')+'</div><div class="tpr"><span>🔁 Répéter</span><select class="nt" data-grc="'+kk+'">'+RCO.map(([v,n])=>'<option value="'+v+'"'+((x.rc||'')===v?' selected':'')+'>'+n+'</option>').join('')+'</select></div>'+(pk?calLinks('t|'+src+'|'+i+(src==='d'?'|'+pk:'')):'')+'</div>':'';
+  const panel=open?'<div class="tp">'+(src==='d'?'<input class="nt" data-tn="'+kk+'" placeholder="Remarque…" value="'+esc(x.nt||'')+'">':'<textarea class="nt tna" rows="3" data-tn="'+kk+'" placeholder="Note liée à cette tâche…">'+esc(x.nt||'')+'</textarea>')+'<div class="tpr"><label class="dpk"><span class="dv">'+dvt+'</span><input type="date" data-gdate="'+kk+'" value="'+pk+'"></label>'+((x.d&&src!=='d')?'<button class="x" data-a="gundate" data-src="'+src+'" data-i="'+i+'" style="font-size:13px;color:var(--ac)">Retirer</button>':'')+'</div><div class="tpr"><span>🔁 Répéter</span><select class="nt" data-grc="'+kk+'">'+RCO.map(([v,n])=>'<option value="'+v+'"'+((x.rc||'')===v?' selected':'')+'>'+n+'</option>').join('')+'</select></div>'+(pk?calLinks('t|'+src+'|'+i+(src==='d'?'|'+pk:'')):'')+'</div>':'';
   return '<div class="tk"><div class="'+cls+'">'+ck+'<button class="t tt" data-a="tnote" data-src="'+src+'" data-i="'+i+'">'+esc(x.x)+sub+'</button>'+pl+dl+'</div>'+panel+'</div>'};
 function todoList(arr,a,extra,src,flt){
   const rows=[];arr.forEach((x,i)=>{if(!flt||flt(x))rows.push(taskRow(x,i,a,extra,src,'',0,src==='c'))});
@@ -531,9 +546,9 @@ function vTodo(){
       const dn=S.g.c.some(x=>x.f&&(x.sh||'o')===cs);
       return seg+todoList(S.g.c,'gt','data-s="c"','c',x=>(x.sh||'o')===cs)+'<div class="add"><input type="text" id="gc" placeholder="Ajouter à '+shn+'"><button data-a="adg" data-s="c">Ajouter</button></div>'+(dn?'<button class="x" data-a="cclear" style="font-size:13px;color:var(--ac);margin-top:8px">Effacer les articles cochés</button>':'')+shareBar(cs);
     }
-    return todoList(S.g[s0],'gt','data-s="'+s0+'"',s0)+'<div class="add"><input type="text" id="g'+s0+'" placeholder="Nouvelle tâche"><button data-a="adg" data-s="'+s0+'">Ajouter</button></div>'};
+    return todoList(S.g[s0],'gt','data-s="'+s0+'"',s0)+'<div class="add tadd"><input type="text" id="g'+s0+'" placeholder="Nouvelle tâche" autocomplete="off"><textarea id="gn" class="nt tna" rows="2" placeholder="Note liée à la tâche (facultatif)"></textarea><button data-a="adg" data-s="'+s0+'">Ajouter</button></div>'};
   let h='<h1>À faire</h1>'+GT.map(([q,n,ic])=>{const op=(S.g[q]||[]).filter(x=>!x.f&&!x.cx).length,on=q===cur;
-    return '<div class="card gcat'+(on?' on':'')+'" '+sty(n)+'><button class="gh" data-a="gtab" data-s="'+q+'"><span class="ic">'+ic+'</span><b>'+n+'</b>'+(op?'<span class="n">'+op+'</span>':'')+((S.gn||{})[q]&&String(S.gn[q]).trim()?'<span title="Note" style="font-size:15px">📝</span>':'')+'<span class="chev">›</span></button>'+(on?'<div class="gbody">'+bodyOf(q)+'<div class="gnote"><span class="sub" style="margin:10px 0 4px;display:block;font-weight:600">📝 Note</span><textarea class="nt gn" rows="3" data-gn="'+q+'" placeholder="Écrire une note…">'+esc((S.gn||{})[q]||'')+'</textarea></div></div>':'')+'</div>'}).join('');
+    return '<div class="card gcat'+(on?' on':'')+'" '+sty(n)+'><button class="gh" data-a="gtab" data-s="'+q+'"><span class="ic">'+ic+'</span><b>'+n+'</b>'+(op?'<span class="n">'+op+'</span>':'')+((S.gn||{})[q]&&String(S.gn[q]).trim()?'<span title="Note" style="font-size:15px">📝</span>':'')+'<span class="chev">›</span></button>'+(on?'<div class="gbody">'+bodyOf(q)+'<div class="gnote"><span class="sub" style="margin:10px 0 4px;display:block;font-weight:600">📝 Note générale</span><textarea class="nt gn tna" rows="3" data-gn="'+q+'" placeholder="Notes sur l’ensemble de la liste…">'+esc((S.gn||{})[q]||'')+'</textarea></div></div>':'')+'</div>'}).join('');
   h+='<details style="margin:20px 0 8px;color:var(--mu);font-size:13px;text-align:center"><summary style="cursor:pointer;list-style:none">⚙️ Sauvegarde des données</summary><div class="card" style="text-align:left"><h2>Sauvegarde</h2><p class="sub" style="margin:0 0 10px">Tes données sont enregistrées sur cet iPhone. Exporte-les régulièrement pour les garder en lieu sûr.</p><div class="add" style="margin-top:0"><button data-bkx="1" style="background:var(--ac);color:#fff;border-radius:10px;padding:10px 14px">Exporter</button><label style="background:var(--bg);border-radius:10px;padding:10px 14px;color:var(--ac);position:relative;overflow:hidden">Importer<input type="file" data-bki="1" accept=".json,application/json,text/plain" style="position:absolute;inset:0;opacity:0"></label></div><div class="bkm sub" style="margin:8px 0 0"></div><h2 style="margin-top:16px">Mon compte</h2><p class="sub" style="margin:0 0 10px">Connecté : '+esc(UEMAIL)+'</p><div class="add" style="margin-top:0"><button data-acc="cfg" style="background:var(--ac);color:#fff;border-radius:10px;padding:10px 14px">Mes horaires et ma ville</button><button data-acc="out" style="background:var(--bg);color:#ff3b30;border-radius:10px;padding:10px 14px">Se déconnecter</button></div></div></details>';
   return h;
 }
@@ -792,8 +807,10 @@ document.addEventListener('change',e=>{
   save();render();
 });
 document.addEventListener('change',e=>{const t=e.target;if(t.id==='vps'){const r=t.value==='r';$('#vpw').style.display=r?'':'none';$('#vpx').placeholder=r?'Nom du restaurant':'Intitulé'}if(t.id==='qm'){$('#ql').style.display=t.value==='p'?'':'none';$('#qk').style.display=t.value==='t'?'':'none'}if(t.id==='edm'){$('#edlw').style.display=t.value==='p'?'':'none';$('#edkw').style.display=t.value==='t'?'':'none'}});
+const grow=t=>{t.style.height='auto';t.style.height=Math.min(t.scrollHeight+2,420)+'px'};
+new MutationObserver(()=>document.querySelectorAll('textarea.tna').forEach(t=>{if(!t.dataset.g){t.dataset.g=1;grow(t)}})).observe(document.getElementById('app'),{childList:true,subtree:true});
 document.addEventListener('input',e=>{
-  const t=e.target;
+  const t=e.target;if(t.classList&&t.classList.contains('tna'))grow(t);
   if(t.id==='xt'){const w=$('#xwa');if(w)w.href='https://wa.me/?text='+encodeURIComponent(t.value)}
   if(t.id==='qx'&&V.qa){const nm=nz(t.value).trim();if(nm.length>2){let f=null;Object.keys(S.days).sort().reverse().some(k=>S.days[k].r.some(x=>{if(x.c===V.qa&&nz(x.x).trim()===nm){f=x;return true}return false}));if(f){const l=$('#ql'),p=$('#qtel');if(l&&!l.value&&f.l)l.value=f.l;if(p&&!p.value&&f.tel)p.value=f.tel}}}
   if(t.id==='sq'){V.q=t.value;$('#sr').innerHTML=searchHTML(V.q)}
