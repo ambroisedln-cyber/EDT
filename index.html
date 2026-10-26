@@ -190,6 +190,10 @@ textarea.tna{display:block;width:100%;min-height:0;resize:none;font-size:16px;li
 .tadd textarea.tna{font-size:16px}
 .tadd button{align-self:flex-end}
 .gnote .sub{color:var(--tx)!important;font-size:13px}
+
+/* bouton partager */
+.evg .evcl{grid-column:1/-1}
+.ev .ea .shr2{flex:none;width:44px;color:var(--ac)}
 </style>
 </head>
 <body>
@@ -353,7 +357,7 @@ const evCard=()=>{const e=V.ev,x=e&&S.days[e.k]&&S.days[e.k].r[e.i];if(!x)return
   const full=V.evd,att=((x.dl&&x.dl.trim())||(x.df||[]).length)?'<div style="margin-top:6px">'+attach(x.dl,x.df)+'</div>':'';
   const more=full?row('👥 avec',esc(x.who))+(x.tele&&x.lk?row('🔗','<a href="'+esc(urlOf(x.lk))+'" target="_blank" rel="noopener">Rejoindre la téléconsultation</a>'):'')+att+row('📞',x.tel?'<a href="tel:'+esc(x.tel.replace(/[^\d+]/g,''))+'">'+esc(x.tel)+'</a>':'')+row('📝 À prévoir',esc(x.pr))+row('💬',esc(x.nt)):'';
   const where=x.tele?row('💻','Téléconsultation'):(x.l?row('📍',esc(x.l)+(full?'<br>'+routeLinks(x.l)+tripHTML(e.k,e.i,x):'')):'');
-  return '<div class="card" '+sty(x.c)+'><h2>'+x.c+' · '+fdate(e.k)+'</h2><div style="font-size:18px;font-weight:700">'+esc(x.x)+'</div>'+row('🕐',esc((x.h||'')+(x.du?' · '+x.du:'')))+where+more+(full?calLinks('r|'+e.k+'|'+e.i):'')+'<div class="evg"><button class="pri" data-a="edit" data-d="'+e.k+'" data-i="'+e.i+'">✎ Modifier</button><label class="dpk"><span class="dv">↪ Reporter</span><input type="date" data-evdate="1" value="'+e.k+'"></label><button data-a="evd">'+(full?'Masquer les détails':'Voir les détails')+'</button><button data-a="day" data-d="'+e.k+'">Ouvrir le jour</button><button class="dng" data-a="evx">Annuler le rdv</button><button data-a="evclose">Fermer</button></div></div>'};
+  return '<div class="card" '+sty(x.c)+'><h2>'+x.c+' · '+fdate(e.k)+'</h2><div style="font-size:18px;font-weight:700">'+esc(x.x)+'</div>'+row('🕐',esc((x.h||'')+(x.du?' · '+x.du:'')))+where+more+(full?calLinks('r|'+e.k+'|'+e.i):'')+'<div class="evg"><button class="pri" data-a="edit" data-d="'+e.k+'" data-i="'+e.i+'">✎ Modifier</button><label class="dpk"><span class="dv">↪ Reporter</span><input type="date" data-evdate="1" value="'+e.k+'"></label><button data-a="evshare" data-d="'+e.k+'" data-i="'+e.i+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M12 15V3.5M7.5 8L12 3.5 16.5 8"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v7A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg> Partager</button><button data-a="evd">'+(full?'Masquer les détails':'Voir les détails')+'</button><button data-a="day" data-d="'+e.k+'">Ouvrir le jour</button><button class="dng" data-a="evx">Annuler le rdv</button><button class="evcl" data-a="evclose">Fermer</button></div></div>'};
 const soonHTML=()=>{const t0=new Date(V.d.getFullYear(),V.d.getMonth(),V.d.getDate()),td0=new Date();td0.setHours(0,0,0,0);const R=[];
   for(let n=0;n<=7;n++){const d=add(t0,n),k=key(d),isT=key(t0)===key(td0),lab=n===0?(isT?'Aujourd’hui':'Ce jour'):n===1?(isT?'Demain':'Dans 1 j'):'Dans '+n+' j',v=vacOn(k),day=[];
     const f=HOL(d.getFullYear())[k];if(f)day.push({s:'00',c:'Férié',t:'🇫🇷 '+f});
@@ -406,7 +410,7 @@ function vJour(){
     chips=(x.tele&&x.lk?'<a class="chip" style="--c:#007aff" href="'+esc(urlOf(x.lk))+'" target="_blank" rel="noopener">🔗 Rejoindre</a>':'')+(x.tel?'<a class="chip" style="--c:#34c759" href="tel:'+esc(x.tel.replace(/[^\d+]/g,''))+'">📞 '+esc(x.tel)+'</a>':'')+att,
     body=(chips?'<div class="chips">'+chips+'</div>':'')+((!x.tele&&x.l)?routeLinks(x.l)+tripHTML(k,i,x):'')+calLinks('r|'+k+'|'+i);
     return '<div class="ev" '+sty(x.c)+'><div class="eh"><span class="tm">'+(x.h||'—')+'</span><div class="et"><span class="ec">'+x.c+'</span><b '+ia+'>'+esc(x.x)+'</b>'+(m1?'<div class="em2">'+m1+'</div>':'')+(m2?'<div class="em2">'+m2+'</div>':'')+'</div></div>'+(body?'<div class="eb">'+body+'</div>':'')+prIn(i,x.pr)+noteIn('r',i,x.nt)
-    +'<div class="ea"><button '+ia+'>✎ Modifier</button><label class="dpk" title="Reporter à une autre date"><span class="dv">↪ Reporter</span><input type="date" data-rdate="'+i+'" value="'+k+'"></label><button class="del" data-a="drx" data-i="'+i+'" title="Supprimer" aria-label="Supprimer">🗑</button></div></div>'};
+    +'<div class="ea"><button '+ia+'>✎ Modifier</button><label class="dpk" title="Reporter à une autre date"><span class="dv">↪ Reporter</span><input type="date" data-rdate="'+i+'" value="'+k+'"></label><button class="shr2" data-a="evshare" data-d="'+k+'" data-i="'+i+'" title="Partager" aria-label="Partager"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M12 15V3.5M7.5 8L12 3.5 16.5 8"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v7A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></button><button class="del" data-a="drx" data-i="'+i+'" title="Supprimer" aria-label="Supprimer">🗑</button></div></div>'};
   const WROW=(x,i)=>'<div class="ev" '+sty('Job')+'><div class="it"><span class="tm" style="display:flex;gap:4px;align-items:center"><input type="time" class="nt" style="width:auto;margin:0" data-wt="a" data-i="'+i+'" value="'+x.a+'"> → <input type="time" class="nt" style="width:auto;margin:0" data-wt="b" data-i="'+i+'" value="'+x.b+'"></span><span class="t">Travail'+orc(k)+'</span><button class="x" data-a="wx" data-i="'+i+'">×</button></div>'+noteIn('w',i,x.nt)+'</div>';
   const rows=[];
   if(!vacOn(k)){if(!(d.ov||d.w.length)&&work(k).length)rows.push({t:work(k)[0].a,h:workDef(k,d)});else d.w.forEach((x,i)=>rows.push({t:x.a||'99:99',h:WROW(x,i)}))}
@@ -531,6 +535,15 @@ function vAnnee(){
 const GT=[['m','Médical','🩺'],['j','Job','💼'],['a','Autre','✨'],['p','Projets','🚀'],['c','Courses','🛒'],['v','Vacances','🏖️']];
 const CSH={l:'Leclerc',m:'Marché',o:'Autre courses'};
 const courseText=cs=>{const A=(S.g.c||[]).filter(x=>!x.f&&!x.cx&&(x.sh||'o')===cs);return A.length?'🛒 Courses · '+CSH[cs]+'\n'+A.map(x=>'• '+x.x).join('\n'):''};
+function noteToast(t){const e=$('#toast');if(!e)return;e.innerHTML='<span>'+esc(t)+'</span>';e.hidden=false;clearTimeout(window.__nt);window.__nt=setTimeout(()=>{if(!e.querySelector('[data-a=undo]'))e.hidden=true},2600)}
+async function shareEv(k,i){const x=S.days[k]&&S.days[k].r[+i];if(!x)return;
+  const L=[x.x,'📅 '+parse(k).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+(x.h?' à '+x.h.replace(':','h'):'')+(x.du?' ('+x.du+')':'')];
+  if(x.tele)L.push('💻 Téléconsultation'+(x.lk?' : '+x.lk:''));
+  else if(x.l){L.push('📍 '+x.l);L.push('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(x.l))}
+  if(x.who)L.push('👥 Avec '+x.who);
+  const tx=L.join('\n');
+  if(navigator.share){try{await navigator.share({text:tx});return}catch(e){if(e&&e.name==='AbortError')return}}
+  noteToast((await copyTxt(tx))?'✓ Copié : colle-le dans ton message':'Partage indisponible sur cet appareil')}
 async function copyTxt(txt){try{await navigator.clipboard.writeText(txt);return true}catch(e){}
   try{const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();const ok=document.execCommand('copy');ta.remove();return !!ok}catch(e){return false}}
 function vTodo(){
@@ -746,6 +759,7 @@ document.addEventListener('click',e=>{
   else if(a==='vpo')V.vpo=!V.vpo;
   else if(a==='vpadd'){vpAdd(b);return}
   else if(a==='evd')V.evd=!V.evd;
+  else if(a==='evshare'){shareEv(b.dataset.d,b.dataset.i);return}
   else if(a==='trip'){doTrip(b.dataset.k,i,b);return}
   else if(a==='sethome'){const x=v('#hm').trim();if(x){S.home=x;V.hm=false}}
   else if(a==='hmedit')V.hm=!V.hm;
