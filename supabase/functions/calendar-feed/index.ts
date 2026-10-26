@@ -15,7 +15,7 @@ function addDays(d: string, n: number) { const [y, mo, j] = d.split("-").map(Num
 function hash(s: string) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36); }
 function fold(line: string) { const out: string[] = []; let cur = ""; for (const ch of line) { if (new TextEncoder().encode(cur + ch).length > 74) { out.push(cur); cur = " " + ch; } else cur += ch; } out.push(cur); return out.join("\r\n"); }
 const VTZ = ["BEGIN:VTIMEZONE", "TZID:Europe/Paris", "BEGIN:DAYLIGHT", "TZOFFSETFROM:+0100", "TZOFFSETTO:+0200", "TZNAME:CEST", "DTSTART:19700329T020000", "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU", "END:DAYLIGHT", "BEGIN:STANDARD", "TZOFFSETFROM:+0200", "TZOFFSETTO:+0100", "TZNAME:CET", "DTSTART:19701025T030000", "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU", "END:STANDARD", "END:VTIMEZONE"];
-const LAB: Record<string, string> = { Médical: "Rendez-vous médical", Resto: "Restaurant", Événement: "Événement", Autre: "Autre" };
+const LAB: Record<string, string> = { Meeting: "Meeting", Médical: "Rendez-vous médical", Resto: "Restaurant", Événement: "Événement", Autre: "Autre" };
 
 Deno.serve(async (req) => {
   const url = new URL(req.url);
@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
       if (okT(x.h)) lines.push("DTSTART;TZID=Europe/Paris:" + ymd(k) + "T" + x.h.replace(":", "") + "00", "DTEND;TZID=Europe/Paris:" + addMin(k, x.h, pdur(x.du)));
       else lines.push("DTSTART;VALUE=DATE:" + ymd(k), "DTEND;VALUE=DATE:" + addDays(k, 1));
       lines.push("SUMMARY:" + esc(x.x));
-      const loc = x.tele ? "Téléconsultation" : (x.l || "");
+      const loc = x.tele ? (x.c === "Meeting" ? "Visio" : "Téléconsultation") : (x.l || "");
       if (loc) lines.push("LOCATION:" + esc(loc));
       const desc = [LAB[x.c] || x.c || "", x.who ? "Avec " + x.who : "", x.tele && x.lk ? "Lien : " + x.lk : "", x.nt || ""].filter(Boolean).join("\n");
       if (desc) lines.push("DESCRIPTION:" + esc(desc));

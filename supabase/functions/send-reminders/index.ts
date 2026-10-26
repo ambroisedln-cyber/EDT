@@ -29,7 +29,7 @@ export function dueReminders(S: any, now = parisNow()) {
         if (!x || !x.x || !/^\d{2}:\d{2}$/.test(x.h || "")) return;
         const at = locMin(k, x.h), when = at - rem;
         if (when <= now.min && when > now.min - 15 && at > now.min) {
-          const place = x.tele ? (en ? "Video call" : "Téléconsultation") : (x.l || "");
+          const place = x.tele ? (en ? "Video call" : (x.c === "Meeting" ? "Visio" : "Téléconsultation")) : (x.l || "");
           const inTxt = rem >= 60 ? (rem % 60 ? Math.floor(rem / 60) + " h " + (rem % 60) : rem / 60 + " h") : rem + " min";
           out.push({ key: "r|" + k + "|" + x.h + "|" + x.x + "|" + rem, title: x.x, body: (en ? "In " + inTxt + " · at " : "Dans " + inTxt + " · à ") + fmtH(x.h) + (place ? " · " + place : "") });
         }
