@@ -21,21 +21,34 @@ const fmtH = (h: string) => h.replace(":", "h");
 // Calcule les rappels à envoyer maintenant pour un utilisateur.
 export function dueReminders(S: any, now = parisNow()) {
   const out: { key: string; title: string; body: string }[] = [];
-  const cfg = S.cfg || {}, rem = +cfg.rem || 0, en = S.lang === "en";
+  const cfg = S.cfg || {}, defRem = +cfg.rem || 0, en = S.lang === "en";
   const days = S.days || {};
-  if (rem > 0) {
-    for (const k of [now.key, addDay(now.key, 1)]) {
-      ((days[k] && days[k].r) || []).forEach((x: any) => {
-        if (!x || !x.x || !/^\d{2}:\d{2}$/.test(x.h || "")) return;
-        const at = locMin(k, x.h), when = at - rem;
-        if (when <= now.min && when > now.min - 15 && at > now.min) {
-          const place = x.tele ? (en ? "Video call" : (x.c === "Meeting" ? "Visio" : "Téléconsultation")) : (x.l || "");
-          const inTxt = rem >= 60 ? (rem % 60 ? Math.floor(rem / 60) + " h " + (rem % 60) : rem / 60 + " h") : rem + " min";
-          out.push({ key: "r|" + k + "|" + x.h + "|" + x.x + "|" + rem, title: x.x, body: (en ? "In " + inTxt + " · at " : "Dans " + inTxt + " · à ") + fmtH(x.h) + (place ? " · " + place : "") });
-        }
-      });
-    }
+  const inTxt = (m: number) => m >= 1440 ? (en ? "tomorrow" : "demain") : m >= 60 ? (m % 60 ? Math.floor(m / 60) + " h " + (m % 60) : m / 60 + " h") : m + " min";
+  // Rendez-vous : rappel propre (x.rem) ou rappel par défaut des réglages
+  for (const k of [now.key, addDay(now.key, 1), addDay(now.key, 2)]) {
+    ((days[k] && days[k].r) || []).forEach((x: any) => {
+      if (!x || !x.x || !/^\d{2}:\d{2}$/.test(x.h || "")) return;
+      const rem = (x.rem !== undefined && x.rem !== null && x.rem !== "") ? +x.rem : (defRem > 0 ? defRem : -1);
+      if (!(rem >= 0)) return;
+      const at = locMin(k, x.h), when = at - rem;
+      if (when <= now.min && when > now.min - 15 && at >= now.min) {
+        const place = x.tele ? (en ? "Video call" : (x.c === "Meeting" ? "Visio" : "Téléconsultation")) : (x.l || "");
+        const lead = rem === 0 ? (en ? "Now · " : "Maintenant · ") : (en ? "In " : "Dans ") + inTxt(rem) + " · ";
+        out.push({ key: "r|" + k + "|" + x.h + "|" + x.x + "|" + rem, title: x.x, body: lead + (en ? "at " : "à ") + fmtH(x.h) + (place ? " · " + place : "") });
+      }
+    });
   }
+  // Tâches avec un rappel à date et heure précises (x.ra = "AAAA-MM-JJTHH:MM")
+  const taskRem = (x: any, where: string) => {
+    if (!x || !x.x || x.f || x.cx || typeof x.ra !== "string") return;
+    const m = /^(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/.exec(x.ra);
+    if (!m) return;
+    const when = locMin(m[1], m[2]);
+    if (when <= now.min && when > now.min - 15) out.push({ key: "t|" + x.ra + "|" + x.x, title: en ? "Reminder" : "Rappel", body: x.x + (where ? " · " + where : "") + (x.nt ? "\n" + String(x.nt).slice(0, 120) : "") });
+  };
+  Object.keys(days).forEach((k) => ((days[k] && days[k].t) || []).forEach((x: any) => taskRem(x, "")));
+  const GN: Record<string, string> = { m: "Médical", j: "Job", a: "Autre", p: "Projets", c: "Courses", k: "Commandes", v: "Vacances" };
+  Object.keys(S.g || {}).forEach((g) => (S.g[g] || []).forEach((x: any) => taskRem(x, GN[g] || "")));
   if (cfg.remv && now.hour === 20 && now.minute < 20) {
     const k = addDay(now.key, 1);
     const L = ((days[k] && days[k].r) || []).filter((x: any) => x && x.x).sort((a: any, b: any) => (a.h || "99").localeCompare(b.h || "99")).map((x: any) => (x.h ? fmtH(x.h) + " " : "") + x.x);
