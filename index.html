@@ -880,10 +880,11 @@ const xmsg=m=>{const e=$('#xm');if(e)e.textContent=m};
 function xDownload(f){const fn='planning-'+xRange().lab.replace(/\s+/g,'-')+'.'+f,data=f==='csv'?xCSV():(($('#xt')||{}).value||xText());
   if(!DLC){xmsg('Téléchargement indisponible ici.');return}
   DLC.save({filename:fn,data}).then(()=>xmsg('✓ Fichier enregistré'),e=>xmsg(e&&e.code==='declined'?'Téléchargement annulé.':'Téléchargement impossible ici : utilise Copier ou WhatsApp.'))}
+const catLegend=()=>'<div class="card"><h2>Catégories</h2><div class="lg lgc">'+[['Médical','Médical'],['Meeting','Meeting'],['Resto','Restaurant'],['Sport','Sport'],['Événement','Événement'],['Autre','Autre'],['Date','Anniversaire'],['Vacances','Vacances'],['Férié','Férié'],['Tâche','Tâches à faire']].map(([c,n])=>'<button class="chip" data-a="cat" data-c="'+c+'" style="--c:'+C[c]+(V.cat===c?';background:var(--c);color:#fff':'')+'">● '+n+'</button>').join('')+'<span class="chip" '+sty('Off')+'>● Jour off</span></div></div>';
 function vMois(){
   const y=V.d.getFullYear(),m=V.d.getMonth();
   let h=nv(MOIS[m]+' '+y,'Touchez un jour, une semaine ou une pastille')+'<div class="card">'+grid(y,m,false)+'</div>';
-  h+='<div class="card"><h2>Catégories</h2><div class="lg lgc">'+[['Médical','Médical'],['Meeting','Meeting'],['Resto','Restaurant'],['Sport','Sport'],['Événement','Événement'],['Autre','Autre'],['Date','Anniversaire'],['Vacances','Vacances'],['Férié','Férié'],['Tâche','Tâches à faire']].map(([c,n])=>'<button class="chip" data-a="cat" data-c="'+c+'" style="--c:'+C[c]+(V.cat===c?';background:var(--c);color:#fff':'')+'">● '+n+'</button>').join('')+'<span class="chip" '+sty('Off')+'>● Jour off</span></div></div>';
+  h+=catLegend();
   if(V.cat){const R=catItems(V.cat,y,m,V.catYr);
     h+='<div class="card" '+sty(V.cat)+'><h2>'+CATL[V.cat]+' · '+(V.catYr?y:MOIS[m]+' '+y)+' · '+R.length+'</h2><div class="lg" style="margin-bottom:6px"><button class="chip" data-a="catyr" style="--c:#8e8e93">'+(V.catYr?'Voir ce mois':'Voir toute l’année')+'</button><button class="chip" data-a="cat" data-c="'+V.cat+'" style="--c:#8e8e93">Fermer</button></div>'+(R.length?R.map(r=>'<button class="it c" data-a="day" data-d="'+r.k+'" style="--c:'+C[V.cat]+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+fdate(r.k)+'</span><span class="t">'+(r.hd||esc(r.t))+'</span></button>').join(''):'<div class="em">Rien pour cette catégorie</div>')+'</div>';
     return h}
@@ -894,6 +895,7 @@ function vMois(){
 function vAnnee(){
   const y=V.d.getFullYear();
   let h=nv(String(y),'Les 12 mois avec leurs numéros de semaine',1)+'<div class="srch"><input type="search" id="sq" placeholder="Rechercher un rendez-vous, une tâche, un lieu…" value="'+esc(V.q||'')+'" autocomplete="off"></div><div class="card" id="sr"'+((V.q||'').trim().length<2?' hidden':'')+'>'+searchHTML(V.q||'')+'</div>'+'<div class="pills ypl">'+Array.from({length:YMAX-YMIN+1},(_,i)=>i).map(i=>'<button data-a="yr" data-y="'+(YMIN+i)+'" class="'+(YMIN+i===y?'on':'')+'">'+(YMIN+i)+'</button>').join('')+'</div><div class="yr">';
+  h+=catLegend();if(V.cat){const R=catItems(V.cat,y,0,true);h+='<div class="card" '+sty(V.cat)+'><h2 class="hh"><span>'+CATL[V.cat]+' · '+y+' · '+R.length+'</span><span class="hha"><button class="hide" data-a="cat" data-c="'+V.cat+'">Fermer</button></span></h2>'+(R.length?R.map(r=>'<button class="it c" data-a="day" data-d="'+r.k+'" style="--c:'+C[V.cat]+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+fdate(r.k)+'</span><span class="t">'+(r.hd||esc(r.t))+'</span></button>').join(''):'<div class="em">Rien pour cette catégorie en '+y+'</div>')+'</div>'}
   for(let m=0;m<12;m++)h+='<div class="card"><h3><button data-a="mo" data-m="'+m+'">'+MOIS[m]+'</button></h3>'+grid(y,m,true)+'</div>';
   return h+'</div>';
 }
