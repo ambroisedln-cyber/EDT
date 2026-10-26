@@ -533,6 +533,8 @@ a.chip{text-decoration:none}
 .it.c:has(.vdt)::before{content:"";position:absolute;left:7px;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--c)}
 .it.c:has(.vdt) .tm{font-size:13px;font-weight:600}
 .it.c:has(.vdt) .t{font-size:16px;font-weight:600;color:var(--tx)}
+
+textarea.tna{max-height:none!important;overflow-y:auto}
 </style>
 </head>
 <body>
@@ -1304,7 +1306,7 @@ document.addEventListener('change',e=>{
   save();render();
 });
 document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.dfor){const i=document.getElementById(t.dataset.dfor);if(i){if(t.value==='c'){i.hidden=false;i.value='';i.focus()}else{i.hidden=true;i.value=t.value}}return}if(t.id==='rrem'){S.cfg=S.cfg||{w:{}};S.cfg.rem=+t.value;save();if(+t.value&&!V.pushOk&&pushState()==='off')pushOn();return}if(t.id==='vps'){const r=t.value==='r';$('#vpw').style.display=r?'':'none';$('#vpx').placeholder=r?'Nom du restaurant':'Intitulé'}if(t.id==='qm'){$('#ql').style.display=t.value==='p'?'':'none';$('#qk').style.display=t.value==='t'?'':'none'}if(t.id==='edm'){$('#edlw').style.display=t.value==='p'?'':'none';$('#edkw').style.display=t.value==='t'?'':'none'}});
-const grow=t=>{t.style.height='auto';t.style.height=Math.min(t.scrollHeight+2,420)+'px'};
+const grow=t=>{t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'};
 new MutationObserver(()=>document.querySelectorAll('textarea.tna').forEach(t=>{if(!t.dataset.g){t.dataset.g=1;grow(t)}})).observe(document.getElementById('app'),{childList:true,subtree:true});
 document.addEventListener('input',e=>{
   const t=e.target;if(t.id==='rdk'&&t.value){V.rdk=t.value;render();return}if(t.id==='hm'||t.id==='ql'||t.id==='edl'||t.id==='rhome'){clearTimeout(SGT);SGT=setTimeout(()=>suggest(t),280)}if(t.classList&&t.classList.contains('tna'))grow(t);
