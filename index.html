@@ -397,6 +397,23 @@ a.chip{text-decoration:none}
 .rev .rn em{font-style:normal;color:var(--c);font-weight:600}
 .rev .rc{flex:none;color:var(--mu);font-size:18px}
 .rnone{font-size:13px;color:var(--mu);padding-top:6px}
+
+/* rendez-vous du récap : lignes épurées */
+.rev{background:none;border:0;border-left:0;border-radius:0;padding:4px 0;gap:12px;align-items:flex-start}
+.rev .rt{width:auto;flex-direction:row;align-items:center;gap:6px;font-weight:600;font-size:14px;color:var(--tx);padding-top:1px;min-width:108px}
+.rev .rt u{display:block;width:7px;height:7px;border-radius:50%;background:var(--c);flex:none;text-decoration:none}
+.rev .rt i{font-style:normal;color:var(--mu);font-weight:500}
+.rev .rt i::before{content:"–";margin:0 4px;color:var(--mu)}
+.rev .rn b{font-size:15px;font-weight:600}
+.rev .rn small{color:var(--mu)}
+.rev:active{opacity:.6}
+.rdb{gap:4px}.rtags{margin-bottom:2px}
+
+.rev .rt{flex-direction:column;align-items:flex-start;gap:0;min-width:0;width:46px;font-size:14.5px;font-weight:650;line-height:1.3;padding-top:0}
+.rev .rt i{font-weight:500;font-size:13.5px}.rev .rt i::before{content:none}
+.rev .rn small{display:flex;align-items:center;gap:5px}
+.rev .rn small u{display:block;width:6px;height:6px;border-radius:50%;background:var(--c);flex:none;text-decoration:none}
+.rev{padding:5px 0}
 </style>
 </head>
 <body>
@@ -540,7 +557,7 @@ const lineHTML=(x,attrs,right)=>'<button class="ln" '+sty(x.c)+' '+attrs+'><span
 const recapHTML=(days,brief)=>{let h='';days.forEach(d=>{const k=key(d),it=dayItems(k,brief);if(!it.length&&brief)return;
   const tags=it.filter(x=>x.wk||(x.ri===undefined&&!x.h)).sort((p,q)=>(q.wk?1:0)-(p.wk?1:0)),evs=it.filter(x=>!x.wk&&(x.ri!==undefined||x.h));
   const tg=tags.map(x=>x.wk?'<span class="rtag" style="--c:#007aff"><b>Travail</b> '+esc(x.h)+'</span>':'<span class="rtag" '+sty(x.c)+'>'+(x.c==='Off'?'Jour off':'<b>'+esc(x.lab||x.c)+'</b> '+esc(x.ti||''))+'</span>').join('');
-  const ev=evs.map(x=>'<button class="rev" '+sty(x.c)+' data-a="'+(x.ri!==undefined?'evt':'day')+'" data-d="'+k+'"'+(x.ri!==undefined?' data-i="'+x.ri+'"':'')+'><span class="rt">'+(x.h?esc(x.h)+(x.h2?'<i>'+esc(x.h2)+'</i>':''):'—')+'</span><span class="rn"><b>'+esc(x.ti||'')+'</b><small><em>'+esc(x.lab||x.c)+'</em>'+(x.sub?' · '+esc(x.sub):'')+'</small></span><span class="rc">›</span></button>').join('');
+  const ev=evs.map(x=>'<button class="rev" '+sty(x.c)+' data-a="'+(x.ri!==undefined?'evt':'day')+'" data-d="'+k+'"'+(x.ri!==undefined?' data-i="'+x.ri+'"':'')+'><span class="rt">'+(x.h?esc(x.h)+(x.h2?'<i>'+esc(x.h2)+'</i>':''):'—')+'</span><span class="rn"><b>'+esc(x.ti||'')+'</b><small><u></u>'+esc(x.lab||x.c)+(x.sub?' · '+esc(x.sub):'')+'</small></span></button>').join('');
   h+='<div class="rday'+(k===TODAY?' today':'')+'"><button class="rdd" data-a="day" data-d="'+k+'"><span>'+JRS[d.getDay()]+'</span><b>'+d.getDate()+'</b></button><div class="rdb">'+(tg?'<div class="rtags">'+tg+'</div>':'')+ev+((!tg&&!ev)?'<div class="rnone">Rien de prévu</div>':'')+'</div></div>'});return h};
 const SECS=[['m','Matin'],['a','Après-midi'],['s','Soir']];
 const vitems=(v,k,p)=>(v.items||[]).map((it,j)=>[it,j]).filter(([it])=>it.d===k&&it.p===p).sort((a,b)=>(a[0].h||'99').localeCompare(b[0].h||'99'));
