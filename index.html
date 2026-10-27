@@ -591,6 +591,15 @@ textarea.tna{max-height:none!important;overflow-y:auto}
 .glk{font-size:13px;color:var(--mu);font-weight:500;padding:4px 2px}
 .gnewb{display:block;margin:6px auto 18px;padding:8px 16px;border-radius:999px;font-size:14.5px;font-weight:500;color:var(--ac);background:var(--tint)}
 .gnewc .glk{display:block;margin:8px auto 0}
+
+/* Glisser pour supprimer */
+.tk{position:relative}
+.tk>.it{touch-action:pan-y;position:relative;z-index:1;background:inherit}
+.tk.swiping{overflow:hidden;border-radius:12px}
+.tk.swiping>.it{background:var(--card)}
+.gbody .tk.swiping>.it:has(.tt){background:color-mix(in srgb,var(--c,var(--ac)) 6%,var(--card))}
+.swbg{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding-right:18px;border-radius:12px;background:color-mix(in srgb,#ff3b30 55%,var(--card));color:#fff;font-size:14px;font-weight:600;z-index:0}
+.tk.swgo .swbg{background:#ff3b30}
 </style>
 </head>
 <body>
@@ -709,11 +718,11 @@ const gname=s=>(GT.find(g=>g[0]===s)||[0,s])[1];
 const taskRow=(x,i,a,extra,src,tag,nd,min)=>{const kk=src+'|'+i,open=!min&&V.tn===kk,cls='it'+(x.f?' done':'')+(x.cx?' cx':'');
   const ck='<button class="ck" data-a="'+a+'" data-i="'+i+'" '+extra+'></button>',dl='<button class="x" title="Supprimer" data-a="'+a+'x" data-i="'+i+'" '+extra+'><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
   const pl='<button class="opt2" title="Date, remarque, récurrence" data-a="tnote" data-src="'+src+'" data-i="'+i+'">'+(open?'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>':'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>')+'</button>';
-  if(min)return '<div class="tk"'+(src==='c'?' data-ci="'+i+'" data-rs="c"':'')+'><div class="'+cls+'">'+ck+'<span class="t">'+esc(x.x)+'</span>'+(src==='c'?'<span class="drg" aria-label="Déplacer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg></span>':'')+dl+'</div></div>';
+  if(min)return '<div class="tk"'+(src==='c'?' data-ci="'+i+'" data-rs="c"':'')+'>'+'<button hidden class="swdel" data-a="'+a+'x" data-i="'+i+'" '+extra+'></button>'+'<div class="'+cls+'">'+ck+'<span class="t">'+esc(x.x)+'</span>'+(src==='c'?'<span class="drg" aria-label="Déplacer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg></span>':'')+dl+'</div></div>';
   const sub=(x.cx?' <small>(annulée)</small>':'')+(tag?' <span class="tag">'+esc(tag)+'</span>':'')+((x.d&&!nd)?' <span class="tag" style="--c:#007aff">'+fdate(x.d)+'</span>':'')+(x.rc?' <span class="tag" style="--c:#5856d6">'+RCL[x.rc]+'</span>':'')+(x.ra?' <span class="tag" style="--c:#ff9500">'+BELL+fdt(x.ra)+'</span>':'')+((x.nt&&!open)?(src==='d'?'<br><small>'+esc(x.nt)+'</small>':'<span class="tnd">'+esc(x.nt)+'</span>'):'');
   const pk=src==='d'?key(V.d):(x.d||''),dvt=src==='d'?'Reporter à une autre date':(x.d?''+fdate(x.d):'Choisir une date');
   const panel=open?'<div class="tp"><input class="nt tname" data-tname="'+kk+'" placeholder="Nom de la tâche" value="'+esc(x.x||'')+'">'+(src==='d'?'<input class="nt" data-tn="'+kk+'" placeholder="Remarque…" value="'+esc(x.nt||'')+'">':'<textarea class="nt tna" rows="3" data-tn="'+kk+'" placeholder="Note liée à cette tâche…">'+esc(x.nt||'')+'</textarea>')+'<div class="tpr"><label class="dpk"><span class="dv">'+dvt+'</span><input type="date" data-gdate="'+kk+'" value="'+pk+'"></label>'+((x.d&&src!=='d')?'<button class="x" data-a="gundate" data-src="'+src+'" data-i="'+i+'" style="font-size:13px;color:var(--ac)">Retirer</button>':'')+'</div><div class="tpr"><span>Répéter</span><select class="nt" data-grc="'+kk+'">'+RCO.map(([v,n])=>'<option value="'+v+'"'+((x.rc||'')===v?' selected':'')+'>'+n+'</option>').join('')+'</select></div>'+'<div class="tpr"><span>Rappel</span>'+remIn('ra-'+kk.replace('|','-'),x.ra,kk)+'</div>'+(pk?calLinks('t|'+src+'|'+i+(src==='d'?'|'+pk:'')):'')+'<button class="tdel" data-a="'+a+'x" data-i="'+i+'" '+extra+'>Supprimer la tâche</button></div>':'';
-  return '<div class="tk" data-ci="'+i+'" data-rs="'+src+'"><div class="'+cls+'">'+ck+'<button class="t tt" data-a="tnote" data-src="'+src+'" data-i="'+i+'">'+esc(x.x)+sub+'</button><span class="tacts">'+'<span class="drg" aria-label="Déplacer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg></span>'+pl+'</span></div>'+panel+'</div>'};
+  return '<div class="tk" data-ci="'+i+'" data-rs="'+src+'">'+'<button hidden class="swdel" data-a="'+a+'x" data-i="'+i+'" '+extra+'></button>'+'<div class="'+cls+'">'+ck+'<button class="t tt" data-a="tnote" data-src="'+src+'" data-i="'+i+'">'+esc(x.x)+sub+'</button><span class="tacts">'+'<span class="drg" aria-label="Déplacer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 9h14M5 15h14"/></svg></span>'+pl+'</span></div>'+panel+'</div>'};
 function todoList(arr,a,extra,src,flt){
   const rows=[];arr.forEach((x,i)=>{if(!flt||flt(x))rows.push(taskRow(x,i,a,extra,src,'',0,src==='c'))});
   return rows.length?rows.join(''):'<div class="em">Rien pour l’instant</div>';
@@ -1552,6 +1561,19 @@ const drgEnd=()=>{if(!DRG)return;const r=DRG.row;DRG=null;r.classList.remove('dr
 document.addEventListener('pointerup',drgEnd);document.addEventListener('pointercancel',drgEnd);
 
 document.addEventListener('input',e=>{const t=e.target;if(t.classList&&(t.classList.contains('rmd')||t.classList.contains('rmt')))rmSync(t)});
+
+/* Glisser une tâche vers la gauche pour la supprimer */
+let SW=null,SWblock=0;
+document.addEventListener('pointerdown',e=>{if(DRG)return;const it=e.target.closest('.tk>.it');if(!it||e.target.closest('.drg,input,textarea,select,.ck'))return;const tk=it.parentElement;if(!tk.querySelector(':scope>.swdel'))return;SW={it,tk,x:e.clientX,y:e.clientY,dx:0,on:false,id:e.pointerId}});
+document.addEventListener('pointermove',e=>{if(!SW||e.pointerId!==SW.id)return;const dx=e.clientX-SW.x,dy=e.clientY-SW.y;
+  if(!SW.on){if(Math.abs(dy)>10&&Math.abs(dy)>Math.abs(dx)){SW=null;return}if(dx<-12&&Math.abs(dx)>Math.abs(dy)){SW.on=true;SW.tk.classList.add('swiping');let bg=SW.tk.querySelector(':scope>.swbg');if(!bg){bg=document.createElement('div');bg.className='swbg';bg.textContent=S.lang==='en'?'Delete':'Supprimer';SW.tk.insertBefore(bg,SW.tk.firstChild)}}else return}
+  SW.dx=Math.min(0,dx);SW.it.style.transform='translateX('+SW.dx+'px)';SW.tk.classList.toggle('swgo',SW.dx<-Math.min(110,SW.it.offsetWidth*.35))});
+const swEnd=()=>{if(!SW)return;const s0=SW;SW=null;if(!s0.on)return;SWblock=Date.now();const go=s0.dx<-Math.min(110,s0.it.offsetWidth*.35);
+  s0.it.style.transition='transform .2s';
+  if(go){s0.it.style.transform='translateX(-110%)';setTimeout(()=>{const b=s0.tk.querySelector(':scope>.swdel');if(b){b.hidden=false;b.click()}},180)}
+  else{s0.it.style.transform='';setTimeout(()=>{s0.it.style.transition='';s0.tk.classList.remove('swiping','swgo');const bg=s0.tk.querySelector(':scope>.swbg');if(bg)bg.remove()},200)}};
+document.addEventListener('pointerup',swEnd);document.addEventListener('pointercancel',swEnd);
+document.addEventListener('click',e=>{if(Date.now()-SWblock<350&&e.target.closest('.tk')&&!e.target.closest('.swdel')){e.stopPropagation();e.preventDefault()}},true);
 </script>
 
 </body>
