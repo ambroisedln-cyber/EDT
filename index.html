@@ -675,6 +675,10 @@ textarea.nedit{display:block;width:100%;min-height:32vh;border:0;border-radius:1
 .nrow .nopen b{font-weight:600}
 .nrow .nclip{margin-left:4px}
 .nrow .drg{flex:none}
+
+/* Barre d'onglets : toujours au-dessus et bien démarquée */
+nav{z-index:1000!important;background:color-mix(in srgb,var(--card) 97%,transparent)!important;border-top:.5px solid color-mix(in srgb,var(--tx) 18%,transparent)!important;box-shadow:0 -4px 16px rgba(0,0,0,.06)}
+@media (prefers-color-scheme:dark){nav{box-shadow:0 -4px 16px rgba(0,0,0,.4)}}
 </style>
 </head>
 <body>
