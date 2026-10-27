@@ -614,8 +614,10 @@ textarea.tna{max-height:none!important;overflow-y:auto}
 .trep{flex:1;min-width:0;height:36px;border:0;border-radius:10px;background:var(--card);padding:0 10px;font-size:15px;color:var(--tx)}
 
 /* ===== Notes et accès aux réglages ===== */
-.topg{display:flex;justify-content:flex-end;height:30px;margin:4px 0 -14px;position:relative;z-index:2}
-.gear{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--mu)}
+.topg{display:flex;justify-content:flex-end;height:34px;margin:10px 0 -6px;position:relative;z-index:2}
+.gear{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--tx);background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.08),0 0 0 .5px rgba(0,0,0,.06)}
+.gear svg{width:19px;height:19px;stroke-width:1.8;opacity:.75}
+body{padding-top:env(safe-area-inset-top)!important}
 .gear:active,.gback:active{opacity:.5}
 .gback{font-size:16px;color:var(--ac);font-weight:500;padding:4px 2px}
 .topg:has(.gback){justify-content:flex-start;margin-bottom:0}
