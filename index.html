@@ -1755,6 +1755,18 @@ const drgEnd=()=>{if(!DRG)return;const r=DRG.row;DRG=null;SWblock=Date.now();r.c
   if(A&&ord.some((v,j)=>v!==pos[j])){const B=A.slice();pos.forEach((p,j)=>{B[p]=A[ord[j]]});A.splice(0,A.length,...B);V.tn=null;save()}render()};
 document.addEventListener('pointerup',e=>{if(DRG&&!DRG.touch)drgEnd()});document.addEventListener('pointercancel',e=>{if(DRG&&!DRG.touch)drgEnd()});
 
+/* Notes : glisser vers la droite pour revenir en arrière */
+let NB=null;
+document.addEventListener('touchstart',e=>{NB=null;if(V.tab!=='notes'||(!V.nid&&(V.nf===null||V.nf===undefined))||e.touches.length!==1)return;const t=e.touches[0];NB={x:t.clientX,y:t.clientY,on:0,dx:0}},{passive:true});
+document.addEventListener('touchmove',e=>{if(!NB||DRG)return;const t=e.touches[0],dx=t.clientX-NB.x,dy=t.clientY-NB.y;
+  if(!NB.on){if(Math.abs(dy)>12&&Math.abs(dy)>Math.abs(dx)){NB=null;return}if(dx>14&&dx>Math.abs(dy)*1.5){NB.on=1;if(SW)SW=null;if(LP){clearTimeout(LP.t);LP=null}const a=$('#app');a.style.transition='none'}else return}
+  NB.dx=Math.max(0,dx);e.preventDefault();$('#app').style.transform='translateX('+NB.dx+'px)';$('#app').style.opacity=String(1-Math.min(.4,NB.dx/600))},{passive:false});
+const nbEnd=()=>{if(!NB||!NB.on){NB=null;return}const n=NB;NB=null;const a=$('#app');SWblock=Date.now();
+  if(n.dx>Math.min(100,innerWidth*.25)){a.style.transition='transform .18s ease,opacity .18s ease';a.style.transform='translateX('+innerWidth+'px)';a.style.opacity='0';
+    setTimeout(()=>{if(V.nid){notesClean();V.nid=null}else{V.nf=null;V.nfm=0;V.nfren=0}a.style.transition='none';a.style.transform='';a.style.opacity='';render();window.scrollTo(0,0)},180)}
+  else{a.style.transition='transform .18s ease,opacity .18s ease';a.style.transform='';a.style.opacity='';setTimeout(()=>{a.style.transition=''},200)}};
+document.addEventListener('touchend',nbEnd);document.addEventListener('touchcancel',nbEnd);
+
 document.addEventListener('input',e=>{const t=e.target;if(t.classList&&(t.classList.contains('rmd')||t.classList.contains('rmt')))rmSync(t)});
 
 /* Glisser une tâche vers la gauche pour la supprimer */
