@@ -60,7 +60,8 @@ export function dueReminders(S: any, now = parisNow()) {
   }));
   const GN: Record<string, string> = { m: "Médical", j: "Job", a: "Autre", p: "Projets", c: "Courses", k: "Commandes", v: "Vacances" };
   Object.keys(S.g || {}).forEach((g) => (S.g[g] || []).forEach((x: any) => taskRem(x, GN[g] || "")));
-  if (cfg.remv && now.hour === 20 && now.minute < 20) {
+  const remH = Number.isInteger(+cfg.remh) && +cfg.remh >= 0 && +cfg.remh <= 23 ? +cfg.remh : 20;
+  if (cfg.remv && now.hour === remH && now.minute < 20) {
     const k = addDay(now.key, 1);
     const L = ((days[k] && days[k].r) || []).filter((x: any) => x && x.x).sort((a: any, b: any) => (a.h || "99").localeCompare(b.h || "99")).map((x: any) => (x.h ? fmtH(x.h) + " " : "") + x.x);
     if (L.length) out.push({ key: "v|" + k, title: en ? "Tomorrow" : "Demain", body: L.join(" · ") });
