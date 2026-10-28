@@ -859,6 +859,12 @@ html.fsl .hl,html.fsl .otdt,html.fsl .nrow .nopen b{font-size:17px}
 .vseg input[type=text]{flex:1;min-width:0;width:100%;border:0;border-radius:9px;background:var(--card);padding:8px 10px;font-size:16px;color:var(--tx)}
 .vsegc{align-self:center;font-size:11.5px;color:var(--mu);margin:4px 0;padding:2px 10px;border-left:2px dashed color-mix(in srgb,var(--c) 40%,transparent)}
 .vseg+.vadd,.vsegs+.vadd{margin-top:8px}
+.vqa{margin-top:6px}
+.add .vsegx{background:transparent!important;color:var(--mu)!important;padding:0!important;flex:none!important;width:30px!important}
+.add .vadd{background:transparent!important;color:var(--c)!important;width:100%;flex:none!important}
+.add .vseg select,.add .vseg input{margin:0!important}
+.vqa .vseg{background:color-mix(in srgb,var(--c) 6%,var(--bg))}
+.vseg .vfile{margin-top:2px}
 </style>
 </head>
 <body>
@@ -1060,7 +1066,9 @@ const vLegs=v=>{const L=[];L.push(Object.assign({},v.go||{},{w:'go',k:'Aller',d:
 const legTo=(v,t)=>t.to||(t.w==='go'?((stayOn(v,t.d)||vStays(v)[0]||{}).l||v.l||''):'');
 const short=x=>(x||'').split(',')[0];
 const legRoute=(v,t)=>{const SG=t.sg&&t.sg.length?t.sg:null,f=short(SG?SG[0].f:t.f),to=short((SG&&SG[SG.length-1].to)||legTo(v,t));return f&&to?f+' → '+to:to?'→ '+to:f?'Depuis '+f:''};
-const vActs=t=>{const lk=t.lk||[],df=t.df||[],n=lk.length+df.length;let h='';
+const vActs=t=>{let h='';const SG=(t.sg||[]).filter(x=>(x.lk||[]).length||(x.df||[]).length),multi=(t.sg||[]).length>1;
+  SG.forEach(x=>{const n=(x.lk||[]).length+(x.df||[]).length,lb='Billet'+(multi&&x.m?' '+x.m.toLowerCase():'');(x.lk||[]).forEach((u,j)=>{h+='<a class="vab" href="'+esc(urlOf(u))+'" target="_blank" rel="noopener">'+TKT+lb+(n>1?' '+(j+1):'')+'</a>'});(x.df||[]).forEach((f,j)=>{h+='<a class="vab" href="#" data-fid="'+esc(f.id)+'">'+TKT+lb+(n>1?' '+((x.lk||[]).length+j+1):'')+'</a>'})});
+  const lk=t.lk||[],df=t.df||[],n=lk.length+df.length;
   lk.forEach((u,j)=>{h+='<a class="vab" href="'+esc(urlOf(u))+'" target="_blank" rel="noopener">'+TKT+'Billet'+(n>1?' '+(j+1):'')+'</a>'});
   df.forEach((f,j)=>{h+='<a class="vab" href="#" data-fid="'+esc(f.id)+'">'+TKT+'Billet'+(n>1?' '+(lk.length+j+1):'')+'</a>'});
   if(t.f)h+='<a class="vab" href="'+gdir(t.f,S.home||'')+'" target="_blank" rel="noopener">'+PIN2+'Itinéraire · '+esc(short(t.f))+'</a>';
@@ -1086,29 +1094,32 @@ function vacSheet(v,vi){const bag=v.bag||[],dn=bag.filter(x=>x.f).length;
 const vForm=(vi,title,body,save,del)=>'<div class="card vsheet ef" '+sty('Vacances')+'><div class="eft">✎ '+title+'</div>'+body+'<div id="vemsg" class="sub" style="margin:6px 0 0"></div><div class="fb"><button data-a="'+save+'" data-i="'+vi+'">Enregistrer</button><button class="sec" data-a="vecancel">Annuler</button></div>'+(del?'<button class="vdel" '+del+'>Supprimer</button>':'')+'</div>';
 const vin=(id,val,ph,ty)=>'<input type="'+(ty||'text')+'" id="'+id+'" value="'+esc(val||'')+'" placeholder="'+ph+'" autocomplete="off">';
 function vacEdit(v,vi){return vForm(vi,'Lieu et dates','<label class="ff"><span>Lieu principal</span><input type="text" id="vel" value="'+esc(v.l||'')+'"></label><div class="fg"><label class="ff"><span>Du</span><input type="date" id="vea" value="'+v.a+'"></label><label class="ff"><span>Au</span><input type="date" id="veb" value="'+v.b+'"></label></div>','vesave')}
-function legEdit(v,vi,w){const nw=w==='new',t=nw?{d:vGoD(v)}:w==='go'?(v.go||{}):w==='back'?(v.back||{}):((v.tr||[])[+w]||{}),d=nw?'':(w==='go'?vGoD(v):w==='back'?vBkD(v):t.d),nf=(t.df||[]).length,lab=w==='go'?'Aller':w==='back'?'Retour':'Trajet';
-  if(!V.seg||V.segk!==vi+'|'+w){V.seg=nw?[{m:'Train',h:'',f:'',to:'',t:''}]:legSegs(t).map(x=>Object.assign({},x));V.segk=vi+'|'+w;V.segd=d}
-  const n=V.seg.length;
-  const seg=(s0,i)=>'<div class="vseg"><div class="vsegh"><span class="vsegn">'+(n>1?(i+1)+'.':'')+'</span><select data-sg="m" data-i="'+i+'">'+TMODES.map(m=>'<option'+(s0.m===m?' selected':'')+'>'+m+'</option>').join('')+'</select><input type="time" data-sg="h" data-i="'+i+'" value="'+(s0.h||'')+'">'+(n>1?'<button class="vsegx" data-a="segx" data-i="'+i+'" aria-label="Retirer">×</button>':'')+'</div>'
-    +'<div class="vsegr"><input type="text" data-sg="f" data-i="'+i+'" value="'+esc(s0.f||'')+'" placeholder="Départ (gare, arrêt…)" autocomplete="off"><span>→</span><input type="text" data-sg="to" data-i="'+i+'" value="'+esc(s0.to||'')+'" placeholder="Arrivée" autocomplete="off"></div>'
-    +'<input type="text" data-sg="t" data-i="'+i+'" value="'+esc(s0.t||'')+'" placeholder="Infos (n° de train, quai, siège…)" autocomplete="off"></div>';
-  const body='<div class="vtd"><label class="fld"><span>Le</span><input type="date" id="vtd" value="'+(V.segd||'')+'"></label></div>'
-    +'<div class="vsegs">'+V.seg.map(seg).join('<div class="vsegc">correspondance</div>')+'</div><button class="vadd" data-a="segadd" data-i="'+vi+'">＋ Ajouter un moyen de transport</button>'
-    +'<div class="vedb">'+vin('vtl',(t.lk||[]).join(' '),'Lien du billet (facultatif)')
-    +'<label class="vfile">'+(nf?nf+' billet'+(nf>1?'s':'')+' joint'+(nf>1?'s':'')+' · ':'')+'Joindre un billet (PDF, photo)<input type="file" id="vtx" multiple></label></div>';
+/* Éditeur de trajet découpé : un bloc par moyen de transport (heure, départ, arrivée, infos, billet) */
+const segNew=(m,f)=>({m:m||'Train',h:'',f:f||'',to:'',t:'',lk:[],df:[]});
+function segBlock(k,s0,i,n){const nb=(s0.df||[]).length+(s0.lk||[]).length;
+  return '<div class="vseg"><div class="vsegh"><span class="vsegn">'+(n>1?(i+1)+'.':'')+'</span><select data-sk="'+k+'" data-sg="m" data-i="'+i+'">'+TMODES.map(m=>'<option'+(s0.m===m?' selected':'')+'>'+m+'</option>').join('')+'</select><input type="time" data-sk="'+k+'" data-sg="h" data-i="'+i+'" value="'+(s0.h||'')+'">'+(n>1?'<button class="vsegx" data-a="segx" data-k="'+k+'" data-i="'+i+'" aria-label="Retirer">×</button>':'')+'</div>'
+    +'<div class="vsegr"><input type="text" data-sk="'+k+'" data-sg="f" data-i="'+i+'" value="'+esc(s0.f||'')+'" placeholder="Départ (gare, arrêt…)" autocomplete="off"><span>→</span><input type="text" data-sk="'+k+'" data-sg="to" data-i="'+i+'" value="'+esc(s0.to||'')+'" placeholder="Arrivée" autocomplete="off"></div>'
+    +'<input type="text" data-sk="'+k+'" data-sg="t" data-i="'+i+'" value="'+esc(s0.t||'')+'" placeholder="Infos (n° de train, quai, siège…)" autocomplete="off">'
+    +'<input type="text" data-sk="'+k+'" data-sg="lk" data-i="'+i+'" value="'+esc((s0.lk||[]).join(' '))+'" placeholder="Lien du billet (facultatif)" autocomplete="off">'
+    +'<label class="vfile"><span data-sgl="'+k+'|'+i+'">'+((s0.df||[]).length?'✓ '+(s0.df||[]).length+' billet'+((s0.df||[]).length>1?'s':'')+' joint'+((s0.df||[]).length>1?'s':'')+' · ':'')+'Joindre le billet '+(s0.m?esc(s0.m.toLowerCase()):'')+' (PDF, photo)</span><input type="file" data-sgf="'+k+'|'+i+'" multiple></label></div>'}
+const segEditor=k=>{const L=V.sg[k],n=L.length;return '<div id="sged-'+k+'"><div class="vsegs">'+L.map((s0,i)=>segBlock(k,s0,i,n)).join('<div class="vsegc">correspondance</div>')+'</div><button class="vadd" data-a="segadd" data-k="'+k+'">＋ Ajouter un moyen de transport</button></div>'};
+const readSegs=()=>{const d=$('#vtd');if(d)V.segd=d.value;document.querySelectorAll('[data-sk]').forEach(el=>{const L=V.sg&&V.sg[el.dataset.sk],s0=L&&L[+el.dataset.i];if(!s0)return;const f=el.dataset.sg;s0[f]=f==='lk'?el.value.split(/\s+/).filter(Boolean):el.value})};
+const segRedraw=k=>{const el=document.getElementById('sged-'+k);if(el)el.outerHTML=segEditor(k)};
+const segsToLeg=(L,d)=>{const sg=(L||[]).map(x=>({m:x.m||'',h:x.h||'',f:(x.f||'').trim(),to:(x.to||'').trim(),t:(x.t||'').trim(),lk:x.lk||[],df:x.df||[]}));
+  return{d,sg,m:sg.map(x=>x.m).filter(Boolean),h:(sg[0]||{}).h||'',f:(sg[0]||{}).f||'',to:(sg[sg.length-1]||{}).to||'',t:sg.map(x=>x.t).filter(Boolean).join(' · '),lk:[],df:[]}};
+function legEdit(v,vi,w){const nw=w==='new',t=nw?{d:vGoD(v)}:w==='go'?(v.go||{}):w==='back'?(v.back||{}):((v.tr||[])[+w]||{}),d=nw?'':(w==='go'?vGoD(v):w==='back'?vBkD(v):t.d),lab=w==='go'?'Aller':w==='back'?'Retour':'Trajet';
+  V.sg=V.sg||{};if(!V.sg.leg||V.segk!==vi+'|'+w){const L=nw?[segNew()]:legSegs(t).map(x=>Object.assign({lk:[],df:[]},x));if(!nw&&L[0]&&((t.lk||[]).length||(t.df||[]).length)&&!(t.sg||[]).some(x=>(x.df||[]).length||(x.lk||[]).length)){L[0].lk=(L[0].lk||[]).concat(t.lk||[]);L[0].df=(L[0].df||[]).concat(t.df||[])}V.sg.leg=L;V.segk=vi+'|'+w;V.segd=d}
+  const body='<div class="vtd"><label class="fld"><span>Le</span><input type="date" id="vtd" value="'+(V.segd||'')+'"></label></div>'+segEditor('leg');
   return vForm(vi,nw?'Nouveau trajet':lab,body,'vtsave',(!nw&&w!=='go'&&w!=='back')?'data-a="vtdel" data-i="'+vi+'"':'')}
-const readSegs=()=>{const d=$('#vtd');if(d)V.segd=d.value;document.querySelectorAll('[data-sg]').forEach(el=>{const s0=V.seg&&V.seg[+el.dataset.i];if(s0)s0[el.dataset.sg]=el.value})};
 function stayEdit(v,vi,i){const nw=i==='new',s0=nw?{}:i==='imp'?Object.assign({l:v.l,a:v.a,b:v.b},v.info||{}):(v.st[+i]||{});
   const body='<label class="ff"><span>Lieu</span><input type="text" id="vsl" value="'+esc(s0.l||'')+'" placeholder="Ex. Lyon"></label><div class="fg"><label class="ff"><span>Du</span><input type="date" id="vsa" value="'+(s0.a||'')+'"></label><label class="ff"><span>Au</span><input type="date" id="vsb" value="'+(s0.b||'')+'"></label></div>'
     +'<div class="vedb">'+vin('vih',s0.h,'Adresse du logement')+vin('vic',s0.c,'Code / accès (digicode, boîte à clés…)')+vin('vir',s0.r,'N° de réservation')+vin('vin',s0.n,'Contact sur place')+vin('vit',s0.t,'Téléphone','tel')+'</div>';
   return vForm(vi,nw?'Nouvelle étape':'Étape · '+esc(short(s0.l)||''),body,'vssave',(!nw&&i!=='imp')?'data-a="vsdel" data-i="'+vi+'"':'')}
-async function saveLeg(btn,vi){const v0=S.vac[vi],w=V.vte&&V.vte.w;if(!v0||!w)return;readSegs();const g=id=>($(id)||{}).value||'',m=$('#vemsg')||{};
+async function saveLeg(btn,vi){const v0=S.vac[vi],w=V.vte&&V.vte.w;if(!v0||!w)return;readSegs();const m=$('#vemsg')||{};
   const d=V.segd;if(!d){m.textContent='Indique la date du trajet.';return}
-  const sg=(V.seg||[]).map(x=>({m:x.m||'',h:x.h||'',f:(x.f||'').trim(),to:(x.to||'').trim(),t:(x.t||'').trim()}));
-  const fl=[...(($('#vtx')||{}).files||[])];btn.textContent='Envoi…';const df=await upFiles(fl,m);if(df===null){btn.textContent='Enregistrer';return}
-  const o={d,sg,m:sg.map(x=>x.m).filter(Boolean),h:(sg[0]||{}).h||'',f:(sg[0]||{}).f||'',to:(sg[sg.length-1]||{}).to||'',t:sg.map(x=>x.t).filter(Boolean).join(' · '),lk:g('#vtl').split(/\s+/).filter(Boolean)};
-  let t;if(w==='new'){v0.tr=v0.tr||[];t={df:[]};v0.tr.push(t)}else if(w==='go')t=v0.go=v0.go||{};else if(w==='back')t=v0.back=v0.back||{};else t=v0.tr[+w];
-  Object.assign(t,o);t.df=(t.df||[]).concat(df);V.vte=null;V.seg=null;V.segk=null;save();render();noteToast('✓ Enregistré')}
+  const o=segsToLeg(V.sg.leg,d);
+  let t;if(w==='new'){v0.tr=v0.tr||[];t={};v0.tr.push(t)}else if(w==='go')t=v0.go=v0.go||{};else if(w==='back')t=v0.back=v0.back||{};else t=v0.tr[+w];
+  Object.assign(t,o);V.vte=null;V.sg.leg=null;V.segk=null;save();render();noteToast('✓ Enregistré')}
 function saveStay(vi){const v0=S.vac[vi],i=V.vst&&V.vst.i;if(!v0)return;const g=id=>($(id)||{}).value||'',m=$('#vemsg')||{};
   const o={l:g('#vsl').trim(),a:g('#vsa'),b:g('#vsb'),h:g('#vih').trim(),c:g('#vic').trim(),r:g('#vir').trim(),n:g('#vin').trim(),t:g('#vit').trim()};
   if(!o.l){m.textContent='Indique le lieu de l’étape.';return}if(!o.a||!o.b||o.b<o.a){m.textContent='Vérifie les dates de l’étape.';return}
@@ -1285,12 +1296,8 @@ async function addVac(dk,e2,btn){
   const g=id=>($(id)||{}).value||'',ck=n=>[...document.querySelectorAll('input[name='+n+']:checked')].map(i=>i.value),sp=id=>g(id).split(/\s+/).filter(Boolean),msg=$('#qmsg')||{};
   const items=(V.vp||[]).slice();
   if(items.some(q=>q.d<dk||q.d>e2)){msg.textContent='Un élément du programme est en dehors des dates des vacances.';return}
-  const rec={a:dk,b:e2,l:g('#ql').trim(),go:{m:ck('qg'),t:g('#qgd').trim(),lk:sp('#qgl'),d:g('#qgdt')||dk,h:g('#qgh')},back:{m:ck('qr'),t:g('#qrd').trim(),lk:sp('#qrl'),d:g('#qrdt')||e2,h:g('#qrh')},items};
-  const fg=[...(($('#qgf')||{}).files||[])],fr=[...(($('#qrf')||{}).files||[])];
-  btn.textContent='Envoi…';
-  const a1=await upFiles(fg,msg);if(a1===null){btn.textContent='Ajouter';return}
-  const a2=await upFiles(fr,msg);if(a2===null){btn.textContent='Ajouter';return}
-  rec.go.df=a1;rec.back.df=a2;S.vac.push(rec);S.vac.sort((p,q)=>p.a.localeCompare(q.a));V.qa=null;V.jp=false;V.vp=[];setD(parse(dk));save();render();
+  readSegs();const rec={a:dk,b:e2,l:g('#ql').trim(),go:segsToLeg(V.sg.go,g('#qgdt')||dk),back:segsToLeg(V.sg.back,g('#qrdt')||e2),items};
+  V.sg.go=null;V.sg.back=null;S.vac.push(rec);S.vac.sort((p,q)=>p.a.localeCompare(q.a));V.qa=null;V.jp=false;V.vp=[];setD(parse(dk));save();render();
 }
 async function vpAdd(btn){
   const g=id=>($(id)||{}).value||'',msg=$('#vpmsg')||{},s=g('#vps'),resto=s==='r';
@@ -1543,7 +1550,7 @@ const tmodes=n=>['Train','Avion','Voiture','Bus'].map(t=>'<label class="chip" st
 const qaCard=()=>{const c=V.qa,lb=t=>'<span class="sub" style="margin:0;align-self:center">'+t+'</span>';
   let f='';
   if(c==='Date')f='<input type="date" id="qd" value="'+key(V.d)+'"><input type="text" id="qx" placeholder="Nom (ex. Camille)">';
-  else if(c==='Vacances')f='<label class="fld"><span>Du</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>au</span><input type="date" id="qe" value="'+key(V.d)+'"></label><input type="text" id="ql" autocomplete="off" placeholder="Lieu">'+[['Aller','qg'],['Retour','qr']].map(([t,n])=>'<div style="width:100%"><b style="font-size:14px">'+t+'</b><div class="vtd"><label class="fld"><span>Le</span><input type="date" id="'+n+'dt"></label><label class="fld"><span>à</span><input type="time" id="'+n+'h"></label></div><div class="lg" style="margin:4px 0">'+tmodes(n)+'</div><input type="text" id="'+n+'d" placeholder="Détails '+t.toLowerCase()+' (horaires, n° de vol…)" style="width:100%"><input type="text" id="'+n+'l" placeholder="Lien (billet, réservation…)" style="width:100%;margin-top:6px"><input type="file" id="'+n+'f" multiple style="max-width:100%;margin-top:6px"></div>').join('')+'<p class="sub" style="width:100%;margin:0">Sans date, l’aller est le premier jour et le retour le dernier.</p><div id="qmsg" class="sub" style="width:100%;margin:0"></div>';
+  else if(c==='Vacances')f='<label class="fld"><span>Du</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>au</span><input type="date" id="qe" value="'+key(V.d)+'"></label><input type="text" id="ql" autocomplete="off" placeholder="Lieu">'+(V.sg=V.sg||{},V.sg.go=V.sg.go||[segNew('Train')],V.sg.back=V.sg.back||[segNew('Train')],'')+[['Aller','qg','go'],['Retour','qr','back']].map(([t,n,k])=>'<div class="vqa" style="width:100%" '+sty('Vacances')+'><b style="font-size:15px">'+t+'</b><div class="vtd"><label class="fld"><span>Le</span><input type="date" id="'+n+'dt"></label></div>'+segEditor(k)+'</div>').join('')+'<p class="sub" style="width:100%;margin:0">Sans date, l’aller est le premier jour et le retour le dernier.</p><div id="qmsg" class="sub" style="width:100%;margin:0"></div>';
   else{f='<label class="fld"><span>Date</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>Heure</span><input type="time" id="qh"></label><input type="text" id="qx" list="dl-t-'+c+'" placeholder="Intitulé">'+durSel('qdu','')+'<div class="trem"><span>'+BELL+'Rappel</span>'+remIn('qra','')+'</div>';
     f+=HASMODE(c)?'<select id="qm"><option value="p">Présentiel</option><option value="t">'+(c==='Meeting'?'Visio':'Téléconsultation')+'</option></select><input type="text" id="ql" autocomplete="off" placeholder="Adresse"><input type="text" id="qk" placeholder="'+(c==='Meeting'?'Lien Teams, Zoom, Meet…':'Lien de la téléconsultation')+'" style="display:none">':'<input type="text" id="ql" autocomplete="off" placeholder="Lieu">';
     f+=((c==='Resto'||c==='Sport')?'<input type="text" id="qw" placeholder="Avec qui">':c==='Meeting'?'<input type="text" id="qw" placeholder="Participants" style="width:100%">':'')+(c==='Meeting'?'<textarea id="qp" class="nt tna" rows="2" placeholder="Ordre du jour / remarques (facultatif)" style="width:100%"></textarea>':'<input type="text" id="qp" placeholder="Remarques (facultatif)">')+'<input type="tel" id="qtel" placeholder="Téléphone (facultatif)"><input type="text" id="qdl" placeholder="Lien d’un mail, d’une réservation…" style="width:100%"><span class="sub" style="width:100%;margin:0">'+(c==='Meeting'?'Joindre un fichier (présentation, document, PDF…)':'Joindre un fichier (ordonnance, confirmation, PDF, photo…)')+'</span><input type="file" id="qdf" multiple style="max-width:100%"><div id="qmsg" class="sub" style="width:100%;margin:0"></div>'}
@@ -1765,12 +1772,12 @@ document.addEventListener('click',e=>{
   else if(a==='vso'){const n=+b.dataset.i;V.vso=V.vso===n?null:n;V.vse=null;V.vbag=null;V.vte=null;V.vst=null;if(V.vso!==null&&V.tab!=='jour'){}}
   else if(a==='vbag'){const n=+b.dataset.i;V.vbag=V.vbag===n?null:n}
   else if(a==='vse'){V.vse=+b.dataset.i}
-  else if(a==='vecancel'){V.vse=null;V.vte=null;V.vst=null;V.seg=null;V.segk=null}
+  else if(a==='vecancel'){V.vse=null;V.vte=null;V.vst=null;V.segk=null;if(V.sg)V.sg.leg=null}
   else if(a==='vlegx'){const v0=S.vac[+b.dataset.i],w=+b.dataset.w;if(v0&&v0.tr&&v0.tr[w]){const t0=v0.tr.splice(w,1)[0];(t0.df||[]).forEach(f=>qdel(f.id));save();render();noteToast('Trajet supprimé')}return}
   else if(a==='vstx'){const v0=S.vac[+b.dataset.i],w=+b.dataset.s;if(v0&&v0.st&&v0.st[w]){v0.st.splice(w,1);save();render();noteToast('Étape supprimée')}return}
-  else if(a==='vte'){V.vte={vi:+b.dataset.i,w:b.dataset.w};V.vse=null;V.vst=null;V.seg=null;V.segk=null}
-  else if(a==='segadd'){readSegs();const L=V.seg[V.seg.length-1]||{};V.seg.push({m:'Bus',h:'',f:L.to||'',to:'',t:''})}
-  else if(a==='segx'){readSegs();V.seg.splice(+b.dataset.i,1)}
+  else if(a==='vte'){V.vte={vi:+b.dataset.i,w:b.dataset.w};V.vse=null;V.vst=null;V.segk=null;if(V.sg)V.sg.leg=null}
+  else if(a==='segadd'){readSegs();const k=b.dataset.k,L=V.sg[k],q=L[L.length-1]||{};L.push(segNew('Bus',q.to||''));segRedraw(k);return}
+  else if(a==='segx'){readSegs();const k=b.dataset.k;V.sg[k].splice(+b.dataset.i,1);segRedraw(k);return}
   else if(a==='vsted'){V.vst={vi:+b.dataset.i,i:b.dataset.s};V.vse=null;V.vte=null}
   else if(a==='vtsave'){saveLeg(b,+b.dataset.i);return}
   else if(a==='vssave'){saveStay(+b.dataset.i);return}
@@ -1786,8 +1793,8 @@ document.addEventListener('click',e=>{
   else if(a==='tnote'){const kk=b.dataset.src+'|'+i;V.tn=V.tn===kk?null:kk}
   else if(a==='gt'){const x=S.g[s][i];if(x)spawn(x,x.d||key(new Date()),c=>S.g[s].push(c))}
   else if(a==='gtx'){V.tn=null;S.g[s].splice(i,1)}
-  else if(a==='qa'){V.qa=V.qa===b.dataset.c?null:b.dataset.c;V.vp=[]}
-  else if(a==='qcancel'){V.qa=null;V.jp=false;V.vp=[]}
+  else if(a==='qa'){V.qa=V.qa===b.dataset.c?null:b.dataset.c;V.vp=[];if(V.sg){V.sg.go=null;V.sg.back=null}}
+  else if(a==='qcancel'){V.qa=null;V.jp=false;V.vp=[];if(V.sg){V.sg.go=null;V.sg.back=null}}
   else if(a==='jplus'){V.jp=!V.jp;if(!V.jp)V.qa=null}
   else if(a==='gtab')V.gt=V.gt===s?'':s;
   else if(a==='evt'){V.ev={k:b.dataset.d,i};V.evd=0;V.sc=1}
@@ -2149,6 +2156,8 @@ const nbEnd=()=>{if(!NB||NB.anim)return;if(!NB.on){if(NB.prep)nbClean();NB=null;
   setTimeout(()=>{if(go){const ae=document.activeElement;if(ae&&ae.blur)ae.blur();nbBack();a.style.transition='none';render();window.scrollTo(0,0);a.style.transform='';requestAnimationFrame(()=>{nbClean();NB=null})}else{nbClean();NB=null}},ms+30)};
 document.addEventListener('touchend',nbEnd);document.addEventListener('touchcancel',nbEnd);
 
+document.addEventListener('change',async e=>{const t=e.target;if(!t.dataset||!t.dataset.sgf)return;const [k,i]=t.dataset.sgf.split('|'),s0=V.sg&&V.sg[k]&&V.sg[k][+i];if(!s0)return;const lb=document.querySelector('[data-sgl="'+t.dataset.sgf+'"]'),fl=[...(t.files||[])];if(!fl.length)return;
+  if(lb)lb.textContent='Envoi du billet…';const r=await upFiles(fl,{set textContent(x){if(lb)lb.textContent=x}});if(r===null)return;s0.df=(s0.df||[]).concat(r);const n=s0.df.length;if(lb)lb.textContent='✓ '+n+' billet'+(n>1?'s':'')+' joint'+(n>1?'s':'')+' · Joindre un autre';t.value=''});
 document.addEventListener('input',e=>{const t=e.target;if(t.classList&&(t.classList.contains('rmd')||t.classList.contains('rmt')))rmSync(t)});
 
 /* Glisser une tâche vers la gauche pour la supprimer */
