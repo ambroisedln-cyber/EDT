@@ -1073,7 +1073,7 @@ function otdHTML(d){const k=otdKey(d),o=OTD[k];if(!o)otdLoad(d);const O=OTD[k]||
     const mm=t.match(/^.*?[.!?](?=\s+[A-ZÀ-Ý]|$)/),f=mm?mm[0]:t;if(f.length<=140)return{t:f,c:1};
     const cut=t.slice(0,140),m=Math.max(cut.lastIndexOf(', '),cut.lastIndexOf(' ; '),cut.lastIndexOf(' : '),cut.lastIndexOf(' – '),cut.lastIndexOf(' — '));
     return{t:(m>35?cut.slice(0,m):cut.slice(0,cut.lastIndexOf(' '))).replace(/[,;:\s–—]+$/,'')+'.',c:2}};
-  const P=O.l.slice(0,20).map((x,i)=>({x,i,s:SUM(x.t)})).sort((a,b)=>a.s.c-b.s.c||a.i-b.i).slice(0,4).sort((a,b)=>a.i-b.i).map(o=>Object.assign({},o.x,{t:o.s.t.charAt(0).toLocaleUpperCase('fr')+o.s.t.slice(1)}));
+  const P=O.l.slice(0,20).map((x,i)=>({x,i,s:SUM(x.t)})).sort((a,b)=>a.s.c-b.s.c||a.i-b.i).slice(0,4).sort((a,b)=>a.x.y-b.x.y).map(o=>Object.assign({},o.x,{t:o.s.t.charAt(0).toLocaleUpperCase('fr')+o.s.t.slice(1)}));
   h+='<div class="otdl">'+P.map(x=>{const y=x.y<0?(-x.y)+' av. J.-C.':x.y,ago=x.y>0?new Date().getFullYear()-x.y:0,tg=x.u?'a href="'+esc(x.u)+'" target="_blank" rel="noopener"':'div';
     return '<'+tg+' class="otdr"><span class="otdh"><b>'+y+'</b>'+(ago>0?'<i>·</i>il y a '+ago+' an'+(ago>1?'s':''):'')+'</span><span class="otdt">'+esc(x.t.replace(/\s+/g,' ').trim())+'</span></'+tg.split(' ')[0]+'>'}).join('')+'</div>';
   return h}
