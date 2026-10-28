@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Mon emploi du temps</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -724,6 +724,7 @@ html.nbx,html.nbx body{overflow-x:clip}
 #nbu .nbin{box-sizing:border-box;padding-top:env(safe-area-inset-top)}
 #fabw{position:fixed;right:0;bottom:0;z-index:900;will-change:transform}
 #nbu .nbdim{position:absolute;inset:0;background:rgba(0,0,0,.1);will-change:opacity}
+html,body{touch-action:manipulation}
 </style>
 </head>
 <body>
@@ -1764,6 +1765,8 @@ const drgEnd=()=>{if(!DRG)return;const r=DRG.row;DRG=null;SWblock=Date.now();r.c
   if(A&&ord.some((v,j)=>v!==pos[j])){const B=A.slice();pos.forEach((p,j)=>{B[p]=A[ord[j]]});A.splice(0,A.length,...B);V.tn=null;save()}render()};
 document.addEventListener('pointerup',e=>{if(DRG&&!DRG.touch)drgEnd()});document.addEventListener('pointercancel',e=>{if(DRG&&!DRG.touch)drgEnd()});
 
+document.addEventListener('dblclick',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
 /* Notes : glisser vers la droite pour revenir en arrière — tout est préparé au toucher, puis seules des transformations GPU bougent */
 let NB=null;
 const nbBack=()=>{if(V.nid){notesClean();V.nid=null}else{V.nf=null;V.nfm=0;V.nfren=0}};
