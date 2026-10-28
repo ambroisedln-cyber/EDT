@@ -838,6 +838,10 @@ html.fsl .hl,html.fsl .otdt,html.fsl .nrow .nopen b{font-size:17px}
 .vfoot .vdel{margin:0}
 .ef .vdel{margin-top:10px}
 .vtrip .vact{padding:2px 0 2px 0;margin-top:6px}
+.swp{position:relative;margin:6px 0;border-radius:12px}
+.swp>.swi{touch-action:pan-y;position:relative;z-index:1;margin:0!important}
+.vsheet .swp{margin:0 0 6px}
+.tk{position:relative}
 </style>
 </head>
 <body>
@@ -1045,12 +1049,12 @@ function vacSheet(v,vi){const bag=v.bag||[],dn=bag.filter(x=>x.f).length;
   if(V.vst&&V.vst.vi===vi)return stayEdit(v,vi,V.vst.i);
   let h='<div class="card vsheet" '+sty('Vacances')+'><button class="vclose" data-a="vso" data-i="'+vi+'" aria-label="Fermer">×</button><div class="vst">'+esc(v.l||'Vacances')+'</div><div class="vsd">Du '+fds(v.a)+' au '+fds(v.b)+' · '+(ndays(v.a,v.b)+1)+' jours</div>';
   h+='<div class="vsec2">Trajets</div>'+vLegs(v).map(t=>{const r=legRoute(v,t),tx=[(t.m||[]).join(' + '),r].filter(Boolean).join(' · ');
-    return '<div class="vtr"><div class="vtrh"><button class="vtrm" data-a="day" data-d="'+t.d+'"><span class="vrl">'+t.k+'</span><span class="vrv"><b>'+fds(t.d)+(t.h?' · '+HM(t.h):'')+'</b>'+(tx?'<small>'+esc(tx)+'</small>':'')+(t.t?'<small>'+esc(t.t)+'</small>':'')+'</span></button><button class="vted" data-a="vte" data-i="'+vi+'" data-w="'+t.w+'" aria-label="Modifier">'+PEN+'</button></div>'+vActs(t)+'</div>'}).join('')
+    const sw=t.k==='Trajet';return (sw?'<div class="swp"><button hidden class="swdel" data-a="vlegx" data-i="'+vi+'" data-w="'+t.w+'"></button>':'')+'<div class="vtr'+(sw?' swi':'')+'"><div class="vtrh"><button class="vtrm" data-a="day" data-d="'+t.d+'"><span class="vrl">'+t.k+'</span><span class="vrv"><b>'+fds(t.d)+(t.h?' · '+HM(t.h):'')+'</b>'+(tx?'<small>'+esc(tx)+'</small>':'')+(t.t?'<small>'+esc(t.t)+'</small>':'')+'</span></button><button class="vted" data-a="vte" data-i="'+vi+'" data-w="'+t.w+'" aria-label="Modifier">'+PEN+'</button></div>'+vActs(t)+'</div>'+(sw?'</div>':'')}).join('')
     +'<button class="vadd" data-a="vte" data-i="'+vi+'" data-w="new">＋ Ajouter un trajet</button>';
   const ST=vStays(v);
   h+='<div class="vsec2">Étapes et logements</div>'+ST.map((s0,si)=>{const idx=s0._i?'imp':String(v.st.indexOf(s0)),ir=(l,val,href)=>val?'<'+(href?'a href="'+href+'"'+(href.startsWith('tel:')?'':' target="_blank" rel="noopener"'):'div')+' class="vir"><span class="vil">'+l+'</span><span class="viv">'+esc(val)+'</span></'+(href?'a':'div')+'>':'';
     const inf=ir('Logement',s0.h,s0.h?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s0.h):'')+ir('Accès',s0.c)+ir('Réservation',s0.r)+ir('Contact',s0.n)+ir('Téléphone',s0.t,s0.t?'tel:'+s0.t.replace(/[^\d+]/g,''):'');
-    return '<div class="vstay"><div class="vtrh"><div class="vtrm"><span class="vrv"><b>'+esc(short(s0.l)||'Étape')+'</b><small>'+fds(s0.a)+' → '+fds(s0.b)+'</small></span></div><button class="vted" data-a="vsted" data-i="'+vi+'" data-s="'+idx+'" aria-label="Modifier">'+PEN+'</button></div>'+(inf?'<div class="vinf">'+inf+'</div>':'<button class="vaddi" data-a="vsted" data-i="'+vi+'" data-s="'+idx+'">Ajouter l’adresse du logement, le code…</button>')+'</div>'}).join('')
+    const sw=!s0._i&&ST.length>1;return (sw?'<div class="swp"><button hidden class="swdel" data-a="vstx" data-i="'+vi+'" data-s="'+idx+'"></button>':'')+'<div class="vstay'+(sw?' swi':'')+'"><div class="vtrh"><div class="vtrm"><span class="vrv"><b>'+esc(short(s0.l)||'Étape')+'</b><small>'+fds(s0.a)+' → '+fds(s0.b)+'</small></span></div><button class="vted" data-a="vsted" data-i="'+vi+'" data-s="'+idx+'" aria-label="Modifier">'+PEN+'</button></div>'+(inf?'<div class="vinf">'+inf+'</div>':'<button class="vaddi" data-a="vsted" data-i="'+vi+'" data-s="'+idx+'">Ajouter l’adresse du logement, le code…</button>')+'</div>'+(sw?'</div>':'')}).join('')
     +'<button class="vadd" data-a="vsted" data-i="'+vi+'" data-s="new">＋ Ajouter une étape</button>';
   h+='<button class="vrow vbag" data-a="vbag" data-i="'+vi+'"><span class="vrl">Valise</span><span class="vrv"><b>'+(bag.length?dn+' / '+bag.length+' prêts':'Liste vide')+'</b></span><span class="chv'+(V.vbag===vi?' up':'')+'">›</span></button>';
   if(V.vbag===vi)h+='<div class="vbagc">'+bagHTML(v,vi).replace('<div style="margin-top:16px"><b style="font-size:14px">Valise'+(bag.length?' · '+dn+'/'+bag.length:'')+'</b>','<div>')+'</div>';
@@ -1086,7 +1090,7 @@ async function saveVac(btn,vi){const v0=S.vac[vi];if(!v0)return;const g=id=>($(i
   v0.l=g('#vel').trim();v0.a=A;v0.b=B;V.vse=null;save();render();noteToast('✓ Enregistré')}
 function vacTrips(k){const out=[];S.vac.forEach((v,vi)=>{vLegs(v).forEach(t=>{if(t.d!==k)return;
   const ti=((t.m||[]).join(' + ')||(t.k==='Aller'?'Départ':t.k==='Retour'?'Retour':'Trajet'))+(legTo(v,t)?' → '+short(legTo(v,t)):'');
-  out.push({t:t.h||'00:00',h:'<div class="ev vtrip" '+sty('Vacances')+'><div class="eh" data-a="vso" data-i="'+vi+'"><div class="et">'+HEAD(t.h,'',t.k,ti,'Vacances')+((t.t||t.f)?'<div class="em2">'+esc([t.f?'Depuis '+short(t.f):'',t.t].filter(Boolean).join(' · '))+'</div>':'')+'</div></div>'+vActs(t)+'</div>'})})});return out}
+  const sw=t.k==='Trajet';out.push({t:t.h||'00:00',h:(sw?'<div class="swp"><button hidden class="swdel" data-a="vlegx" data-i="'+vi+'" data-w="'+t.w+'"></button>':'')+'<div class="ev vtrip'+(sw?' swi':'')+'" '+sty('Vacances')+'><div class="eh" data-a="vso" data-i="'+vi+'"><div class="et">'+HEAD(t.h,'',t.k,ti,'Vacances')+((t.t||t.f)?'<div class="em2">'+esc([t.f?'Depuis '+short(t.f):'',t.t].filter(Boolean).join(' · '))+'</div>':'')+'</div></div>'+vActs(t)+'</div>'+(sw?'</div>':'')})})});return out}
 const vacWeek=m=>{let h='';for(let i=0;i<7;i++){const d=add(m,i),k=key(d),v=vacOn(k);if(!v)continue;let b='';SECS.forEach(([p,n])=>{const A=vitems(v,k,p);if(A.length)b+='<div style="margin-top:6px"><b style="font-size:13px">'+n+'</b>'+A.map(([it,j])=>vpItem(it,undefined,j,0,'p|'+S.vac.indexOf(v)+'|'+j)).join('')+'</div>'});
   h+='<div class="rd"><button class="rdh" data-a="day" data-d="'+k+'">'+JRS[d.getDay()]+' '+d.getDate()+' · '+esc(v.l||'Vacances')+' ›</button>'+(b||'<div class="sub" style="margin:0">Pas de programme ce jour</div>')+'</div>'}return h?'<div class="card" '+sty('Vacances')+'><h2>Programme des vacances</h2>'+h+'</div>':''};
 const editForm=(k,i,card)=>{const x=(S.days[k]||{r:[]}).r[i];if(!x)return '';const med=HASMODE(x.c),nf=(x.df||[]).length,
@@ -1186,8 +1190,8 @@ function vJour(){
     chips=(x.tele&&x.lk?'<a class="chip" style="--c:#007aff" href="'+esc(urlOf(x.lk))+'" target="_blank" rel="noopener">Rejoindre</a>':'')+(x.tel?'<a class="chip" style="--c:#34c759" href="tel:'+esc(x.tel.replace(/[^\d+]/g,''))+'">'+esc(x.tel)+'</a>':'')+att,
     body=(chips?'<div class="chips">'+chips+'</div>':'')+'<div class="grp">'+tripHTML(k,i,x)+calLinks('r|'+k+'|'+i)+'</div>';
     const op=(V.eo||{})[k+'|'+i],tg='<button class="evt" data-a="evtog" data-k="'+k+'|'+i+'">'+(op?'Fermer':'Détails')+'<span class="chv'+(op?' up':'')+'">›</span></button>';
-    return '<div class="ev'+(op?' open':'')+'" '+sty(x.c)+'><div class="eh" data-a="evtog" data-k="'+k+'|'+i+'"><div class="et">'+HEAD(x.h,endOf(x.h,x.du),x.c,x.x,x.c)+((m1||m2)?'<div class="em2">'+[m1,m2].filter(Boolean).join(' · ')+'</div>':'')+'</div>'+tg+'</div>'+(op?(body?'<div class="eb">'+body+'</div>':'')+noteIn('r',i,x.nt)
-    +'<div class="ea"><button '+ia+'><svg class="ri" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10.5-10.5a2.1 2.1 0 0 0-3-3L5 16l-1 4z"/></svg> Modifier</button><label class="dpk" title="Reporter à une autre date"><span class="dv"><svg class="ri" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h7.5a4 4 0 0 1 0 8H7"/><path d="M10.5 11.5L7 15l3.5 3.5"/></svg> Reporter</span><input type="date" data-rdate="'+i+'" value="'+k+'"></label><button class="shr2" data-a="evshare" data-d="'+k+'" data-i="'+i+'" title="Partager" aria-label="Partager"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M12 15V3.5M7.5 8L12 3.5 16.5 8"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v7A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></button><button class="del" data-a="drx" data-i="'+i+'" title="Supprimer" aria-label="Supprimer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2M6.5 7l1 12.5a1.5 1.5 0 0 0 1.5 1.5h6a1.5 1.5 0 0 0 1.5-1.5L17.5 7M10 11v6M14 11v6"/></svg></button></div>':'')+'</div>'};
+    return '<div class="swp"><button hidden class="swdel" data-a="drx" data-i="'+i+'"></button><div class="ev swi'+(op?' open':'')+'" '+sty(x.c)+'><div class="eh" data-a="evtog" data-k="'+k+'|'+i+'"><div class="et">'+HEAD(x.h,endOf(x.h,x.du),x.c,x.x,x.c)+((m1||m2)?'<div class="em2">'+[m1,m2].filter(Boolean).join(' · ')+'</div>':'')+'</div>'+tg+'</div>'+(op?(body?'<div class="eb">'+body+'</div>':'')+noteIn('r',i,x.nt)
+    +'<div class="ea"><button '+ia+'><svg class="ri" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 10.5-10.5a2.1 2.1 0 0 0-3-3L5 16l-1 4z"/></svg> Modifier</button><label class="dpk" title="Reporter à une autre date"><span class="dv"><svg class="ri" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7h7.5a4 4 0 0 1 0 8H7"/><path d="M10.5 11.5L7 15l3.5 3.5"/></svg> Reporter</span><input type="date" data-rdate="'+i+'" value="'+k+'"></label><button class="shr2" data-a="evshare" data-d="'+k+'" data-i="'+i+'" title="Partager" aria-label="Partager"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:4px"><path d="M12 15V3.5M7.5 8L12 3.5 16.5 8"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v7A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></button><button class="del" data-a="drx" data-i="'+i+'" title="Supprimer" aria-label="Supprimer"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2M6.5 7l1 12.5a1.5 1.5 0 0 0 1.5 1.5h6a1.5 1.5 0 0 0 1.5-1.5L17.5 7M10 11v6M14 11v6"/></svg></button></div>':'')+'</div></div>'};
   const WROW=(x,i)=>'<div class="wkr"><input type="time" data-wt="a" data-i="'+i+'" value="'+x.a+'"><span>–</span><input type="time" data-wt="b" data-i="'+i+'" value="'+x.b+'"><button class="x" data-a="wx" data-i="'+i+'" title="Supprimer">×</button></div>';
   const rows=[];
   let wk='';
@@ -1732,6 +1736,8 @@ document.addEventListener('click',e=>{
   else if(a==='vbag'){const n=+b.dataset.i;V.vbag=V.vbag===n?null:n}
   else if(a==='vse'){V.vse=+b.dataset.i}
   else if(a==='vecancel'){V.vse=null;V.vte=null;V.vst=null}
+  else if(a==='vlegx'){const v0=S.vac[+b.dataset.i],w=+b.dataset.w;if(v0&&v0.tr&&v0.tr[w]){const t0=v0.tr.splice(w,1)[0];(t0.df||[]).forEach(f=>qdel(f.id));save();render();noteToast('Trajet supprimé')}return}
+  else if(a==='vstx'){const v0=S.vac[+b.dataset.i],w=+b.dataset.s;if(v0&&v0.st&&v0.st[w]){v0.st.splice(w,1);save();render();noteToast('Étape supprimée')}return}
   else if(a==='vte'){V.vte={vi:+b.dataset.i,w:b.dataset.w};V.vse=null;V.vst=null}
   else if(a==='vsted'){V.vst={vi:+b.dataset.i,i:b.dataset.s};V.vse=null;V.vte=null}
   else if(a==='vtsave'){saveLeg(b,+b.dataset.i);return}
@@ -2115,7 +2121,7 @@ document.addEventListener('input',e=>{const t=e.target;if(t.classList&&(t.classL
 
 /* Glisser une tâche vers la gauche pour la supprimer */
 let SW=null,SWblock=0;
-document.addEventListener('pointerdown',e=>{if(DRG)return;const it=e.target.closest('.tk>.it');if(!it||e.target.closest('.drg,input,textarea,select,.ck'))return;const tk=it.parentElement;if(!tk.querySelector(':scope>.swdel'))return;SW={it,tk,x:e.clientX,y:e.clientY,dx:0,on:false,id:e.pointerId}});
+document.addEventListener('pointerdown',e=>{if(DRG)return;const it=e.target.closest('.tk>.it,.swp>.swi');if(!it||e.target.closest('.drg,input,textarea,select,.ck,.vab,.ef'))return;const tk=it.parentElement;if(!tk.querySelector(':scope>.swdel'))return;SW={it,tk,x:e.clientX,y:e.clientY,dx:0,on:false,id:e.pointerId}});
 document.addEventListener('pointermove',e=>{if(!SW||e.pointerId!==SW.id)return;if(DRG){SW=null;return}const dx=e.clientX-SW.x,dy=e.clientY-SW.y;
   if(!SW.on){if(Math.abs(dy)>10&&Math.abs(dy)>Math.abs(dx)){SW=null;return}if(dx<-12&&Math.abs(dx)>Math.abs(dy)){SW.on=true;SW.tk.classList.add('swiping');let bg=SW.tk.querySelector(':scope>.swbg');if(!bg){bg=document.createElement('div');bg.className='swbg';bg.textContent=S.lang==='en'?'Delete':'Supprimer';SW.tk.insertBefore(bg,SW.tk.firstChild)}}else return}
   SW.dx=Math.min(0,dx);SW.it.style.transform='translateX('+SW.dx+'px)';SW.tk.classList.toggle('swgo',SW.dx<-Math.min(110,SW.it.offsetWidth*.35))});
@@ -2124,7 +2130,7 @@ const swEnd=()=>{if(!SW)return;const s0=SW;SW=null;if(!s0.on)return;SWblock=Date
   if(go){s0.it.style.transform='translateX(-110%)';setTimeout(()=>{const b=s0.tk.querySelector(':scope>.swdel');if(b){b.hidden=false;b.click()}},180)}
   else{s0.it.style.transform='';setTimeout(()=>{s0.it.style.transition='';s0.tk.classList.remove('swiping','swgo');const bg=s0.tk.querySelector(':scope>.swbg');if(bg)bg.remove()},200)}};
 document.addEventListener('pointerup',swEnd);document.addEventListener('pointercancel',swEnd);
-document.addEventListener('click',e=>{if(Date.now()-SWblock<350&&e.target.closest('.tk')&&!e.target.closest('.swdel')){e.stopPropagation();e.preventDefault()}},true);
+document.addEventListener('click',e=>{if(Date.now()-SWblock<350&&e.target.closest('.tk,.swp')&&!e.target.closest('.swdel')){e.stopPropagation();e.preventDefault()}},true);
 </script>
 
 </body>
