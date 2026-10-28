@@ -817,6 +817,27 @@ html.fsl .hl,html.fsl .otdt,html.fsl .nrow .nopen b{font-size:17px}
 .vti{position:absolute;top:-1px;right:-1px;width:12px;height:12px;color:#fff;background:#30b0c7;border-radius:50%;padding:2px;display:flex;box-sizing:border-box}
 .vti.bk{background:#1b8ea3}
 .mini .vti{width:8px;height:8px;padding:1px;top:-2px;right:-2px}
+
+.vsec2{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--mu);margin:14px 4px 6px}
+.vtr,.vstay{border-radius:12px;background:color-mix(in srgb,var(--c) 7%,var(--card));margin:0 0 6px;overflow:hidden}
+.vtrh{display:flex;align-items:center}
+.vtrm{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:10px 4px 10px 12px;text-align:left;color:var(--tx)}
+.vted{flex:none;width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--c);opacity:.8}
+.vact{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 10px 12px}
+.vab{white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.vab{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:14px;background:var(--card);color:var(--c);font-size:13px;font-weight:600;text-decoration:none;box-shadow:0 0 0 .5px color-mix(in srgb,var(--c) 30%,transparent)}
+.vadd{display:block;width:100%;padding:9px;border-radius:12px;color:var(--c);font-size:14.5px;font-weight:600;text-align:center;background:transparent;border:1px dashed color-mix(in srgb,var(--c) 40%,transparent);margin:0 0 4px}
+.vinf{padding:0 12px 6px}
+.vinf .vir{display:flex;gap:10px;padding:7px 0;border-top:.5px solid color-mix(in srgb,var(--c) 18%,transparent);color:var(--tx);text-decoration:none;background:none}
+.vil{flex:none;width:86px;font-size:12.5px;color:var(--mu)}
+.viv{flex:1;min-width:0;font-size:14.5px;word-break:break-word}
+.vinf a.vir .viv{color:var(--c)}
+.vaddi{display:block;padding:0 12px 10px;font-size:13.5px;color:var(--c);text-align:left}
+.vfoot{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:12px}
+.vlink{font-size:14.5px;font-weight:600;color:var(--c)}
+.vfoot .vdel{margin:0}
+.ef .vdel{margin-top:10px}
+.vtrip .vact{padding:2px 0 2px 0;margin-top:6px}
 </style>
 </head>
 <body>
@@ -892,7 +913,7 @@ const TABS=[['jour','<svg viewBox="0 0 24 24" width="24" height="24" fill="none"
 const setD=d=>{const y=d.getFullYear();if(y>=YMIN&&y<=YMAX)V.d=d};
 
 const TRI={Avion:'<path d="M10.5 3.5c.8-.8 2.2-.8 3 0s.8 2.2 0 3L11 9l2 9-2 2-3.5-7L5 15.5V18l-1.5 1.5L2 15l-3.5-1.5" transform="translate(4 0) scale(.9)"/>',def:'<rect x="6" y="3" width="12" height="13" rx="3"/><path d="M6 10h12M9 20l-2 2M15 20l2 2M9 16v4M15 16v4"/>'};
-const vacIco=k=>{let r='';S.vac.forEach(v=>{const g=vGoD(v)===k,b=vBkD(v)===k;if(!g&&!b)return;const t=(g?v.go:v.back)||{},pl=(t.m||[]).includes('Avion')&&!(t.m||[]).includes('Train');
+const vacIco=k=>{let r='';S.vac.forEach(v=>{const L=vLegs(v).filter(t=>t.d===k);if(!L.length)return;const t=L[0],g=t.w!=='back',b=!g,pl=(t.m||[]).includes('Avion')&&!(t.m||[]).includes('Train');
   r='<i class="vti'+(b&&!g?' bk':'')+'"><svg viewBox="0 0 24 24" width="100%" height="100%" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">'+(pl?'<path d="M2.5 13.5l19-7-5 15-4-6z"/><path d="M12.5 15.5l-2 5"/>':TRI.def)+'</svg></i>'});return r};
 function grid(y,m,mini){
   const start=mon(new Date(y,m,1)),last=new Date(y,m+1,0),H=HOL(y);
@@ -994,7 +1015,7 @@ const ndays=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
 const fds=k=>parse(k).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
 const VICO='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 9c0-3 3-6 7-6s7 3 7 6c-2-1.5-4.5-1.5-7 0-2.5-1.5-5-1.5-7 0z"/><path d="M5 21h14"/></svg>';
 const vacNext=k=>S.vac.filter(v=>v.a>k||vGoD(v)>=k).map(v=>({v,d:ndays(k,vGoD(v)<v.a?vGoD(v):v.a)})).filter(o=>o.d>=0&&o.d<=30).sort((a,b)=>a.d-b.d).map(o=>o.v)[0];
-function vacBubble(v,k,pre){const vi=S.vac.indexOf(v),op=V.vso===vi,place=v.l?esc(v.l.split(',')[0]):'Vacances',dep=vGoD(v);let lab,tag;
+function vacBubble(v,k,pre){const vi=S.vac.indexOf(v),op=V.vso===vi,cs=!pre&&stayOn(v,k),place=esc(short((cs&&cs.l)||v.l)||'Vacances'),dep=vGoD(v);let lab,tag;
   if(dep===k){lab='Départ aujourd’hui · '+place;tag=''}
   else if(ndays(k,dep)===1){lab='Départ demain · '+place;tag=''}
   else if(pre){const n=ndays(k,v.a);lab=place+' dans '+n+' jour'+(n>1?'s':'');tag=''}
@@ -1002,44 +1023,70 @@ function vacBubble(v,k,pre){const vi=S.vac.indexOf(v),op=V.vso===vi,place=v.l?es
   let h='<div class="vbw"><button class="vbub'+(op?' on':'')+(pre?' pre':'')+'" data-a="vso" data-i="'+vi+'" '+sty('Vacances')+'>'+VICO+'<span>'+lab+'</span>'+(tag?'<small>'+tag+'</small>':'')+'<span class="chv'+(op?' up':'')+'">›</span></button></div>';
   if(op)h+=vacSheet(v,vi);return h}
 const trTxt=t=>[(t.m||[]).join(' + '),t.t].filter(Boolean).join(' · ');
-const yAller=t=>t&&t.f?'<a class="chip vgo" style="--c:#34c759" href="'+gdir(t.f,S.home||'')+'" target="_blank" rel="noopener">Y aller · '+esc(t.f.split(',')[0])+'</a>':'';
-const tripChips=t=>{const a=((t.lk&&t.lk.length)||(t.df&&t.df.length))?attach(t.lk,t.df):'',y=yAller(t);return a||y?'<div class="chips vtc">'+(a?'<span class="vbil">Billets</span>'+a:'')+y+'</div>':''};
-function vacSheet(v,vi){const go=v.go||{},bk=v.back||{},bag=v.bag||[],dn=bag.filter(x=>x.f).length,I=v.info||{};
+const PIN2='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L4 11l7 2 2 7 7-16z"/></svg>';
+const TKT='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5A1.5 1.5 0 0 1 5.5 6h13A1.5 1.5 0 0 1 20 7.5V10a2 2 0 0 0 0 4v2.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 16.5V14a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/></svg>';
+const PEN='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>';
+/* Étapes (hébergements) et trajets */
+const vStays=v=>(v.st&&v.st.length)?v.st.slice().sort((a,b)=>a.a.localeCompare(b.a)):[Object.assign({l:v.l,a:v.a,b:v.b,_i:1},v.info||{})];
+const stayOn=(v,k)=>{const L=vStays(v).filter(s=>s.a<=k&&k<=s.b);return L[L.length-1]||null};
+const vLegs=v=>{const L=[];L.push(Object.assign({},v.go||{},{w:'go',k:'Aller',d:vGoD(v)}));(v.tr||[]).forEach((t,i)=>L.push(Object.assign({},t,{w:String(i),k:'Trajet'})));L.push(Object.assign({},v.back||{},{w:'back',k:'Retour',d:vBkD(v)}));
+  return L.sort((a,b)=>(a.d+(a.h||'')).localeCompare(b.d+(b.h||''))||(a.w==='go'?-1:a.w==='back'?1:0))};
+const legTo=(v,t)=>t.to||(t.w==='go'?((stayOn(v,t.d)||vStays(v)[0]||{}).l||v.l||''):'');
+const short=x=>(x||'').split(',')[0];
+const legRoute=(v,t)=>{const f=short(t.f),to=short(legTo(v,t));return f&&to?f+' → '+to:to?'→ '+to:f?'Depuis '+f:''};
+const vActs=t=>{const lk=t.lk||[],df=t.df||[],n=lk.length+df.length;let h='';
+  lk.forEach((u,j)=>{h+='<a class="vab" href="'+esc(urlOf(u))+'" target="_blank" rel="noopener">'+TKT+'Billet'+(n>1?' '+(j+1):'')+'</a>'});
+  df.forEach((f,j)=>{h+='<a class="vab" href="#" data-fid="'+esc(f.id)+'">'+TKT+'Billet'+(n>1?' '+(lk.length+j+1):'')+'</a>'});
+  if(t.f)h+='<a class="vab" href="'+gdir(t.f,S.home||'')+'" target="_blank" rel="noopener">'+PIN2+'Itinéraire · '+esc(short(t.f))+'</a>';
+  return h?'<div class="vact">'+h+'</div>':''};
+function vacSheet(v,vi){const bag=v.bag||[],dn=bag.filter(x=>x.f).length;
   if(V.vse===vi)return vacEdit(v,vi);
-  const tr=(l,t,d)=>'<div class="vrw"><button class="vrow" data-a="day" data-d="'+d+'"><span class="vrl">'+l+'</span><span class="vrv"><b>'+fds(d)+(t.h?' · '+HM(t.h):'')+'</b>'+(trTxt(t)?'<small>'+esc(trTxt(t))+'</small>':'')+'</span><span class="nchev">›</span></button>'+tripChips(t)+'</div>';
+  if(V.vte&&V.vte.vi===vi)return legEdit(v,vi,V.vte.w);
+  if(V.vst&&V.vst.vi===vi)return stayEdit(v,vi,V.vst.i);
   let h='<div class="card vsheet" '+sty('Vacances')+'><button class="vclose" data-a="vso" data-i="'+vi+'" aria-label="Fermer">×</button><div class="vst">'+esc(v.l||'Vacances')+'</div><div class="vsd">Du '+fds(v.a)+' au '+fds(v.b)+' · '+(ndays(v.a,v.b)+1)+' jours</div>';
-  h+='<div class="vrows">'+tr('Aller',go,vGoD(v))+tr('Retour',bk,vBkD(v))+'</div>';
-  const ir=(l,val,href)=>val?'<'+(href?'a href="'+href+'"'+(href.startsWith('tel:')?'':' target="_blank" rel="noopener"'):'div')+' class="vir"><span class="vrl">'+l+'</span><span class="vrv"><b>'+esc(val)+'</b></span>'+(href?'<span class="nchev">›</span>':'')+'</'+(href?'a':'div')+'>':'';
-  const inf=ir('Logement',I.h,I.h?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(I.h):'')+ir('Accès',I.c)+ir('Réserv.',I.r)+ir('Contact',I.n)+ir('Tél.',I.t,I.t?'tel:'+I.t.replace(/[^\d+]/g,''):'');
-  if(inf)h+='<div class="vinfo">'+inf+'</div>';
+  h+='<div class="vsec2">Trajets</div>'+vLegs(v).map(t=>{const r=legRoute(v,t),tx=[(t.m||[]).join(' + '),r].filter(Boolean).join(' · ');
+    return '<div class="vtr"><div class="vtrh"><button class="vtrm" data-a="day" data-d="'+t.d+'"><span class="vrl">'+t.k+'</span><span class="vrv"><b>'+fds(t.d)+(t.h?' · '+HM(t.h):'')+'</b>'+(tx?'<small>'+esc(tx)+'</small>':'')+(t.t?'<small>'+esc(t.t)+'</small>':'')+'</span></button><button class="vted" data-a="vte" data-i="'+vi+'" data-w="'+t.w+'" aria-label="Modifier">'+PEN+'</button></div>'+vActs(t)+'</div>'}).join('')
+    +'<button class="vadd" data-a="vte" data-i="'+vi+'" data-w="new">＋ Ajouter un trajet</button>';
+  const ST=vStays(v);
+  h+='<div class="vsec2">Étapes et logements</div>'+ST.map((s0,si)=>{const idx=s0._i?'imp':String(v.st.indexOf(s0)),ir=(l,val,href)=>val?'<'+(href?'a href="'+href+'"'+(href.startsWith('tel:')?'':' target="_blank" rel="noopener"'):'div')+' class="vir"><span class="vil">'+l+'</span><span class="viv">'+esc(val)+'</span></'+(href?'a':'div')+'>':'';
+    const inf=ir('Logement',s0.h,s0.h?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s0.h):'')+ir('Accès',s0.c)+ir('Réservation',s0.r)+ir('Contact',s0.n)+ir('Téléphone',s0.t,s0.t?'tel:'+s0.t.replace(/[^\d+]/g,''):'');
+    return '<div class="vstay"><div class="vtrh"><div class="vtrm"><span class="vrv"><b>'+esc(short(s0.l)||'Étape')+'</b><small>'+fds(s0.a)+' → '+fds(s0.b)+'</small></span></div><button class="vted" data-a="vsted" data-i="'+vi+'" data-s="'+idx+'" aria-label="Modifier">'+PEN+'</button></div>'+(inf?'<div class="vinf">'+inf+'</div>':'<button class="vaddi" data-a="vsted" data-i="'+vi+'" data-s="'+idx+'">Ajouter l’adresse du logement, le code…</button>')+'</div>'}).join('')
+    +'<button class="vadd" data-a="vsted" data-i="'+vi+'" data-s="new">＋ Ajouter une étape</button>';
   h+='<button class="vrow vbag" data-a="vbag" data-i="'+vi+'"><span class="vrl">Valise</span><span class="vrv"><b>'+(bag.length?dn+' / '+bag.length+' prêts':'Liste vide')+'</b></span><span class="chv'+(V.vbag===vi?' up':'')+'">›</span></button>';
   if(V.vbag===vi)h+='<div class="vbagc">'+bagHTML(v,vi).replace('<div style="margin-top:16px"><b style="font-size:14px">Valise'+(bag.length?' · '+dn+'/'+bag.length:'')+'</b>','<div>')+'</div>';
   h+='<div class="grp" style="margin-top:10px">'+calLinks('v|'+vi)+'</div>';
-  h+='<div class="tpb"><button class="tsave vsec" data-a="vse" data-i="'+vi+'">Modifier</button><button class="tsave" data-a="vso" data-i="'+vi+'">Fermer</button></div><button class="vdel" data-a="vx" data-i="'+vi+'">Supprimer ces vacances</button></div>';
+  h+='<div class="vfoot"><button class="vlink" data-a="vse" data-i="'+vi+'">Modifier le lieu et les dates</button><button class="vdel" data-a="vx" data-i="'+vi+'">Supprimer ces vacances</button></div></div>';
   return h}
-function vacEdit(v,vi){const go=v.go||{},bk=v.back||{},I=v.info||{};
-  const ck=(n,m)=>['Train','Avion','Voiture','Bus'].map(t=>'<label class="chip" style="--c:#8e8e93"><input type="checkbox" name="'+n+'" value="'+t+'"'+((m||[]).includes(t)?' checked':'')+'> '+t+'</label>').join('');
-  const inp=(id,val,ph,ty)=>'<input type="'+(ty||'text')+'" id="'+id+'" value="'+esc(val||'')+'" placeholder="'+ph+'" autocomplete="off">';
-  const nf=t=>(t.df||[]).length;
-  const blk=(l,n,t,d)=>'<div class="vedb"><b>'+l+'</b><div class="vtd"><label class="fld"><span>Le</span><input type="date" id="'+n+'d" value="'+d+'"></label><label class="fld"><span>à</span><input type="time" id="'+n+'h" value="'+(t.h||'')+'"></label></div><div class="lg" style="margin:6px 0">'+ck(n+'m',t.m)+'</div>'
-    +inp(n+'t',t.t,'Détails (horaires, n° de train ou de vol…)')+inp(n+'f',t.f,l==='Aller'?'Gare / aéroport de départ':'Gare / aéroport du retour')+inp(n+'l',(t.lk||[]).join(' '),'Lien du billet (facultatif)')
-    +'<label class="vfile">'+(nf(t)?nf(t)+' billet'+(nf(t)>1?'s':'')+' joint'+(nf(t)>1?'s':'')+' · ':'')+'Joindre un billet (PDF, photo)<input type="file" id="'+n+'x" multiple></label></div>';
-  return '<div class="card vsheet ef" '+sty('Vacances')+'><div class="eft">✎ Modifier les vacances</div><label class="ff"><span>Lieu</span><input type="text" id="vel" value="'+esc(v.l||'')+'"></label><div class="fg"><label class="ff"><span>Du</span><input type="date" id="vea" value="'+v.a+'"></label><label class="ff"><span>Au</span><input type="date" id="veb" value="'+v.b+'"></label></div>'
-    +blk('Aller','veg',go,vGoD(v))+blk('Retour','ver',bk,vBkD(v))
-    +'<div class="vedb"><b>Infos du séjour</b>'+inp('vih',I.h,'Adresse du logement')+inp('vic',I.c,'Code / accès (digicode, boîte à clés…)')+inp('vir',I.r,'N° de réservation')+inp('vin',I.n,'Contact sur place')+inp('vit',I.t,'Téléphone','tel')+'</div>'
-    +'<div id="vemsg" class="sub" style="margin:6px 0 0"></div><div class="fb"><button data-a="vesave" data-i="'+vi+'">Enregistrer</button><button class="sec" data-a="vecancel">Annuler</button></div></div>'}
-async function saveVac(btn,vi){const v0=S.vac[vi];if(!v0)return;const g=id=>($(id)||{}).value||'',ck=n=>[...document.querySelectorAll('input[name='+n+']:checked')].map(q=>q.value),m=$('#vemsg')||{},sp=id=>g(id).split(/\s+/).filter(Boolean);
-  const A=g('#vea'),B=g('#veb'),gd=g('#vegd')||A,rd=g('#verd')||B;if(!A||!B||B<A){m.textContent='Vérifie les dates des vacances.';return}
-  const fg=[...(($('#vegx')||{}).files||[])],fr=[...(($('#verx')||{}).files||[])];
-  btn.textContent='Envoi…';const a1=await upFiles(fg,m);if(a1===null){btn.textContent='Enregistrer';return}const a2=await upFiles(fr,m);if(a2===null){btn.textContent='Enregistrer';return}
-  v0.l=g('#vel').trim();v0.a=A;v0.b=B;
-  v0.go=Object.assign(v0.go||{},{d:gd,h:g('#vegh'),m:ck('vegm'),t:g('#vegt').trim(),f:g('#vegf').trim(),lk:sp('#vegl')});v0.go.df=(v0.go.df||[]).concat(a1);
-  v0.back=Object.assign(v0.back||{},{d:rd,h:g('#verh'),m:ck('verm'),t:g('#vert').trim(),f:g('#verf').trim(),lk:sp('#verl')});v0.back.df=(v0.back.df||[]).concat(a2);
-  v0.info={h:g('#vih').trim(),c:g('#vic').trim(),r:g('#vir').trim(),n:g('#vin').trim(),t:g('#vit').trim()};
-  V.vse=null;save();render();noteToast('✓ Enregistré')}
-function vacTrips(k){const out=[];S.vac.forEach((v,vi)=>{[['Aller',v.go||{},vGoD(v),'Départ'],['Retour',v.back||{},vBkD(v),'Retour']].forEach(([l,t,d,w])=>{if(d!==k)return;
-  const ti=(trTxt(t)?(t.m||[]).join(' + ')||t.t:'')||(l==='Aller'?'Départ':'Retour'),dest=v.l?(l==='Aller'?' → ':' depuis ')+v.l.split(',')[0]:'',ha=(t.lk&&t.lk.length)||(t.df&&t.df.length);
-  out.push({t:t.h||'00:00',h:'<div class="ev vtrip" '+sty('Vacances')+'><div class="eh" data-a="vso" data-i="'+vi+'"><div class="et">'+HEAD(t.h,'',l,ti+dest,'Vacances')+(t.t&&(t.m||[]).length?'<div class="em2">'+esc(t.t)+'</div>':'')+'</div></div>'+tripChips(t)+'</div>'})})});return out}
+const vForm=(vi,title,body,save,del)=>'<div class="card vsheet ef" '+sty('Vacances')+'><div class="eft">✎ '+title+'</div>'+body+'<div id="vemsg" class="sub" style="margin:6px 0 0"></div><div class="fb"><button data-a="'+save+'" data-i="'+vi+'">Enregistrer</button><button class="sec" data-a="vecancel">Annuler</button></div>'+(del?'<button class="vdel" '+del+'>Supprimer</button>':'')+'</div>';
+const vin=(id,val,ph,ty)=>'<input type="'+(ty||'text')+'" id="'+id+'" value="'+esc(val||'')+'" placeholder="'+ph+'" autocomplete="off">';
+function vacEdit(v,vi){return vForm(vi,'Lieu et dates','<label class="ff"><span>Lieu principal</span><input type="text" id="vel" value="'+esc(v.l||'')+'"></label><div class="fg"><label class="ff"><span>Du</span><input type="date" id="vea" value="'+v.a+'"></label><label class="ff"><span>Au</span><input type="date" id="veb" value="'+v.b+'"></label></div>','vesave')}
+function legEdit(v,vi,w){const nw=w==='new',t=nw?{d:vGoD(v)}:w==='go'?(v.go||{}):w==='back'?(v.back||{}):((v.tr||[])[+w]||{}),d=nw?'':(w==='go'?vGoD(v):w==='back'?vBkD(v):t.d),nf=(t.df||[]).length,lab=w==='go'?'Aller':w==='back'?'Retour':'Trajet';
+  const ck=['Train','Avion','Voiture','Bus','Bateau'].map(x=>'<label class="chip" style="--c:#8e8e93"><input type="checkbox" name="vtm" value="'+x+'"'+((t.m||[]).includes(x)?' checked':'')+'> '+x+'</label>').join('');
+  const body='<div class="vtd"><label class="fld"><span>Le</span><input type="date" id="vtd" value="'+(d||'')+'"></label><label class="fld"><span>à</span><input type="time" id="vth" value="'+(t.h||'')+'"></label></div><div class="lg" style="margin:6px 0">'+ck+'</div>'
+    +'<div class="vedb">'+vin('vtf',t.f,'Départ de (gare, aéroport, ville…)')+vin('vtto',t.to,w==='back'?'Arrivée à (ex. Paris)':'Arrivée à (ex. Lyon)')+vin('vtt',t.t,'Détails (n° de train ou de vol, voiture…)')+vin('vtl',(t.lk||[]).join(' '),'Lien du billet (facultatif)')
+    +'<label class="vfile">'+(nf?nf+' billet'+(nf>1?'s':'')+' joint'+(nf>1?'s':'')+' · ':'')+'Joindre un billet (PDF, photo)<input type="file" id="vtx" multiple></label></div>';
+  return vForm(vi,nw?'Nouveau trajet':lab,body,'vtsave',(!nw&&w!=='go'&&w!=='back')?'data-a="vtdel" data-i="'+vi+'"':'')}
+function stayEdit(v,vi,i){const nw=i==='new',s0=nw?{}:i==='imp'?Object.assign({l:v.l,a:v.a,b:v.b},v.info||{}):(v.st[+i]||{});
+  const body='<label class="ff"><span>Lieu</span><input type="text" id="vsl" value="'+esc(s0.l||'')+'" placeholder="Ex. Lyon"></label><div class="fg"><label class="ff"><span>Du</span><input type="date" id="vsa" value="'+(s0.a||'')+'"></label><label class="ff"><span>Au</span><input type="date" id="vsb" value="'+(s0.b||'')+'"></label></div>'
+    +'<div class="vedb">'+vin('vih',s0.h,'Adresse du logement')+vin('vic',s0.c,'Code / accès (digicode, boîte à clés…)')+vin('vir',s0.r,'N° de réservation')+vin('vin',s0.n,'Contact sur place')+vin('vit',s0.t,'Téléphone','tel')+'</div>';
+  return vForm(vi,nw?'Nouvelle étape':'Étape · '+esc(short(s0.l)||''),body,'vssave',(!nw&&i!=='imp')?'data-a="vsdel" data-i="'+vi+'"':'')}
+async function saveLeg(btn,vi){const v0=S.vac[vi],w=V.vte&&V.vte.w;if(!v0||!w)return;const g=id=>($(id)||{}).value||'',m=$('#vemsg')||{};
+  const d=g('#vtd');if(!d){m.textContent='Indique la date du trajet.';return}
+  const fl=[...(($('#vtx')||{}).files||[])];btn.textContent='Envoi…';const df=await upFiles(fl,m);if(df===null){btn.textContent='Enregistrer';return}
+  const o={d,h:g('#vth'),m:[...document.querySelectorAll('input[name=vtm]:checked')].map(q=>q.value),f:g('#vtf').trim(),to:g('#vtto').trim(),t:g('#vtt').trim(),lk:g('#vtl').split(/\s+/).filter(Boolean)};
+  let t;if(w==='new'){v0.tr=v0.tr||[];t={df:[]};v0.tr.push(t)}else if(w==='go')t=v0.go=v0.go||{};else if(w==='back')t=v0.back=v0.back||{};else t=v0.tr[+w];
+  Object.assign(t,o);t.df=(t.df||[]).concat(df);V.vte=null;save();render();noteToast('✓ Enregistré')}
+function saveStay(vi){const v0=S.vac[vi],i=V.vst&&V.vst.i;if(!v0)return;const g=id=>($(id)||{}).value||'',m=$('#vemsg')||{};
+  const o={l:g('#vsl').trim(),a:g('#vsa'),b:g('#vsb'),h:g('#vih').trim(),c:g('#vic').trim(),r:g('#vir').trim(),n:g('#vin').trim(),t:g('#vit').trim()};
+  if(!o.l){m.textContent='Indique le lieu de l’étape.';return}if(!o.a||!o.b||o.b<o.a){m.textContent='Vérifie les dates de l’étape.';return}
+  v0.st=v0.st||[];if(!v0.st.length&&i!=='imp'){v0.st.push(Object.assign({l:v0.l,a:v0.a,b:v0.b},v0.info||{}))}
+  if(i==='new')v0.st.push(o);else if(i==='imp'){v0.st=[o]}else v0.st[+i]=o;delete v0.info;V.vst=null;save();render();noteToast('✓ Enregistré')}
+async function saveVac(btn,vi){const v0=S.vac[vi];if(!v0)return;const g=id=>($(id)||{}).value||'',m=$('#vemsg')||{};
+  const A=g('#vea'),B=g('#veb');if(!A||!B||B<A){m.textContent='Vérifie les dates des vacances.';return}
+  v0.l=g('#vel').trim();v0.a=A;v0.b=B;V.vse=null;save();render();noteToast('✓ Enregistré')}
+function vacTrips(k){const out=[];S.vac.forEach((v,vi)=>{vLegs(v).forEach(t=>{if(t.d!==k)return;
+  const ti=((t.m||[]).join(' + ')||(t.k==='Aller'?'Départ':t.k==='Retour'?'Retour':'Trajet'))+(legTo(v,t)?' → '+short(legTo(v,t)):'');
+  out.push({t:t.h||'00:00',h:'<div class="ev vtrip" '+sty('Vacances')+'><div class="eh" data-a="vso" data-i="'+vi+'"><div class="et">'+HEAD(t.h,'',t.k,ti,'Vacances')+((t.t||t.f)?'<div class="em2">'+esc([t.f?'Depuis '+short(t.f):'',t.t].filter(Boolean).join(' · '))+'</div>':'')+'</div></div>'+vActs(t)+'</div>'})})});return out}
 const vacWeek=m=>{let h='';for(let i=0;i<7;i++){const d=add(m,i),k=key(d),v=vacOn(k);if(!v)continue;let b='';SECS.forEach(([p,n])=>{const A=vitems(v,k,p);if(A.length)b+='<div style="margin-top:6px"><b style="font-size:13px">'+n+'</b>'+A.map(([it,j])=>vpItem(it,undefined,j,0,'p|'+S.vac.indexOf(v)+'|'+j)).join('')+'</div>'});
   h+='<div class="rd"><button class="rdh" data-a="day" data-d="'+k+'">'+JRS[d.getDay()]+' '+d.getDate()+' · '+esc(v.l||'Vacances')+' ›</button>'+(b||'<div class="sub" style="margin:0">Pas de programme ce jour</div>')+'</div>'}return h?'<div class="card" '+sty('Vacances')+'><h2>Programme des vacances</h2>'+h+'</div>':''};
 const editForm=(k,i,card)=>{const x=(S.days[k]||{r:[]}).r[i];if(!x)return '';const med=HASMODE(x.c),nf=(x.df||[]).length,
@@ -1426,7 +1473,7 @@ function locate(quiet){
     S.cg=S.cg||{};S.cg[nm]={lat:la,lon:lo,tz:devTz()};S.auto=1;const ch=nm!==S.city;S.city=nm;save();if(ch||!quiet)render();
   },er=>{if(!quiet)gmsg(er&&er.code===1?'Localisation refusée ou bloquée dans cette page. Utilise « Autre ville ».':'Position introuvable pour le moment.')},{timeout:15000,maximumAge:6e5})}
 const SRV='AccuWeather®',WXP={},WXH={};
-const placeFor=k=>{const v=vacOn(k);return(v&&v.l)?v.l:(S.city||'Paris')};
+const placeFor=k=>{const v=vacOn(k);if(v){const s0=stayOn(v,k);if(s0&&s0.l)return s0.l;if(v.l)return v.l}return S.city||'Paris'};
 const wxi=n=>n<=2?'☀️':n<=5?'🌤️':n===6?'⛅':n<=8?'☁️':n===11?'🌫️':n<=14?'🌦️':n<=17?'⛈️':n===18?'🌧️':n<=23?'❄️':(n<=26||n===29)?'🌨️':n===30?'🥵':n===31?'🥶':n===32?'💨':n<=34?'🌙':n<=38?'☁️':n<=40?'🌧️':n<=42?'⛈️':'🌨️';
 const WMO=c=>c===0?['☀️','Ensoleillé']:c===1?['🌤️','Plutôt ensoleillé']:c===2?['⛅','Partiellement nuageux']:c===3?['☁️','Couvert']:c<=48?['🌫️','Brouillard']:c<=57?['🌦️','Bruine']:c<=67?['🌧️','Pluie']:c<=77?['❄️','Neige']:c<=82?['🌦️','Averses']:c<=86?['🌨️','Averses de neige']:['⛈️','Orage'];
 const pl=r=>{let p=r&&(r.payload!==undefined?r.payload:r.structuredContent);if(typeof p==='string'){try{p=JSON.parse(p)}catch(e){}}return p};
@@ -1681,10 +1728,16 @@ document.addEventListener('click',e=>{
   else if(a==='wreset'){const d=D(k);d.w=[];d.ov=0}
   else if(a==='ddx')S.dates.splice(i,1);
   else if(a==='adv'){const x=v('#va'),y=v('#vb');if(x&&y&&y>=x){S.vac.push({a:x,b:y,l:v('#vl').trim()});S.vac.sort((p,q)=>p.a.localeCompare(q.a))}}
-  else if(a==='vso'){const n=+b.dataset.i;V.vso=V.vso===n?null:n;V.vse=null;V.vbag=null;if(V.vso!==null&&V.tab!=='jour'){}}
+  else if(a==='vso'){const n=+b.dataset.i;V.vso=V.vso===n?null:n;V.vse=null;V.vbag=null;V.vte=null;V.vst=null;if(V.vso!==null&&V.tab!=='jour'){}}
   else if(a==='vbag'){const n=+b.dataset.i;V.vbag=V.vbag===n?null:n}
   else if(a==='vse'){V.vse=+b.dataset.i}
-  else if(a==='vecancel'){V.vse=null}
+  else if(a==='vecancel'){V.vse=null;V.vte=null;V.vst=null}
+  else if(a==='vte'){V.vte={vi:+b.dataset.i,w:b.dataset.w};V.vse=null;V.vst=null}
+  else if(a==='vsted'){V.vst={vi:+b.dataset.i,i:b.dataset.s};V.vse=null;V.vte=null}
+  else if(a==='vtsave'){saveLeg(b,+b.dataset.i);return}
+  else if(a==='vssave'){saveStay(+b.dataset.i);return}
+  else if(a==='vtdel'){const v0=S.vac[+b.dataset.i];if(v0&&V.vte&&confirm('Supprimer ce trajet ?')){v0.tr.splice(+V.vte.w,1);V.vte=null}}
+  else if(a==='vsdel'){const v0=S.vac[+b.dataset.i];if(v0&&V.vst&&confirm('Supprimer cette étape ?')){v0.st.splice(+V.vst.i,1);V.vst=null}}
   else if(a==='vesave'){saveVac(b,+b.dataset.i);return}
   else if(a==='vx'){if(!confirm('Supprimer ces vacances ?'))return;V.vso=null;const v0=S.vac.splice(i,1)[0];if(v0)vacAssets(v0).forEach(qdel)}
   else if(a==='adg'){const x=v('#g'+s).trim(),d=v('#gd'),nt=v('#gn').trim(),it={x,f:0};if(d)it.d=d;if(nt)it.nt=nt;const rc=v('#gr');if(rc)it.rc=rc;const ra=remVal('gra',d);if(ra)it.ra=ra;if(s==='c')it.sh=V.cs||'l';if(x){S.g[s].push(it);if(s!=='c')V.tadd=null}}
