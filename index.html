@@ -767,6 +767,30 @@ html,body{touch-action:manipulation}
 .cted input{width:100%;border:0;border-radius:10px;background:var(--bg);padding:10px 12px;font-size:16px;color:var(--tx);margin-bottom:10px}
 .cted .nfcol{justify-content:flex-start;flex-wrap:wrap;margin-bottom:10px}
 html.fsl .hl,html.fsl .otdt,html.fsl .nrow .nopen b{font-size:17px}
+
+/* Vacances */
+.vbw{display:flex;justify-content:center;margin:2px 0 12px}
+.vbub{display:inline-flex;align-items:center;gap:7px;max-width:100%;padding:8px 14px;border-radius:20px;background:color-mix(in srgb,var(--c) 13%,var(--card));color:var(--c);font-size:14.5px;font-weight:600;box-shadow:var(--sh)}
+.vbub span:not(.chv){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vbub small{font-size:12px;font-weight:600;opacity:.75;padding:1px 7px;border-radius:10px;background:color-mix(in srgb,var(--c) 14%,transparent)}
+.vbub .chv{font-size:15px;opacity:.7;transform:rotate(90deg);transition:transform .2s}
+.vbub .chv.up{transform:rotate(-90deg)}
+.vsheet .vst{text-align:center;font-size:18px;font-weight:700}
+.vsheet .vsd{text-align:center;font-size:13.5px;color:var(--mu);margin:2px 0 12px}
+.vrow{display:flex;align-items:center;gap:12px;width:100%;padding:10px 12px;margin:0 0 6px;border-radius:12px;background:color-mix(in srgb,var(--c) 7%,var(--card));text-align:left;color:var(--tx)}
+.vrl{flex:none;width:58px;font-size:12.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--c)}
+.vrv{flex:1;min-width:0;display:flex;flex-direction:column}
+.vrv b{font-size:15px;font-weight:600}
+.vrv small{font-size:13px;color:var(--mu);margin-top:1px}
+.vbag .chv{transform:rotate(90deg);color:var(--mu)}
+.vbag .chv.up{transform:rotate(-90deg)}
+.vbagc{padding:0 4px 6px}
+.vtd{display:flex;gap:8px;margin:4px 0}
+.vtd .fld{flex:1;min-width:0}
+.vtd .fld input{min-width:0;width:100%}
+.vedb{margin-top:12px}
+.vedb>b{font-size:14px}
+.vedb input[type=text]{width:100%;border:0;border-radius:10px;background:var(--bg);padding:9px 10px;font-size:16px;color:var(--tx)}
 </style>
 </head>
 <body>
@@ -934,6 +958,34 @@ const vacProg=k=>{const v=vacOn(k);if(!v)return '';const vi=S.vac.indexOf(v);
   let h='<div class="card" id="vprog" '+sty('Vacances')+'><h2>Programme · '+esc(v.l||'vacances')+'</h2>'+trj(v.go,'Aller')+trj(v.back,'Retour')+calLinks('v|'+vi);
   SECS.forEach(([p,n])=>{const A=vitems(v,k,p);h+='<div style="margin-top:12px"><b style="font-size:14px">'+n+'</b>'+(A.length?A.map(([it,j])=>vpItem(it,vi,j,0,'p|'+vi+'|'+j)).join(''):'<div class="sub" style="margin:2px 0 0">Rien de prévu</div>')+'</div>'});
   return h+'<div class="add"><button data-a="vpo" style="--c:#30b0c7">'+(V.vpo?'Fermer':'＋ Ajouter au programme')+'</button></div>'+(V.vpo?vpForm(k,vi):'')+bagHTML(v,vi)+'</div>'};
+
+/* ===== Vacances : bulle en haut, fiche au toucher, aller/retour le jour choisi ===== */
+const vGoD=v=>(v.go&&v.go.d)||v.a,vBkD=v=>(v.back&&v.back.d)||v.b;
+const ndays=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
+const fds=k=>parse(k).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
+const VICO='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 9c0-3 3-6 7-6s7 3 7 6c-2-1.5-4.5-1.5-7 0-2.5-1.5-5-1.5-7 0z"/><path d="M5 21h14"/></svg>';
+function vacBubble(v,k){const vi=S.vac.indexOf(v),n=ndays(v.a,k)+1,N=ndays(v.a,v.b)+1,op=V.vso===vi;
+  let h='<div class="vbw"><button class="vbub'+(op?' on':'')+'" data-a="vso" data-i="'+vi+'" '+sty('Vacances')+'>'+VICO+'<span>Vacances'+(v.l?' · '+esc(v.l.split(',')[0]):'')+'</span><small>J'+n+'/'+N+'</small><span class="chv'+(op?' up':'')+'">›</span></button></div>';
+  if(op)h+=vacSheet(v,vi);return h}
+const trTxt=t=>[(t.m||[]).join(' + '),t.t].filter(Boolean).join(' · ');
+function vacSheet(v,vi){const go=v.go||{},bk=v.back||{},bag=v.bag||[],dn=bag.filter(x=>x.f).length;
+  if(V.vse===vi)return vacEdit(v,vi);
+  const tr=(l,t,d)=>'<button class="vrow" data-a="day" data-d="'+d+'"><span class="vrl">'+l+'</span><span class="vrv"><b>'+fds(d)+(t.h?' · '+HM(t.h):'')+'</b>'+(trTxt(t)?'<small>'+esc(trTxt(t))+'</small>':'')+'</span><span class="nchev">›</span></button>';
+  let h='<div class="card vsheet" '+sty('Vacances')+'><div class="vst">'+esc(v.l||'Vacances')+'</div><div class="vsd">Du '+fds(v.a)+' au '+fds(v.b)+' · '+(ndays(v.a,v.b)+1)+' jours</div>';
+  h+='<div class="vrows">'+tr('Aller',go,vGoD(v))+tr('Retour',bk,vBkD(v))+'</div>';
+  h+='<button class="vrow vbag" data-a="vbag" data-i="'+vi+'"><span class="vrl">Valise</span><span class="vrv"><b>'+(bag.length?dn+' / '+bag.length+' prêts':'Liste vide')+'</b></span><span class="chv'+(V.vbag===vi?' up':'')+'">›</span></button>';
+  if(V.vbag===vi)h+='<div class="vbagc">'+bagHTML(v,vi).replace('<div style="margin-top:16px"><b style="font-size:14px">Valise'+(bag.length?' · '+dn+'/'+bag.length:'')+'</b>','<div>')+'</div>';
+  h+='<div class="grp" style="margin-top:10px">'+calLinks('v|'+vi)+'</div>';
+  h+='<div class="tpb"><button class="tdel" data-a="vx" data-i="'+vi+'">Supprimer</button><button class="tsave" data-a="vse" data-i="'+vi+'">Modifier</button></div></div>';
+  return h}
+function vacEdit(v,vi){const go=v.go||{},bk=v.back||{};
+  const ck=(n,m)=>['Train','Avion','Voiture','Bus'].map(t=>'<label class="chip" style="--c:#8e8e93"><input type="checkbox" name="'+n+'" value="'+t+'"'+((m||[]).includes(t)?' checked':'')+'> '+t+'</label>').join('');
+  const blk=(l,n,t,d)=>'<div class="vedb"><b>'+l+'</b><div class="vtd"><label class="fld"><span>Le</span><input type="date" id="'+n+'d" value="'+d+'"></label><label class="fld"><span>à</span><input type="time" id="'+n+'h" value="'+(t.h||'')+'"></label></div><div class="lg" style="margin:6px 0">'+ck(n+'m',t.m)+'</div><input type="text" id="'+n+'t" value="'+esc(t.t||'')+'" placeholder="Détails (horaires, n° de train ou de vol…)"></div>';
+  return '<div class="card vsheet ef" '+sty('Vacances')+'><div class="eft">✎ Modifier les vacances</div><label class="ff"><span>Lieu</span><input type="text" id="vel" value="'+esc(v.l||'')+'"></label><div class="fg"><label class="ff"><span>Du</span><input type="date" id="vea" value="'+v.a+'"></label><label class="ff"><span>Au</span><input type="date" id="veb" value="'+v.b+'"></label></div>'
+    +blk('Aller','veg',go,vGoD(v))+blk('Retour','ver',bk,vBkD(v))+'<div id="vemsg" class="sub" style="margin:6px 0 0"></div><div class="fb"><button data-a="vesave" data-i="'+vi+'">Enregistrer</button><button class="sec" data-a="vecancel">Annuler</button></div></div>'}
+function vacTrips(k){const out=[];S.vac.forEach((v,vi)=>{[['Aller',v.go||{},vGoD(v),'Départ'],['Retour',v.back||{},vBkD(v),'Retour']].forEach(([l,t,d,w])=>{if(d!==k)return;
+  const ti=(trTxt(t)?(t.m||[]).join(' + ')||t.t:'')||(l==='Aller'?'Départ':'Retour'),dest=v.l?(l==='Aller'?' → ':' depuis ')+v.l.split(',')[0]:'',ha=(t.lk&&t.lk.length)||(t.df&&t.df.length);
+  out.push({t:t.h||'00:00',h:'<div class="ev vtrip" '+sty('Vacances')+'><div class="eh" data-a="vso" data-i="'+vi+'"><div class="et">'+HEAD(t.h,'',l,ti+dest,'Vacances')+(t.t&&(t.m||[]).length?'<div class="em2">'+esc(t.t)+'</div>':'')+'</div></div>'+(ha?'<div class="chips">'+attach(t.lk,t.df)+'</div>':'')+'</div>'})})});return out}
 const vacWeek=m=>{let h='';for(let i=0;i<7;i++){const d=add(m,i),k=key(d),v=vacOn(k);if(!v)continue;let b='';SECS.forEach(([p,n])=>{const A=vitems(v,k,p);if(A.length)b+='<div style="margin-top:6px"><b style="font-size:13px">'+n+'</b>'+A.map(([it,j])=>vpItem(it,undefined,j,0,'p|'+S.vac.indexOf(v)+'|'+j)).join('')+'</div>'});
   h+='<div class="rd"><button class="rdh" data-a="day" data-d="'+k+'">'+JRS[d.getDay()]+' '+d.getDate()+' · '+esc(v.l||'Vacances')+' ›</button>'+(b||'<div class="sub" style="margin:0">Pas de programme ce jour</div>')+'</div>'}return h?'<div class="card" '+sty('Vacances')+'><h2>Programme des vacances</h2>'+h+'</div>':''};
 const editForm=(k,i,card)=>{const x=(S.days[k]||{r:[]}).r[i];if(!x)return '';const med=HASMODE(x.c),nf=(x.df||[]).length,
@@ -1023,12 +1075,11 @@ function vJour(){
   let h=nv(t,'Semaine '+w+((SH('saint')&&sa)?' · Saint du jour : '+sa:''));h+=lateHTML();const B={};B.soon=SH('soon')?soonHTML():'<button class="showb" data-a="showsoon">Afficher « À venir »</button>';
   const f=HOL(y)[k],v=vacOn(k);
   if(f)h+='<span class="chip" '+sty('Férié')+'>'+f+'</span>';
-  if(v)h+='<span class="chip" '+sty('Vacances')+'>Vacances'+(v.l?' · '+esc(v.l):'')+'<button class="x" data-a="vx" data-i="'+S.vac.indexOf(v)+'">×</button></span>';
+  if(v)h+=vacBubble(v,k);
   const vv=vacOn(k),wl=placeFor(k);
   if(SH('wx')&&!cgOf(wl))setTimeout(()=>ensureCg(wl,k),0);
   B.wx='';if(!SH('wx'))B.wx+='<button class="showb" data-a="showwx">Afficher la météo</button>';
   if(SH('wx'))B.wx+='<div class="card"><h2 class="hh"><span>Météo · '+((vv&&vv.l)?esc(wl)+' (vacances)':'<button class="wcity" data-a="wxc" title="Changer de ville">'+esc(wl)+' <span class="chv'+(V.wxc?' up':'')+'">›</span></button>')+'</span><span class="hha">'+((vv&&vv.l)?'':'<button class="geoi'+(S.auto?' on':'')+'" data-a="geo" title="'+(S.auto?'Position automatique : activée':'Utiliser ma position')+'" aria-label="Utiliser ma position"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4L4 11l7 2 2 7 7-16z"/></svg></button>')+'<button class="hide" data-a="hidewx">Masquer</button></span></h2>'+((V.wxc&&!(vv&&vv.l))?'<div class="wxi"><input type="text" id="wc" placeholder="Autre ville" autocomplete="off"><button data-a="wcity">OK</button></div>':'')+'<div id="wxb" data-ck="'+esc(wl+'|'+key(V.d))+'">'+(WXH[wl+'|'+key(V.d)]||'<span style="color:var(--mu);font-size:14px">Chargement…</span>')+'</div>'+'<div id="sunc" class="sunin" data-ck="'+esc(wl+'|'+k)+'"'+(cgOf(wl)?'':' style="display:none"')+'><div id="sunb">'+sunHTML(k,wl)+'</div></div>'+'<div id="gmsg" class="sub" style="margin:6px 0 0"></div></div>';
-  h+=vacProg(k);
   const EROW=(x,i)=>{const ia='data-a="edit" data-d="'+k+'" data-i="'+i+'"',att=((x.dl&&x.dl.trim())||(x.df||[]).length)?attach(x.dl,x.df):'',
     m1=x.tele?TL(x):(x.l?''+esc(x.l):''),m2=[x.du&&!x.h?esc(x.du):'',x.who?'avec '+esc(x.who):''].filter(Boolean).join(' · '),
     chips=(x.tele&&x.lk?'<a class="chip" style="--c:#007aff" href="'+esc(urlOf(x.lk))+'" target="_blank" rel="noopener">Rejoindre</a>':'')+(x.tel?'<a class="chip" style="--c:#34c759" href="tel:'+esc(x.tel.replace(/[^\d+]/g,''))+'">'+esc(x.tel)+'</a>':'')+att,
@@ -1044,6 +1095,7 @@ function vJour(){
     else wk='<div class="wkb off"><span class="wkt">Jour off</span></div>';
     if(V.wed===k&&d.w.length)wk+='<div class="wked">'+d.w.map((x,i)=>WROW(x,i)).join('')+'<div class="wkea"><button data-a="wadd">＋ Ajouter une plage</button><button data-a="wreset">↺ Horaires habituels</button></div></div>'}
   d.r.forEach((x,i)=>rows.push({t:x.h||'99:99',h:(V.edit&&V.edit.k===k&&V.edit.i===i)?editForm(k,i):EROW(x,i)}));
+  vacTrips(k).forEach(r=>rows.push(r));
   rows.sort((m,n)=>m.t.localeCompare(n.t));
   B.plan='<div class="card" id="plan"><h2 style="display:flex;justify-content:space-between;align-items:center">Planning de la journée<button class="plus" data-a="jplus">'+(V.jp?'×':'＋')+'</button></h2>'+datesOn(k).map(x=>'<div class="bdb" '+sty('Date')+'><span><b>Anniversaire</b> · '+esc(x.n)+'</span><button class="bdx" data-a="ddx" data-i="'+S.dates.indexOf(x)+'" aria-label="Supprimer"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>').join('')+wk+(V.jp?qaChips()+(V.qa?qaCard():''):'')+(rows.length?rows.map(r=>r.h).join(''):'<div class="em">Rien de prévu</div>')+'</div>';
   B.tasks='<div class="card" id="tasks"><h2>À faire ce jour</h2>'+(d.t.length||!gd(k).length?todoList(d.t,'dt','','d'):'')+gd(k).map(o=>taskRow(o.x,o.i,'gt','data-s="'+o.s+'"',o.s,gname(o.s),1)).join('')+(V.tadd==='d'?'<div class="tform"><input type="text" id="ti" placeholder="Nouvelle tâche" autocomplete="off"><textarea id="tnn" class="nt tna" rows="1" placeholder="Note (facultatif)"></textarea><div class="trem"><span>'+BELL+'Rappel</span>'+remIn('tra','')+'</div><div class="trem"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>Répéter</span><select id="tr" class="trep">'+RCO.map(([v0,n])=>'<option value="'+v0+'">'+n+'</option>').join('')+'</select></div><div class="tfb"><button class="tfx" data-a="taddx">Annuler</button><button class="tfok" data-a="adt">Ajouter</button></div></div>':'<button class="taddb" data-a="taddo" data-s="d">＋ Ajouter</button>')+'</div>';
@@ -1080,7 +1132,7 @@ function otdHTML(d){const k=otdKey(d),o=OTD[k];if(!o)otdLoad(d);const O=OTD[k]||
 function vSemaine(){
   const m=mon(V.d),e=add(m,6),[y,w]=isoWeek(m);
   let h=nv('Semaine '+w,m.getDate()+' '+MOIS[m.getMonth()]+' – '+e.getDate()+' '+MOIS[e.getMonth()]+' '+y);
-  h+='<div class="card"><h2>Ajouter à votre planning</h2>'+qaChips()+'</div>';if(V.qa)h+=qaCard();if(V.ev)h+=evCard();h+=vacWeek(m);
+  h+='<div class="card"><h2>Ajouter à votre planning</h2>'+qaChips()+'</div>';if(V.qa)h+=qaCard();if(V.ev)h+=evCard();
   const rc=recapHTML([0,1,2,3,4,5,6].map(i=>add(m,i)),false);
   return h+'<div class="card"><h2>Récap de la semaine</h2>'+(rc||'<div class="em">Rien de prévu cette semaine</div>')+'</div>';
 }
@@ -1099,7 +1151,7 @@ async function addVac(dk,e2,btn){
   const g=id=>($(id)||{}).value||'',ck=n=>[...document.querySelectorAll('input[name='+n+']:checked')].map(i=>i.value),sp=id=>g(id).split(/\s+/).filter(Boolean),msg=$('#qmsg')||{};
   const items=(V.vp||[]).slice();
   if(items.some(q=>q.d<dk||q.d>e2)){msg.textContent='Un élément du programme est en dehors des dates des vacances.';return}
-  const rec={a:dk,b:e2,l:g('#ql').trim(),go:{m:ck('qg'),t:g('#qgd').trim(),lk:sp('#qgl')},back:{m:ck('qr'),t:g('#qrd').trim(),lk:sp('#qrl')},items};
+  const rec={a:dk,b:e2,l:g('#ql').trim(),go:{m:ck('qg'),t:g('#qgd').trim(),lk:sp('#qgl'),d:g('#qgdt')||dk,h:g('#qgh')},back:{m:ck('qr'),t:g('#qrd').trim(),lk:sp('#qrl'),d:g('#qrdt')||e2,h:g('#qrh')},items};
   const fg=[...(($('#qgf')||{}).files||[])],fr=[...(($('#qrf')||{}).files||[])];
   btn.textContent='Envoi…';
   const a1=await upFiles(fg,msg);if(a1===null){btn.textContent='Ajouter';return}
@@ -1356,7 +1408,7 @@ const tmodes=n=>['Train','Avion','Voiture','Bus'].map(t=>'<label class="chip" st
 const qaCard=()=>{const c=V.qa,lb=t=>'<span class="sub" style="margin:0;align-self:center">'+t+'</span>';
   let f='';
   if(c==='Date')f='<input type="date" id="qd" value="'+key(V.d)+'"><input type="text" id="qx" placeholder="Nom (ex. Camille)">';
-  else if(c==='Vacances')f='<label class="fld"><span>Du</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>au</span><input type="date" id="qe" value="'+key(V.d)+'"></label><input type="text" id="ql" autocomplete="off" placeholder="Lieu">'+[['Aller','qg'],['Retour','qr']].map(([t,n])=>'<div style="width:100%"><b style="font-size:14px">'+t+'</b><div class="lg" style="margin:4px 0">'+tmodes(n)+'</div><input type="text" id="'+n+'d" placeholder="Détails '+t.toLowerCase()+' (horaires, n° de vol…)" style="width:100%"><input type="text" id="'+n+'l" placeholder="Lien (billet, réservation…)" style="width:100%;margin-top:6px"><input type="file" id="'+n+'f" multiple style="max-width:100%;margin-top:6px"></div>').join('')+'<div style="width:100%"><b style="font-size:14px">Programme</b><div id="vplist"></div>'+vpForm('',null)+'</div><div id="qmsg" class="sub" style="width:100%;margin:0"></div>';
+  else if(c==='Vacances')f='<label class="fld"><span>Du</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>au</span><input type="date" id="qe" value="'+key(V.d)+'"></label><input type="text" id="ql" autocomplete="off" placeholder="Lieu">'+[['Aller','qg'],['Retour','qr']].map(([t,n])=>'<div style="width:100%"><b style="font-size:14px">'+t+'</b><div class="vtd"><label class="fld"><span>Le</span><input type="date" id="'+n+'dt"></label><label class="fld"><span>à</span><input type="time" id="'+n+'h"></label></div><div class="lg" style="margin:4px 0">'+tmodes(n)+'</div><input type="text" id="'+n+'d" placeholder="Détails '+t.toLowerCase()+' (horaires, n° de vol…)" style="width:100%"><input type="text" id="'+n+'l" placeholder="Lien (billet, réservation…)" style="width:100%;margin-top:6px"><input type="file" id="'+n+'f" multiple style="max-width:100%;margin-top:6px"></div>').join('')+'<p class="sub" style="width:100%;margin:0">Sans date, l’aller est le premier jour et le retour le dernier.</p><div id="qmsg" class="sub" style="width:100%;margin:0"></div>';
   else{f='<label class="fld"><span>Date</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>Heure</span><input type="time" id="qh"></label><input type="text" id="qx" list="dl-t-'+c+'" placeholder="Intitulé">'+durSel('qdu','')+'<div class="trem"><span>'+BELL+'Rappel</span>'+remIn('qra','')+'</div>';
     f+=HASMODE(c)?'<select id="qm"><option value="p">Présentiel</option><option value="t">'+(c==='Meeting'?'Visio':'Téléconsultation')+'</option></select><input type="text" id="ql" autocomplete="off" placeholder="Adresse"><input type="text" id="qk" placeholder="'+(c==='Meeting'?'Lien Teams, Zoom, Meet…':'Lien de la téléconsultation')+'" style="display:none">':'<input type="text" id="ql" autocomplete="off" placeholder="Lieu">';
     f+=((c==='Resto'||c==='Sport')?'<input type="text" id="qw" placeholder="Avec qui">':c==='Meeting'?'<input type="text" id="qw" placeholder="Participants" style="width:100%">':'')+(c==='Meeting'?'<textarea id="qp" class="nt tna" rows="2" placeholder="Ordre du jour / remarques (facultatif)" style="width:100%"></textarea>':'<input type="text" id="qp" placeholder="Remarques (facultatif)">')+'<input type="tel" id="qtel" placeholder="Téléphone (facultatif)"><input type="text" id="qdl" placeholder="Lien d’un mail, d’une réservation…" style="width:100%"><span class="sub" style="width:100%;margin:0">'+(c==='Meeting'?'Joindre un fichier (présentation, document, PDF…)':'Joindre un fichier (ordonnance, confirmation, PDF, photo…)')+'</span><input type="file" id="qdf" multiple style="max-width:100%"><div id="qmsg" class="sub" style="width:100%;margin:0"></div>'}
@@ -1575,7 +1627,15 @@ document.addEventListener('click',e=>{
   else if(a==='wreset'){const d=D(k);d.w=[];d.ov=0}
   else if(a==='ddx')S.dates.splice(i,1);
   else if(a==='adv'){const x=v('#va'),y=v('#vb');if(x&&y&&y>=x){S.vac.push({a:x,b:y,l:v('#vl').trim()});S.vac.sort((p,q)=>p.a.localeCompare(q.a))}}
-  else if(a==='vx'){const v0=S.vac.splice(i,1)[0];if(v0)vacAssets(v0).forEach(qdel)}
+  else if(a==='vso'){const n=+b.dataset.i;V.vso=V.vso===n?null:n;V.vse=null;V.vbag=null;if(V.vso!==null&&V.tab!=='jour'){}}
+  else if(a==='vbag'){const n=+b.dataset.i;V.vbag=V.vbag===n?null:n}
+  else if(a==='vse'){V.vse=+b.dataset.i}
+  else if(a==='vecancel'){V.vse=null}
+  else if(a==='vesave'){const v0=S.vac[+b.dataset.i];if(!v0)return;const g=id=>($(id)||{}).value||'',ck=n=>[...document.querySelectorAll('input[name='+n+']:checked')].map(q=>q.value),m=$('#vemsg')||{};
+    const A=g('#vea'),B=g('#veb'),gd=g('#vegd')||A,rd=g('#verd')||B;if(!A||!B||B<A){m.textContent='Vérifie les dates des vacances.';return}
+    v0.l=g('#vel').trim();v0.a=A;v0.b=B;v0.go=Object.assign(v0.go||{},{d:gd,h:g('#vegh'),m:ck('vegm'),t:g('#vegt').trim()});v0.back=Object.assign(v0.back||{},{d:rd,h:g('#verh'),m:ck('verm'),t:g('#vert').trim()});
+    V.vse=null;save();render();noteToast('✓ Enregistré');return}
+  else if(a==='vx'){if(!confirm('Supprimer ces vacances ?'))return;V.vso=null;const v0=S.vac.splice(i,1)[0];if(v0)vacAssets(v0).forEach(qdel)}
   else if(a==='adg'){const x=v('#g'+s).trim(),d=v('#gd'),nt=v('#gn').trim(),it={x,f:0};if(d)it.d=d;if(nt)it.nt=nt;const rc=v('#gr');if(rc)it.rc=rc;const ra=remVal('gra',d);if(ra)it.ra=ra;if(s==='c')it.sh=V.cs||'l';if(x){S.g[s].push(it);if(s!=='c')V.tadd=null}}
   else if(a==='cs')V.cs=s;
   else if(a==='gopt'){const el=$('#gx');if(el)el.hidden=!el.hidden;return}
