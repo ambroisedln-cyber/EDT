@@ -873,6 +873,31 @@ html.fsl .hl,html.fsl .otdt,html.fsl .nrow .nopen b{font-size:17px}
 .qdrh input{flex:1;min-width:0}
 #qdst{display:flex;flex-direction:column}
 .add>.vadd{width:100%}
+.nxc{background:color-mix(in srgb,var(--c) 7%,var(--card))!important}
+.nxm{cursor:pointer}
+.nxt{font-size:22px;font-weight:700;color:var(--c);margin:2px 0 4px;letter-spacing:-.3px}
+.nxl{font-size:13.5px;color:var(--mu);margin-top:2px}
+.nxa{padding:10px 0 0!important}
+.nxo{font-size:12.5px;color:var(--mu);margin-top:10px;padding-top:8px;border-top:.5px solid var(--ln)}
+.exr2{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:.5px solid var(--ln)}
+.exi{flex:1;min-width:0;display:flex;flex-direction:column}
+.exi b{font-weight:600;font-size:15.5px}
+.exi small{font-size:12.5px;color:var(--mu)}
+.exb{flex:none;padding:6px 8px;border-radius:9px;background:var(--bg);color:var(--ac);font-size:13.5px;font-weight:600}
+.exf{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.exf input{width:100%;border:0;border-radius:10px;background:var(--bg);padding:10px 12px;font-size:16px;color:var(--tx)}
+.exhelp{font-size:13px;color:var(--mu)}
+.exhelp summary{color:var(--ac);font-weight:600;cursor:pointer}
+.exhelp p{margin:6px 0}
+.ev.ext .eh{cursor:default}
+.exro{flex:none;color:var(--mu);font-size:14px;padding:0 6px}
+.shv{padding-top:30px;max-width:640px;margin:0 auto}
+.shk{text-align:center;margin:0 auto 4px;width:max-content;padding:4px 12px;border-radius:14px;font-size:13px;font-weight:600;color:var(--c);background:color-mix(in srgb,var(--c) 13%,transparent)}
+.shv .vir{display:flex;gap:10px;padding:9px 0;border-bottom:.5px solid var(--ln);color:var(--tx);text-decoration:none}
+.shv a.vir .viv{color:var(--c)}
+body.shr-mode .topg{display:none}
+.nlk{display:inline-flex;color:var(--mu);margin-right:2px}
+.nlk svg{width:14px;height:14px}
 </style>
 </head>
 <body>
@@ -1023,6 +1048,7 @@ function dayItems(k,brief){
   const ov=x&&(x.ov||(x.w||[]).length);
   const tl=[];const WK=(brief&&!ov)?[]:work(k);if(WK.length)o.push({c:'Job',wk:1,ti:'Travail',h:WK.map(q=>q.a+' – '+q.b).join(' · ')});
   if(x)x.r.forEach((q,ri)=>tl.push({s:q.h||'99:99',ri,c:q.c,lab:q.c,h:q.h,h2:endOf(q.h,q.du),ti:q.x,sub:[q.tele?TL(q):(q.l||''),q.who?'avec '+q.who:''].filter(Boolean).join(' · ')}));
+  extOn(k).forEach(e=>tl.push({s:e.h||'00:00',c:'ext:'+e.cid,lab:e.cal,h:e.h,h2:e.h2,ti:e.ti,sub:e.l||''}));
   tl.sort((m,n)=>m.s.localeCompare(n.s)).forEach(q=>o.push(q));
   o.forEach(q=>{q.t=[q.h,q.ti,q.sub].filter(Boolean).join(' · ')});
   return o;
@@ -1096,7 +1122,7 @@ function vacSheet(v,vi){const bag=v.bag||[],dn=bag.filter(x=>x.f).length;
   h+='<button class="vrow vbag" data-a="vbag" data-i="'+vi+'"><span class="vrl">Valise</span><span class="vrv"><b>'+(bag.length?dn+' / '+bag.length+' prêts':'Liste vide')+'</b></span><span class="chv'+(V.vbag===vi?' up':'')+'">›</span></button>';
   if(V.vbag===vi)h+='<div class="vbagc">'+bagHTML(v,vi).replace('<div style="margin-top:16px"><b style="font-size:14px">Valise'+(bag.length?' · '+dn+'/'+bag.length:'')+'</b>','<div>')+'</div>';
   h+='<div class="grp" style="margin-top:10px">'+calLinks('v|'+vi)+'</div>';
-  h+='<div class="vfoot">'+(V.vse===vi?'':'<button class="vlink" data-a="vse" data-i="'+vi+'">Modifier le lieu et les dates</button>')+'<button class="vdel" data-a="vx" data-i="'+vi+'">Supprimer ces vacances</button></div></div>';
+  h+='<div class="vfoot">'+(V.vse===vi?'':'<button class="vlink" data-a="vse" data-i="'+vi+'">Modifier le lieu et les dates</button>')+'<button class="vlink" data-a="vshare" data-i="'+vi+'">Partager ces vacances</button><button class="vdel" data-a="vx" data-i="'+vi+'">Supprimer ces vacances</button></div></div>';
   return (V.vse===vi?vacEdit(v,vi):'')+h}
 const vForm=(vi,title,body,save,del)=>'<div class="card vsheet ef" '+sty('Vacances')+'><div class="eft">✎ '+title+'</div>'+body+'<div id="vemsg" class="sub" style="margin:6px 0 0"></div><div class="fb"><button data-a="'+save+'" data-i="'+vi+'">Enregistrer</button><button class="sec" data-a="vecancel">Annuler</button></div>'+(del?'<button class="vdel" '+del+'>Supprimer</button>':'')+'</div>';
 const vin=(id,val,ph,ty)=>'<input type="'+(ty||'text')+'" id="'+id+'" value="'+esc(val||'')+'" placeholder="'+ph+'" autocomplete="off">';
@@ -1220,13 +1246,13 @@ const tripHTML=(k,i,x)=>{
   else h+='<div class="row rin"><svg class="ri" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-6.5 8 6.5"/><path d="M6 9.8V19.5h12V9.8"/></svg><input type="text" id="hm" placeholder="Adresse de départ…" autocomplete="off" value="'+esc(S.home||'')+'"><button class="rr" data-a="sethome">OK</button></div>';
   return h};
 const SH=k=>!(S.cfg&&S.cfg.show&&S.cfg.show[k]===0);
-const JSEC=[['soon','À venir'],['wx','Météo et soleil'],['plan','Planning de la journée'],['tasks','À faire ce jour'],['notes','Notes'],['otd','Ce jour-là']];
-const JORD=()=>{const d=JSEC.map(x=>x[0]),o=((S.cfg&&S.cfg.jord)||[]).filter(x=>d.includes(x));return o.concat(d.filter(x=>!o.includes(x)))};
+const JSEC=[['next','Prochain rendez-vous'],['soon','À venir'],['wx','Météo et soleil'],['plan','Planning de la journée'],['tasks','À faire ce jour'],['notes','Notes'],['otd','Ce jour-là']];
+const JORD=()=>{const d=JSEC.map(x=>x[0]),o=((S.cfg&&S.cfg.jord)||[]).filter(x=>d.includes(x));if(o.length&&!o.includes('next'))o.unshift('next');return o.concat(d.filter(x=>!o.includes(x)))};
 function vJour(){
   const k=key(V.d),d=D(k),[,w]=isoWeek(V.d),y=V.d.getFullYear();
   const t=V.d.toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const sa=(SA[V.d.getMonth()]||[])[V.d.getDate()-1]||'';
-  let h=nv(t,'Semaine '+w+((SH('saint')&&sa)?' · Saint du jour : '+sa:''));h+=lateHTML();const B={};B.soon=SH('soon')?soonHTML():'<button class="showb" data-a="showsoon">Afficher « À venir »</button>';
+  let h=nv(t,'Semaine '+w+((SH('saint')&&sa)?' · Saint du jour : '+sa:''));h+=lateHTML();const B={};B.next=SH('next')&&key(V.d)===TODAY?nextHTML():'';B.soon=SH('soon')?soonHTML():'<button class="showb" data-a="showsoon">Afficher « À venir »</button>';
   const f=HOL(y)[k],v=vacOn(k);
   if(f)h+='<span class="chip" '+sty('Férié')+'>'+f+'</span>';
   if(v)h+=vacBubble(v,k);else{const nx=vacNext(k);if(nx)h+=vacBubble(nx,k,1)}
@@ -1250,6 +1276,7 @@ function vJour(){
     if(V.wed===k&&d.w.length)wk+='<div class="wked">'+d.w.map((x,i)=>WROW(x,i)).join('')+'<div class="wkea"><button data-a="wadd">＋ Ajouter une plage</button><button data-a="wreset">↺ Horaires habituels</button></div></div>'}
   d.r.forEach((x,i)=>rows.push({t:x.h||'99:99',h:(V.edit&&V.edit.k===k&&V.edit.i===i)?editForm(k,i):EROW(x,i)}));
   vacTrips(k).forEach(r=>rows.push(r));
+  extOn(k).forEach(e=>rows.push({t:e.h||'00:00',h:'<div class="ev ext" '+sty('ext:'+e.cid)+'><div class="eh"><div class="et">'+HEAD(e.h,e.h2,e.cal,e.ti,'ext:'+e.cid)+(e.l?'<div class="em2">'+esc(e.l)+'</div>':'')+'</div><span class="exro" title="Agenda importé">↗</span></div></div>'}));
   rows.sort((m,n)=>m.t.localeCompare(n.t));
   B.plan='<div class="card" id="plan"><h2 style="display:flex;justify-content:space-between;align-items:center">Planning de la journée<button class="plus" data-a="jplus">'+(V.jp?'×':'＋')+'</button></h2>'+datesOn(k).map(x=>'<div class="bdb" '+sty('Date')+'><span><b>Anniversaire</b> · '+esc(x.n)+'</span><button class="bdx" data-a="ddx" data-i="'+S.dates.indexOf(x)+'" aria-label="Supprimer"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>').join('')+wk+(V.jp?qaChips()+(V.qa?qaCard():''):'')+(rows.length?rows.map(r=>r.h).join(''):'<div class="em">Rien de prévu</div>')+'</div>';
   B.tasks='<div class="card" id="tasks"><h2>À faire ce jour</h2>'+(d.t.length||!gd(k).length?todoList(d.t,'dt','','d'):'')+gd(k).map(o=>taskRow(o.x,o.i,'gt','data-s="'+o.s+'"',o.s,gname(o.s),1)).join('')+(V.tadd==='d'?'<div class="tform"><input type="text" id="ti" placeholder="Nouvelle tâche" autocomplete="off"><textarea id="tnn" class="nt tna" rows="1" placeholder="Note (facultatif)"></textarea><div class="trem"><span>'+BELL+'Rappel</span>'+remIn('tra','')+'</div><div class="trem"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>Répéter</span><select id="tr" class="trep">'+RCO.map(([v0,n])=>'<option value="'+v0+'">'+n+'</option>').join('')+'</select></div><div class="tfb"><button class="tfx" data-a="taddx">Annuler</button><button class="tfok" data-a="adt">Ajouter</button></div></div>':'<button class="taddb" data-a="taddo" data-s="d">＋ Ajouter</button>')+'</div>';
@@ -1258,6 +1285,108 @@ function vJour(){
   h+=JORD().map(q=>(q==='plan'||q==='tasks'||q==='notes')&&!SH(q)?'':(B[q]||'')).join('');
   return h;
 }
+
+
+/* ===== Agendas importés (iCal : Google, iCloud, Outlook) — en lecture seule ===== */
+const ICSWIN=[-60,400];
+function icsParse(txt){const L=txt.replace(/\r\n[ \t]/g,'').replace(/\n[ \t]/g,'').split(/\r?\n/),EV=[];let cur=null;
+  for(const line of L){if(line==='BEGIN:VEVENT'){cur={ex:[]};continue}if(line==='END:VEVENT'){if(cur)EV.push(cur);cur=null;continue}if(!cur)continue;
+    const i=line.indexOf(':');if(i<0)continue;const head=line.slice(0,i),val=line.slice(i+1),[name,...ps]=head.split(';'),P={};ps.forEach(q=>{const [a,b]=q.split('=');P[(a||'').toUpperCase()]=(b||'').replace(/"/g,'')});
+    const unesc=v=>v.replace(/\\n/gi,'\n').replace(/\\([,;\\])/g,'$1');
+    if(name==='DTSTART')cur.s={v:val,p:P};else if(name==='DTEND')cur.e={v:val,p:P};else if(name==='DURATION')cur.du=val;else if(name==='SUMMARY')cur.t=unesc(val);else if(name==='LOCATION')cur.l=unesc(val);
+    else if(name==='RRULE')cur.rr=val;else if(name==='EXDATE')val.split(',').forEach(x=>cur.ex.push({v:x,p:P}));else if(name==='STATUS')cur.st=val;else if(name==='UID')cur.uid=val;else if(name==='RECURRENCE-ID')cur.rid={v:val,p:P}}
+  return EV}
+const tzOff=(ms,tz)=>{try{const p=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:tz,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).formatToParts(new Date(ms)).map(x=>[x.type,x.value]));return Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second)-ms}catch(e){return null}};
+function icsTime(o){if(!o)return null;const v=o.v,m=/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?/.exec(v);if(!m)return null;const [_,y,mo,d,hh,mi,ss,z]=m;
+  if(!hh)return{ad:1,t:new Date(+y,+mo-1,+d).getTime()};
+  if(z)return{t:Date.UTC(+y,+mo-1,+d,+hh,+mi,+(ss||0))};
+  const tz=o.p&&o.p.TZID;if(tz&&!/Paris|Brussels|Berlin|Madrid|Rome|Amsterdam/.test(tz)){const g=Date.UTC(+y,+mo-1,+d,+hh,+mi,+(ss||0)),off=tzOff(g,tz);if(off!==null){const g2=g-off,off2=tzOff(g2,tz);return{t:g-(off2===null?off:off2)}}}
+  return{t:new Date(+y,+mo-1,+d,+hh,+mi,+(ss||0)).getTime()}}
+const icsDur=d=>{const m=/P(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?)?/.exec(d||'');return m?(((+m[1]||0)*7+(+m[2]||0))*1440+(+m[3]||0)*60+(+m[4]||0))*6e4:0};
+const WDS=['SU','MO','TU','WE','TH','FR','SA'];
+function icsExpand(evs){const now=new Date(),w0=add(now,ICSWIN[0]).getTime(),w1=add(now,ICSWIN[1]).getTime(),out=[],ovr=new Set();
+  evs.forEach(e=>{if(e.rid&&e.uid){const r=icsTime(e.rid);if(r)ovr.add(e.uid+'|'+r.t)}});
+  evs.forEach(e=>{if(e.st==='CANCELLED')return;const s0=icsTime(e.s);if(!s0)return;const e0=icsTime(e.e);let dur=e0?e0.t-s0.t:(e.du?icsDur(e.du):(s0.ad?864e5:36e5));if(dur<0)dur=0;
+    const ex=new Set(e.ex.map(x=>{const r=icsTime(x);return r&&r.t}));const push=t=>{if(t+dur<w0||t>w1||ex.has(t)||(!e.rid&&e.uid&&ovr.has(e.uid+'|'+t)))return;out.push({t,dur,ad:s0.ad,ti:e.t||'(Sans titre)',l:e.l||''})};
+    if(!e.rr||e.rid){push(s0.t);return}
+    const R=Object.fromEntries(e.rr.split(';').map(x=>x.split('='))),fq=R.FREQ,iv=+(R.INTERVAL||1),cnt=R.COUNT?+R.COUNT:Infinity,un=R.UNTIL?(icsTime({v:R.UNTIL,p:{}})||{}).t:Infinity;
+    const st=new Date(s0.t),hh=st.getHours(),mm=st.getMinutes();let n=0;const emit=d=>{const t=new Date(d.getFullYear(),d.getMonth(),d.getDate(),hh,mm).getTime();if(t<s0.t)return true;if(t>un||n>=cnt||t>w1)return false;n++;push(t);return true};
+    if(fq==='DAILY'){for(let d=new Date(st),g=0;g<3000;g++,d=add(d,iv))if(!emit(d))break}
+    else if(fq==='WEEKLY'){const bd=R.BYDAY?R.BYDAY.split(',').map(x=>WDS.indexOf(x.slice(-2))).filter(x=>x>=0).sort((a,b)=>((a+6)%7)-((b+6)%7)):[st.getDay()];let ws=mon(st);outer:for(let g=0;g<1000;g++,ws=add(ws,7*iv)){for(const wd of bd){const d=add(ws,(wd+6)%7);if(!emit(d))break outer}}}
+    else if(fq==='MONTHLY'){const bd=R.BYDAY&&/^(-?\d)?([A-Z]{2})$/.exec(R.BYDAY.split(',')[0]),bm=R.BYMONTHDAY?+R.BYMONTHDAY:null;for(let g=0;g<600;g+=iv){const y=st.getFullYear(),m=st.getMonth()+g;let d;
+        if(bd){const wd=WDS.indexOf(bd[2]),k=+(bd[1]||1);if(k>0){d=new Date(y,m,1);while(d.getDay()!==wd)d=add(d,1);d=add(d,7*(k-1));if(d.getMonth()!==((m%12)+12)%12)continue}else{d=new Date(y,m+1,0);while(d.getDay()!==wd)d=add(d,-1)}}
+        else{const dd=bm||st.getDate();d=new Date(y,m,dd);if(d.getDate()!==dd)continue}if(!emit(d))break}}
+    else if(fq==='YEARLY'){for(let g=0;g<200;g+=iv){const d=new Date(st.getFullYear()+g,st.getMonth(),st.getDate());if(d.getMonth()!==st.getMonth())continue;if(!emit(d))break}}
+    else push(s0.t)});
+  return out.sort((a,b)=>a.t-b.t).slice(0,4000)}
+const hhm2=d=>pad(d.getHours())+':'+pad(d.getMinutes());
+function icsToStore(occ){return occ.map(o=>{const a=new Date(o.t),b=new Date(o.t+o.dur);if(o.ad){const eb=add(b,-1);return{k:key(a),e:key(eb)>key(a)?key(eb):undefined,ad:1,ti:o.ti,l:o.l}}
+  return{k:key(a),h:hhm2(a),h2:key(b)===key(a)?hhm2(b):'',e:key(b)>key(a)&&hhm2(b)!=='00:00'?key(b):undefined,ti:o.ti,l:o.l}})}
+let EXI=null,EXS='';
+function extOn(k){const C0=(S.ext&&S.ext.c)||[],sig=C0.map(c=>c.id+c.ts+(c.off?1:0)+c.col+c.n).join('|');if(EXI===null||sig!==EXS){EXS=sig;EXI={};C0.forEach(c=>{if(c.off)return;(c.ev||[]).forEach(e=>{let d=e.k;const last=e.e||e.k;for(let g=0;g<62&&d<=last;g++){(EXI[d]=EXI[d]||[]).push({h:d===e.k?e.h:'',h2:e.h2,ti:e.ti,l:e.l,cal:c.n,col:c.col,cid:c.id});d=key(add(parse(d),1))}})})}
+  return (EXI[k]||[]).slice().sort((a,b)=>(a.h||'').localeCompare(b.h||''))}
+async function icsFetch(u){const r=await fetch('/api/ical?u='+encodeURIComponent(u));const t=await r.text();if(!r.ok)throw new Error(t||'Agenda inaccessible');return t}
+async function extSync(c,quiet){try{const t=await icsFetch(c.u);c.ev=icsToStore(icsExpand(icsParse(t)));c.ts=Date.now();c.err='';save();if(V.tab!=='reg'||V.rp==='calrem')render();return true}catch(e){c.err=String(e.message||e).slice(0,120);if(!quiet)noteToast('Agenda : '+c.err);if(V.rp==='calrem')render();return false}}
+let EXT_RUN=0;async function extRefresh(force){if(EXT_RUN)return;EXT_RUN=1;try{for(const c of ((S.ext&&S.ext.c)||[])){if(force||!c.ts||Date.now()-c.ts>30*6e4)await extSync(c,1)}}finally{EXT_RUN=0}}
+const agoTxt=ts=>{if(!ts)return 'jamais';const m=Math.round((Date.now()-ts)/6e4);return m<1?'à l’instant':m<60?'il y a '+m+' min':m<1440?'il y a '+Math.round(m/60)+' h':'il y a '+Math.round(m/1440)+' j'};
+function extCard(){const L=(S.ext&&S.ext.c)||[];let h='<div class="card"><h2>Agendas importés</h2><p class="sub" style="margin:0 0 10px">Affiche tes rendez-vous Google, iCloud ou Outlook dans l’appli (lecture seule), actualisés automatiquement.</p>';
+  h+=L.map((c,i)=>'<div class="exr2"><span class="ctd" style="background:'+c.col+'"></span><div class="exi"><b>'+esc(c.n)+'</b><small>'+(c.err?'<span style="color:#ff3b30">'+esc(c.err)+'</span>':(c.ev||[]).length+' événements · '+agoTxt(c.ts))+'</small></div><button class="exb" data-a="exsync" data-i="'+i+'" aria-label="Actualiser">↻</button><button class="exb" data-a="exoff" data-i="'+i+'">'+(c.off?'Afficher':'Masquer')+'</button><button class="exb" data-a="exdel" data-i="'+i+'" style="color:#ff3b30" aria-label="Supprimer">×</button></div>').join('');
+  if(V.exnew)h+='<div class="exf"><input type="text" id="exn" placeholder="Nom (ex. Agenda pro)" autocomplete="off"><input type="url" id="exu" placeholder="Lien iCal (https://… ou webcal://…)" autocomplete="off"><div class="nfcol" style="justify-content:flex-start">'+CPAL.map(q=>'<button class="nsw'+((V.exc||'#5856d6')===q?' on':'')+'" style="--fc:'+q+'" data-a="excol" data-c="'+q+'"></button>').join('')+'</div><div id="exmsg" class="sub" style="margin:4px 0"></div><div class="tpb"><button class="tdel" data-a="exnew" style="color:var(--mu)">Annuler</button><button class="tsave" data-a="exadd">Ajouter</button></div>'
+    +'<details class="exhelp"><summary>Où trouver le lien ?</summary><p><b>Google Agenda</b> (sur ordinateur) : Paramètres › clique sur ton agenda › « Adresse secrète au format iCal ».</p><p><b>iPhone / iCloud</b> : app Calendrier › Calendriers › (i) à côté de l’agenda › active « Calendrier public » › Partager le lien.</p><p><b>Outlook</b> : Paramètres › Calendrier › Calendriers partagés › Publier un calendrier › lien ICS.</p></details></div>';
+  else h+='<button class="vadd" data-a="exnew" style="--c:var(--ac)">＋ Ajouter un agenda</button>';
+  h+='<label class="vfile" style="text-align:center;margin-top:10px">Importer un fichier .ics dans mon planning<input type="file" id="exfile" accept=".ics,text/calendar"></label></div>';return h}
+document.addEventListener('change',async e=>{if(e.target.id!=='exfile')return;const f=e.target.files&&e.target.files[0];if(!f)return;const t=await f.text();const occ=icsExpand(icsParse(t));let n=0;
+  icsToStore(occ).forEach(o=>{D(o.k).r.push({c:'Autre',x:o.ti,h:o.h||'',du:'',l:o.l||''});n++});save();render();noteToast(n?'✓ '+n+' événement'+(n>1?'s':'')+' ajouté'+(n>1?'s':''):'Aucun événement trouvé');e.target.value=''});
+
+/* ===== Partage par lien (lecture seule) ===== */
+const SHID=(()=>{try{const q=new URLSearchParams(location.search).get('s');return /^[0-9a-f-]{36}$/i.test(q||'')?q:null}catch(e){return null}})();
+const uuid=()=>(crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)}));
+async function shareLink(kind,src,data,title,text){const id=src.shid||uuid();noteToast('Création du lien…');
+  try{const {error}=await SB.from('shares').upsert({id,kind,data,updated_at:new Date().toISOString()});if(error)throw error}catch(e){noteToast('Impossible de créer le lien (connexion ?)');return}
+  if(!src.shid){src.shid=id;save()}const url=location.origin+'/?s='+id;
+  if(navigator.share){try{await navigator.share({title,text:text||title,url});return}catch(e){if(e&&e.name==='AbortError')return}}
+  noteToast((await copyTxt(url))?'✓ Lien copié':'Lien : '+url)}
+function vacShareData(v){return{l:v.l,a:v.a,b:v.b,legs:vLegs(v).map(t=>({k:t.k,d:t.d,h:t.h||'',to:legTo(v,t)||'',sg:legSegs(t).map(x=>({m:x.m||'',h:x.h||'',f:x.f||'',to:x.to||'',t:x.t||''}))})),st:vStays(v).map(x=>({l:x.l||'',a:x.a,b:x.b,h:x.h||'',c:x.c||'',r:x.r||'',n:x.n||'',t:x.t||''}))}}
+function rdvShareData(k,x){return{k,c:CN(x.c),col:C[x.c]||'#8e8e93',x:x.x,h:x.h||'',h2:endOf(x.h,x.du)||'',du:x.du||'',l:x.tele?'':(x.l||''),tele:x.tele?TL(x):'',lk:x.tele?(x.lk||''):'',who:x.who||''}}
+async function showShare(id){document.body.classList.add('shr-mode');{const au=document.getElementById('auth');if(au)au.hidden=true}const nav=document.querySelector('nav');if(nav)nav.style.display='none';const A=$('#app');A.innerHTML='<div class="em" style="margin-top:40vh">Chargement…</div>';
+  let r=null;try{const {data,error}=await SB.rpc('get_share',{sid:id});if(error)throw error;r=data}catch(e){}
+  if(!r){A.innerHTML='<div class="shv"><h1 class="hc1">Lien introuvable</h1><p class="sub hsubc">Ce partage n’existe plus ou le lien est incomplet.</p></div>';return}
+  const d=r.data||{},fd=k=>parse(k).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),cap=t=>t.charAt(0).toUpperCase()+t.slice(1),mp=a=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(a);
+  let h='<div class="shv">';
+  if(r.kind==='vac'){document.title='Vacances · '+(d.l||'');h+='<div class="shk" style="--c:#30b0c7">Vacances</div><h1 class="hc1">'+esc(d.l||'Vacances')+'</h1><p class="sub hsubc">Du '+fd(d.a)+' au '+fd(d.b)+'</p>';
+    h+='<div class="card" style="--c:#30b0c7"><h2>Trajets</h2>'+(d.legs||[]).map(t=>'<div class="vtr" style="margin-bottom:8px"><div class="vtrm" style="cursor:default"><span class="vrl">'+esc(t.k)+'</span><span class="vrv"><b>'+cap(fd(t.d))+(t.h?' · '+HM(t.h):'')+'</b>'+(t.sg||[]).filter(x=>x.m||x.f||x.to||x.t||x.h).map(segLine).join('')+'</span></div></div>').join('')+'</div>';
+    h+='<div class="card" style="--c:#30b0c7"><h2>Destinations et logements</h2>'+(d.st||[]).map(x=>{const ir=(l,v,href)=>v?'<'+(href?'a href="'+href+'"'+(href.startsWith('tel:')?'':' target="_blank" rel="noopener"'):'div')+' class="vir"><span class="vil">'+l+'</span><span class="viv">'+esc(v)+'</span></'+(href?'a':'div')+'>':'';
+      return '<div class="vstay" style="margin-bottom:8px"><div class="vtrm" style="cursor:default"><span class="vrv"><b>'+esc(x.l)+'</b><small>'+fd(x.a)+' → '+fd(x.b)+'</small></span></div><div class="vinf">'+ir('Logement',x.h,x.h?mp(x.h):'')+ir('Accès',x.c)+ir('Réservation',x.r)+ir('Contact',x.n)+ir('Téléphone',x.t,x.t?'tel:'+x.t.replace(/[^\d+]/g,''):'')+'</div></div>'}).join('')+'</div>'}
+  else{document.title=d.x||'Rendez-vous';h+='<div class="shk" style="--c:'+esc(d.col||'#8e8e93')+'">'+esc(d.c||'Rendez-vous')+'</div><h1 class="hc1">'+esc(d.x||'')+'</h1><p class="sub hsubc">'+cap(fd(d.k))+(d.h?' · '+HM(d.h)+(d.h2?' – '+HM(d.h2):''):'')+'</p>';
+    h+='<div class="card" style="--c:'+esc(d.col||'#8e8e93')+'">'+(d.l?'<a class="vir" href="'+mp(d.l)+'" target="_blank" rel="noopener"><span class="vil">Lieu</span><span class="viv">'+esc(d.l)+'</span></a>':'')+(d.tele?'<div class="vir"><span class="vil">Où</span><span class="viv">'+esc(d.tele)+'</span></div>':'')+(d.lk?'<a class="vir" href="'+esc(urlOf(d.lk))+'" target="_blank" rel="noopener"><span class="vil">Lien</span><span class="viv">Rejoindre</span></a>':'')+(d.who?'<div class="vir"><span class="vil">Avec</span><span class="viv">'+esc(d.who)+'</span></div>':'')
+      +(d.l?'<div class="vact" style="padding:10px 0 0"><a class="vab" href="https://www.google.com/maps/dir/?api=1&amp;destination='+encodeURIComponent(d.l)+'" target="_blank" rel="noopener">'+PIN2+'Itinéraire</a></div>':'')+'</div>'}
+  h+='<p class="sub hsubc" style="margin-top:18px">Partagé depuis « Mon emploi du temps » · mis à jour le '+new Date(r.updated_at).toLocaleDateString('fr-FR',{day:'numeric',month:'long'})+'</p></div>';A.innerHTML=h}
+
+/* ===== Notes verrouillées : Face ID / Touch ID (WebAuthn, clé propre à cet appareil) ===== */
+const NLOCK='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9.5" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const waB64=a=>btoa(String.fromCharCode(...new Uint8Array(a))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),waUB64=s0=>Uint8Array.from(atob(s0.replace(/-/g,'+').replace(/_/g,'/')+'==='.slice((s0.length+3)%4)),c=>c.charCodeAt(0));
+async function waVerify(setup){if(!window.PublicKeyCredential||!navigator.credentials){noteToast('Face ID n’est pas disponible sur cet appareil');return false}
+  const ch=crypto.getRandomValues(new Uint8Array(32));let id=null;try{id=localStorage.getItem('edt-wa')}catch(e){}
+  const create=async()=>{const c=await navigator.credentials.create({publicKey:{challenge:ch,rp:{name:'Mon emploi du temps',id:location.hostname},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:(typeof UEMAIL!=='undefined'&&UEMAIL)||'moi',displayName:'Notes verrouillées'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000}});try{localStorage.setItem('edt-wa',waB64(c.rawId))}catch(e){}return true};
+  try{if(!id)return await create();await navigator.credentials.get({publicKey:{challenge:ch,rpId:location.hostname,allowCredentials:[{type:'public-key',id:waUB64(id),transports:['internal']}],userVerification:'required',timeout:60000}});return true}
+  catch(e){if(id&&e&&e.name!=='NotAllowedError'){try{return await create()}catch(e2){}}if(id&&e&&e.name==='NotAllowedError'&&!V.waRetry){V.waRetry=1;noteToast('Déverrouillage annulé · réessaie');setTimeout(()=>{V.waRetry=0},4000);return false}
+    if(e&&e.name==='NotAllowedError'&&V.waRetry){if(confirm('Face ID ne reconnaît pas cet appareil. Le configurer à nouveau ?')){try{localStorage.removeItem('edt-wa')}catch(_){}try{return await create()}catch(e3){}}}noteToast('Déverrouillage impossible');return false}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){V.nun={};const n0=V.nid&&NS().l.find(x=>x.id===V.nid);if(n0&&n0.lk){V.nid=null;try{render()}catch(e){}}}});
+/* ===== Prochain rendez-vous ===== */
+const tsOf=(k,h)=>{const [y,m,d]=k.split('-').map(Number),[hh,mm]=(h||'00:00').split(':').map(Number);return new Date(y,m-1,d,hh,mm).getTime()};
+const durMin=du=>{if(!du)return 60;const m=/(\d+)\s*h\s*(\d+)?/.exec(du);if(m)return (+m[1])*60+(+(m[2]||0));const n=/(\d+)\s*min/.exec(du);return n?+n[1]:60};
+function nextItems(){const now=Date.now(),out=[],ks=[TODAY,key(add(new Date(),1))];
+  ks.forEach(k=>{((S.days[k]||{}).r||[]).forEach((x,i)=>{if(!x.h||!x.x)return;const st=tsOf(k,x.h),en=st+durMin(x.du)*6e4;if(en<now)return;out.push({k,i,st,en,c:x.c,ti:x.x,h:x.h,h2:endOf(x.h,x.du),l:x.tele?'':x.l,lk:x.tele?x.lk:'',tl:x.tele?TL(x):'',tel:x.tel})});
+    S.vac.forEach((v,vi)=>vLegs(v).forEach(t=>{if(t.d!==k||!t.h)return;const st=tsOf(k,t.h);if(st+30*6e4<now)return;out.push({k,vi,st,en:st+30*6e4,c:'Vacances',lab:t.k,ti:((t.m||[]).join(' + ')||t.k)+(legTo(v,t)?' → '+short(legTo(v,t)):''),h:t.h,l:t.f||''})}));
+    (typeof extOn==='function'?extOn(k):[]).forEach(e=>{if(!e.h)return;const st=tsOf(k,e.h),en=e.h2?tsOf(k,e.h2):st+36e5;if(en<now)return;out.push({k,st,en,c:'Agenda',col:e.col,lab:e.cal,ti:e.ti,h:e.h,h2:e.h2,l:e.l})})});
+  return out.filter(o=>o.st-now<24*36e5).sort((a,b)=>a.st-b.st)}
+const inTxt=o=>{const now=Date.now(),m=Math.round((o.st-now)/6e4);if(m<=0)return 'En cours'+(o.h2?' · fin à '+HM(o.h2):'');if(o.k!==TODAY)return 'Demain à '+HM(o.h);if(m<60)return 'Dans '+m+' min';const h=Math.floor(m/60),r=m%60;return 'Dans '+h+' h'+(r?' '+String(r).padStart(2,'0'):'')};
+function nextHTML(){const L=nextItems();if(!L.length)return '';const o=L[0],col=o.col||C[o.c]||'#8e8e93';
+  const acts=(o.l?'<a class="vab" href="https://www.google.com/maps/dir/?api=1&amp;destination='+encodeURIComponent(o.l)+'" target="_blank" rel="noopener">'+PIN2+'Itinéraire</a>':'')+(o.lk?'<a class="vab" href="'+esc(urlOf(o.lk))+'" target="_blank" rel="noopener">Rejoindre</a>':'')+(o.tel?'<a class="vab" href="tel:'+esc(o.tel.replace(/[^\d+]/g,''))+'">Appeler</a>':'');
+  const more=L.length>1?'<div class="nxo">Ensuite : '+L.slice(1,3).map(q=>(q.k!==TODAY?'demain ':'')+HM(q.h)+' '+esc(q.ti)).join(' · ')+'</div>':'';
+  return '<div class="card nxc" style="--c:'+col+'"><h2 class="hh"><span>Prochain rendez-vous</span><span class="hha"><button class="hide" data-a="shw" data-k="next">Masquer</button></span></h2>'
+    +'<div class="nxm"'+(o.i!==undefined?' data-a="day" data-d="'+o.k+'"':o.vi!==undefined?' data-a="vso" data-i="'+o.vi+'"':'')+'><div class="nxt" data-nxts="'+o.st+'" data-nxen="'+o.en+'" data-nxk="'+o.k+'" data-nxh="'+(o.h||'')+'" data-nxh2="'+(o.h2||'')+'">'+inTxt(o)+'</div>'+HEAD(o.h,o.h2,o.lab||o.c,o.ti,o.c).replace('<span class="hl" '+sty(o.c),'<span class="hl" style="--c:'+col+'"')+((o.l||o.tl)?'<div class="nxl">'+esc(o.tl||o.l)+'</div>':'')+'</div>'+(acts?'<div class="vact nxa">'+acts+'</div>':'')+more+'</div>'}
+setInterval(()=>{document.querySelectorAll('[data-nxts]').forEach(el=>{const o={st:+el.dataset.nxts,k:el.dataset.nxk,h:el.dataset.nxh,h2:el.dataset.nxh2};if(Date.now()>+el.dataset.nxen){try{render()}catch(e){}return}el.textContent=inTxt(o)})},30000);
 /* Éphéméride : ce qui s'est passé à cette date (Wikipédia) */
 const OTD={};
 const otdKey=d=>(S.lang==='en'?'en':'fr')+':'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
@@ -1406,7 +1535,7 @@ const gcol=k=>(GT.find(g=>g[0]===k)||[])[3]||'#8e8e93';
 const CSH={l:'Leclerc',m:'Marché',o:'Autre courses'};
 const courseText=cs=>{const A=(S.g.c||[]).filter(x=>!x.f&&!x.cx&&(x.sh||'o')===cs);return A.length?'🛒 Courses · '+CSH[cs]+'\n'+A.map(x=>'• '+x.x).join('\n'):''};
 function noteToast(t){const e=$('#toast');if(!e)return;e.innerHTML='<span>'+esc(t)+'</span>';e.hidden=false;clearTimeout(window.__nt);window.__nt=setTimeout(()=>{if(!e.querySelector('[data-a=undo]'))e.hidden=true},2600)}
-async function shareEv(k,i){const x=S.days[k]&&S.days[k].r[+i];if(!x)return;
+async function shareEv(k,i){const x=S.days[k]&&S.days[k].r[+i];if(!x)return;return shareLink('rdv',x,rdvShareData(k,x),x.x,x.x);
   const dt=parse(k).toLocaleDateString(LOC(),{weekday:'long',day:'numeric',month:'long'});
   const L=[x.x,dt.charAt(0).toUpperCase()+dt.slice(1)+(x.h?' à '+x.h.replace(':','h'):'')+(x.du?' ('+x.du+')':'')];
   if(x.tele)L.push(TL(x)+(x.lk?' : '+x.lk:''));else if(x.l)L.push(x.l);
@@ -1452,7 +1581,7 @@ const PIN='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="c
 function vNotes(){const N=NS();
   if(V.nid){const n=N.l.find(x=>x.id===V.nid);if(!n){V.nid=null;return vNotes()}
     const fo=N.f.map(f=>'<option value="'+f.k+'"'+(n.f===f.k?' selected':'')+'>'+esc(f.n)+'</option>').join('');
-    return '<div class="nbar"><button class="nback" data-a="nclose">‹ '+esc(V.nf===null||V.nf===undefined?'Notes':((N.f.find(f=>f.k===V.nf)||{}).n||'Général'))+'</button><span class="nact"><button class="nic'+(n.p?' on':'')+'" data-a="npin" title="Épingler">'+PIN+'</button><button class="nic" data-a="nshare" title="Partager"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button><button class="nic" data-a="ndel1" title="Supprimer" style="color:#ff3b30"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button></span></div>'
+    return '<div class="nbar"><button class="nback" data-a="nclose">‹ '+esc(V.nf===null||V.nf===undefined?'Notes':((N.f.find(f=>f.k===V.nf)||{}).n||'Général'))+'</button><span class="nact"><button class="nic'+(n.lk?' on':'')+'" data-a="nlock" title="Verrouiller">'+NLOCK+'</button><button class="nic'+(n.p?' on':'')+'" data-a="npin" title="Épingler">'+PIN+'</button><button class="nic" data-a="nshare" title="Partager"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button><button class="nic" data-a="ndel1" title="Supprimer" style="color:#ff3b30"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button></span></div>'
      +'<div class="nmeta"><span>'+nDate(n.u)+'</span><label class="nmv">Dossier <select data-nmove="'+n.id+'"><option value="">Aucun</option>'+fo+'</select></label></div>'
      +'<input class="ntitle" data-ntitle="'+n.id+'" placeholder="Nom de la note" value="'+esc(n.ti||'')+'" autocomplete="off"><textarea class="nedit tna" data-note="'+n.id+'" placeholder="Écris ta note…">'+esc(n.t||'')+'</textarea>'
      +'<div class="natt">'+(n.a||[]).map(f=>'<div class="nat">'+(/^image\//.test(f.t||'')?'<a href="#" data-fid="'+esc(f.id)+'" class="nimg"><img data-nimg="'+esc(f.id)+'" alt=""></a>':'<a href="#" data-fid="'+esc(f.id)+'" class="nfile">'+CLIP+'<span>'+esc(f.n)+'</span></a>')+'<button class="natx" data-a="natx" data-id="'+esc(f.id)+'" aria-label="Retirer">'+XSVG+'</button></div>').join('')+'</div>'
@@ -1460,11 +1589,11 @@ function vNotes(){const N=NS();
   const q=nz(V.nq||'').trim(),home=V.nf===null||V.nf===undefined,cur=V.nf||'';
   const IX=new Map(N.l.map((n,i)=>[n,i])),inF=(n,k)=>k?n.f===k:!(n.f&&N.f.some(f=>f.k===n.f));
   const FIC=c=>'<span class="nfi" style="--fc:'+c+'"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h4l2 2h7A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/></svg></span>';
-  const row=n=>'<div class="tk nrow" data-ci="'+IX.get(n)+'" data-rs="notes" style="--fc:'+(home&&n.f?nfc(n.f):'transparent')+'"><button hidden class="swdel" data-a="nodel" data-id="'+n.id+'"></button><div class="it"><button class="nopen" data-a="nopen" data-id="'+n.id+'"><b>'+(n.p?'<span class="npin">'+PIN+'</span>':'')+esc(nTitle(n))+((n.a||[]).length?'<span class="nclip">'+CLIP+'</span>':'')+'</b><small><span class="ndt">'+nDate(n.u)+'</span>'+esc(((n.ti?(n.t||''):(n.t||'').split('\n').slice(1).join(' '))||'').replace(/\s+/g,' ').trim().slice(0,90)||(home&&n.f&&N.f.find(f=>f.k===n.f)?esc(N.f.find(f=>f.k===n.f).n):'Pas de texte'))+'</small></button><span class="nchev">›</span></div></div>';
+  const row=n=>'<div class="tk nrow" data-ci="'+IX.get(n)+'" data-rs="notes" style="--fc:'+(home&&n.f?nfc(n.f):'transparent')+'"><button hidden class="swdel" data-a="nodel" data-id="'+n.id+'"></button><div class="it"><button class="nopen" data-a="nopen" data-id="'+n.id+'"><b>'+(n.p?'<span class="npin">'+PIN+'</span>':'')+(n.lk?'<span class="nlk">'+NLOCK+'</span>':'')+esc(n.lk&&!n.ti?'Note verrouillée':nTitle(n))+((n.a||[]).length?'<span class="nclip">'+CLIP+'</span>':'')+'</b><small><span class="ndt">'+nDate(n.u)+'</span>'+(n.lk?'Note verrouillée':esc(((n.ti?(n.t||''):(n.t||'').split('\n').slice(1).join(' '))||'').replace(/\s+/g,' ').trim().slice(0,90)||(home&&n.f&&N.f.find(f=>f.k===n.f)?esc(N.f.find(f=>f.k===n.f).n):'Pas de texte')))+'</small></button><span class="nchev">›</span></div></div>';
   const fab='<button class="nfab" data-a="nnew" aria-label="Nouvelle note"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>';
   if(home){
     let h='<h1 class="hc1">Notes</h1><div class="srch"><input type="search" id="nq" placeholder="Rechercher dans toutes les notes" value="'+esc(V.nq||'')+'" autocomplete="off"></div>';
-    if(q){const L=N.l.filter(n=>nHas(n)&&nz((n.ti||'')+' '+(n.t||'')).includes(q));return h+'<div class="nsec">Résultats</div><div class="card nlist">'+(L.length?L.map(row).join(''):'<div class="em">Aucune note trouvée</div>')+'</div>'}
+    if(q){const L=N.l.filter(n=>nHas(n)&&nz((n.ti||'')+' '+(n.lk?'':(n.t||''))).includes(q));return h+'<div class="nsec">Résultats</div><div class="card nlist">'+(L.length?L.map(row).join(''):'<div class="em">Aucune note trouvée</div>')+'</div>'}
     const cnt=k=>N.l.filter(n=>nHas(n)&&inF(n,k)).length;
     const frow=(k,n,c)=>'<button class="nfrow" data-a="nfold" data-k="'+k+'">'+FIC(c)+'<span class="nfn">'+esc(n)+'</span><span class="nfc">'+cnt(k)+'</span><span class="nchev">›</span></button>';
     h+='<div class="nsec">Dossiers</div><div class="card nfl2">'+frow('','Général','#ffb800')+N.f.map(f=>frow(f.k,f.n,f.c)).join('')
@@ -1660,7 +1789,7 @@ function regHome(){const em=typeof UEMAIL!=='undefined'?UEMAIL:'',th={auto:'Auto
   return h}
 function regPage(p){const P=regParts(),cf=S.cfg||{};let h='<h1 class="hc1 rph1">'+RPN[p]+'</h1>';
   if(p==='work')return h+P.work;
-  if(p==='calrem')return h+P.rem+P.cal;
+  if(p==='calrem')return h+P.rem+P.cal+extCard();
   if(p==='lieux')return h+P.home+P.geo+'<div class="card"><h2>Itinéraires</h2><p class="sub" style="margin:0 0 10px">Application ouverte pour les adresses et les trajets.</p>'+segH('maps',cf.maps||'g',[['g','Google Maps'],['a','Plans (Apple)']])+'</div>';
   if(p==='lang')return h+P.lang;
   if(p==='compte')return h+'<p class="sub hsubc">Connecté : '+esc(typeof UEMAIL!=='undefined'?UEMAIL:'')+'</p>'+P.bak+P.acc;
@@ -1690,7 +1819,7 @@ const CAT0=[['Médical','Rdv médical'],['Meeting','Meeting'],['Resto','Restaura
 const catAll=()=>{const n=(S.cats&&S.cats.n)||{},c=(S.cats&&S.cats.c)||{};return CAT0.map(([k,d])=>({k,n:n[k]||d,c:c[k]||C0[k],cust:0})).concat(((S.cats&&S.cats.x)||[]).map(o=>({k:o.k,n:o.n,c:o.c,cust:1})))};
 const CN=k=>{const n=S.cats&&S.cats.n;if(n&&n[k])return n[k];const x=((S.cats&&S.cats.x)||[]).find(o=>o.k===k);return x?x.n:k};
 const custCats=()=>((S.cats&&S.cats.x)||[]);
-const applyCats=()=>{Object.keys(C0).forEach(k=>{C[k]=C0[k]});const c=(S.cats&&S.cats.c)||{};Object.keys(c).forEach(k=>{if(c[k])C[k]=c[k]});custCats().forEach(o=>{C[o.k]=o.c})};
+const applyCats=()=>{Object.keys(C0).forEach(k=>{C[k]=C0[k]});const c=(S.cats&&S.cats.c)||{};Object.keys(c).forEach(k=>{if(c[k])C[k]=c[k]});custCats().forEach(o=>{C[o.k]=o.c});((S.ext&&S.ext.c)||[]).forEach(c=>{C['ext:'+c.id]=c.col})};
 const applyLook=()=>{const r=document.documentElement,cf=S.cfg||{};const th=cf.theme||'auto';if(th==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',th);
   if(cf.ac&&cf.ac!=='#007aff')r.style.setProperty('--ac',cf.ac);else r.style.removeProperty('--ac');
   r.style.webkitTextSizeAdjust=r.style.textSizeAdjust={n:'100%',l:'112%',xl:'125%'}[cf.fs||'n'];r.classList.toggle('fsl',cf.fs==='l');r.classList.toggle('fsxl',cf.fs==='xl')};
@@ -1704,7 +1833,7 @@ function vSuivi(){
   const sec=(t,a,c)=>'<div class="card" '+sty('Médical')+'><h2>'+t+' · '+a.length+'</h2>'+(a.length?(c?a.slice().reverse():a).map(row).join(''):'<div class="em">Rien ici</div>')+'</div>';
   return '<h1>Suivi médical</h1><p class="sub">Tous vos rendez-vous médicaux, avec facture et suivi</p>'+sec('À traiter',todo,1)+sec('À venir',up)+sec('Terminé',fin,1);
 }
-const DEL={nodel:'Note supprimée',ndel1:'Note supprimée',nfdel:'Dossier supprimé',gdel:'Rubrique supprimée',dtx:'Tâche supprimée',gtx:'Tâche supprimée',drx:'Rendez-vous supprimé',evx:'Rendez-vous annulé',ddx:'Date supprimée',vx:'Vacances supprimées',vpx:'Élément supprimé',bagx:'Élément supprimé',wx:'Horaire supprimé',cclear:'Articles effacés'};
+const DEL={nodel:'Note supprimée',ndel1:'Note supprimée',nfdel:'Dossier supprimé',gdel:'Rubrique supprimée',dtx:'Tâche supprimée',gtx:'Tâche supprimée',drx:'Rendez-vous supprimé',evx:'Rendez-vous supprimé',vlegx:'Trajet supprimé',vstx:'Destination supprimée',vtdel:'Trajet supprimé',vsdel:'Destination supprimée',cdel:'Élément supprimé',ddx:'Date supprimée',vx:'Vacances supprimées',vpx:'Élément supprimé',bagx:'Élément supprimé',wx:'Horaire supprimé',cclear:'Articles effacés'};
 let UNDO=null,UT=null;
 const qdel=id=>{if(UNDO)UNDO.ids.push(id);else delAsset(id)};
 const hideToast=()=>{const e=$('#toast');if(e){e.hidden=true;e.innerHTML=''}};
@@ -1759,7 +1888,7 @@ document.addEventListener('click',e=>{
   const a=b.dataset.a,i=+b.dataset.i,s=b.dataset.s,k=key(V.d),v=id=>($(id)||{}).value||'';
   if(DEL[a]){finalizeUndo();UNDO={snap:JSON.stringify(S),label:DEL[a],ids:[]}}
   if(V.edit&&a!=='edsave'&&a!=='sgpick'&&!b.closest('.ef'))V.edit=null;
-  if(a==='tab'){if(b.dataset.t==='reg'&&V.tab!=='reg'){V.ptab=V.tab;V.rp=null}if(V.tab==='notes')notesClean();V.tab=b.dataset.t;V.nid=null;if(V.tab==='jour'||V.tab==='semaine'||V.tab==='mois')setD(new Date());V.qa=null;V.cat=null;V.ev=null;V.jp=false}
+  if(a==='tab'){V.nun={};if(b.dataset.t==='reg'&&V.tab!=='reg'){V.ptab=V.tab;V.rp=null}if(V.tab==='notes')notesClean();V.tab=b.dataset.t;V.nid=null;if(V.tab==='jour'||V.tab==='semaine'||V.tab==='mois')setD(new Date());V.qa=null;V.cat=null;V.ev=null;V.jp=false}
   else if(a==='day'){setD(parse(b.dataset.d));V.tab='jour';V.sc=b.dataset.sc||1}
   else if(a==='wk'){setD(parse(b.dataset.d));V.tab='semaine'}
   else if(a==='mo'){V.d=new Date(V.d.getFullYear(),+b.dataset.m,1);V.tab='mois'}
@@ -1784,8 +1913,8 @@ document.addEventListener('click',e=>{
   else if(a==='vbag'){const n=+b.dataset.i;V.vbag=V.vbag===n?null:n}
   else if(a==='vse'){V.vse=+b.dataset.i}
   else if(a==='vecancel'){V.vse=null;V.vte=null;V.vst=null;V.segk=null;if(V.sg)V.sg.leg=null}
-  else if(a==='vlegx'){const v0=S.vac[+b.dataset.i],w=+b.dataset.w;if(v0&&v0.tr&&v0.tr[w]){const t0=v0.tr.splice(w,1)[0];(t0.df||[]).forEach(f=>qdel(f.id));save();render();noteToast('Trajet supprimé')}return}
-  else if(a==='vstx'){const v0=S.vac[+b.dataset.i],w=+b.dataset.s;if(v0&&v0.st&&v0.st[w]){v0.st.splice(w,1);save();render();noteToast('Étape supprimée')}return}
+  else if(a==='vlegx'){const v0=S.vac[+b.dataset.i],w=+b.dataset.w;if(v0&&v0.tr&&v0.tr[w]){const t0=v0.tr.splice(w,1)[0];(t0.df||[]).forEach(f=>qdel(f.id));save();render();showToast()}return}
+  else if(a==='vstx'){const v0=S.vac[+b.dataset.i],w=+b.dataset.s;if(v0&&v0.st&&v0.st[w]){v0.st.splice(w,1);save();render();showToast()}return}
   else if(a==='qdadd'){const box=$('#qdst');if(!box)return;const rows=box.querySelectorAll('.qdr'),last=rows[rows.length-1],a0=(last&&last.querySelector('[data-qd=a]').value)||($('#qd')||{}).value||'',b0=($('#qe')||{}).value||a0;
     const d=document.createElement('div');d.className='qdr';d.innerHTML='<div class="qdrh"><input type="text" data-qd="l" placeholder="Destination suivante (ex. Lyon)" autocomplete="off"><button class="vsegx" data-a="qdx" aria-label="Retirer">×</button></div><div class="vtd"><label class="fld"><span>Du</span><input type="date" data-qd="a" value="'+a0+'" min="'+(($('#qd')||{}).value||'')+'"></label><label class="fld"><span>au</span><input type="date" data-qd="b" value="'+b0+'"></label></div>';box.appendChild(d);d.querySelector('input').focus();return}
   else if(a==='qdx'){const r=b.closest('.qdr');if(r)r.remove();return}
@@ -1794,18 +1923,27 @@ document.addEventListener('click',e=>{
     else if(p[0]==='t'){const L=(S.days[p[1]]||{}).t;if(L&&L[+p[2]]){L.splice(+p[2],1);lab='Tâche supprimée'}}
     else if(p[0]==='g'){const L=S.g[p[1]];if(L&&L[+p[2]]){L.splice(+p[2],1);lab='Tâche supprimée'}}
     else if(p[0]==='d'){if(S.dates[+p[1]]){S.dates.splice(+p[1],1);lab='Anniversaire supprimé'}}
-    else if(p[0]==='v'){const v0=S.vac[+p[1]];if(v0){if(!confirm('Supprimer les vacances « '+(v0.l||'Vacances')+' » ?')){render();return}S.vac.splice(+p[1],1);vacAssets(v0).forEach(qdel);V.vso=null;lab='Vacances supprimées'}}
-    save();render();if(lab)noteToast(lab);return}
+    else if(p[0]==='v'){const v0=S.vac[+p[1]];if(v0){S.vac.splice(+p[1],1);vacAssets(v0).forEach(qdel);V.vso=null;lab='Vacances supprimées'}}
+    if(UNDO&&lab)UNDO.label=lab;save();render();showToast();return}
+  else if(a==='exnew'){V.exnew=!V.exnew;V.exc=null}
+  else if(a==='excol'){const n=v('#exn'),u=v('#exu');V.exc=b.dataset.c;render();$('#exn').value=n;$('#exu').value=u;return}
+  else if(a==='exadd'){const n=(v('#exn')||'').trim()||'Agenda',u=(v('#exu')||'').trim(),m=$('#exmsg');if(!/^(https?|webcals?):\/\//i.test(u)){m.textContent='Colle le lien iCal de ton agenda.';return}
+    S.ext=S.ext||{c:[]};const c={id:'x'+Date.now().toString(36),n,u,col:V.exc||'#5856d6',ev:[],ts:0};m.textContent='Connexion à l’agenda…';
+    extSync(c,1).then(ok=>{if(ok){S.ext.c.push(c);V.exnew=false;save();render();noteToast('✓ '+c.ev.length+' événements importés')}else{const mm=$('#exmsg');if(mm)mm.textContent=c.err||'Agenda inaccessible'}});return}
+  else if(a==='exsync'){const c=S.ext.c[+b.dataset.i];if(c){noteToast('Actualisation…');extSync(c).then(ok=>{if(ok)noteToast('✓ Agenda à jour')})}return}
+  else if(a==='exoff'){const c=S.ext.c[+b.dataset.i];if(c)c.off=c.off?0:1}
+  else if(a==='exdel'){const c=S.ext.c[+b.dataset.i];if(c&&confirm('Retirer l’agenda « '+c.n+' » de l’appli ?'))S.ext.c.splice(+b.dataset.i,1)}
+  else if(a==='vshare'){const v0=S.vac[+b.dataset.i];if(v0)shareLink('vac',v0,vacShareData(v0),'Vacances · '+(v0.l||''),'Mes vacances à '+(v0.l||'')+' : trajets et logements');return}
   else if(a==='vte'){V.vte={vi:+b.dataset.i,w:b.dataset.w};V.vse=null;V.vst=null;V.segk=null;if(V.sg)V.sg.leg=null}
   else if(a==='segadd'){readSegs();const k=b.dataset.k,L=V.sg[k],q=L[L.length-1]||{};L.push(segNew('Bus',q.to||''));segRedraw(k);return}
   else if(a==='segx'){readSegs();const k=b.dataset.k;V.sg[k].splice(+b.dataset.i,1);segRedraw(k);return}
   else if(a==='vsted'){V.vst={vi:+b.dataset.i,i:b.dataset.s};V.vse=null;V.vte=null}
   else if(a==='vtsave'){saveLeg(b,+b.dataset.i);return}
   else if(a==='vssave'){saveStay(+b.dataset.i);return}
-  else if(a==='vtdel'){const v0=S.vac[+b.dataset.i];if(v0&&V.vte&&confirm('Supprimer ce trajet ?')){v0.tr.splice(+V.vte.w,1);V.vte=null}}
-  else if(a==='vsdel'){const v0=S.vac[+b.dataset.i];if(v0&&V.vst&&confirm('Supprimer cette étape ?')){v0.st.splice(+V.vst.i,1);V.vst=null}}
+  else if(a==='vtdel'){const v0=S.vac[+b.dataset.i];if(v0&&V.vte){v0.tr.splice(+V.vte.w,1);V.vte=null}}
+  else if(a==='vsdel'){const v0=S.vac[+b.dataset.i];if(v0&&V.vst){v0.st.splice(+V.vst.i,1);V.vst=null}}
   else if(a==='vesave'){saveVac(b,+b.dataset.i);return}
-  else if(a==='vx'){if(!confirm('Supprimer ces vacances ?'))return;V.vso=null;const v0=S.vac.splice(i,1)[0];if(v0)vacAssets(v0).forEach(qdel)}
+  else if(a==='vx'){V.vso=null;const v0=S.vac.splice(i,1)[0];if(v0)vacAssets(v0).forEach(qdel)}
   else if(a==='adg'){const x=v('#g'+s).trim(),d=v('#gd'),nt=v('#gn').trim(),it={x,f:0};if(d)it.d=d;if(nt)it.nt=nt;const rc=v('#gr');if(rc)it.rc=rc;const ra=remVal('gra',d);if(ra)it.ra=ra;if(s==='c')it.sh=V.cs||'l';if(x){S.g[s].push(it);if(s!=='c')V.tadd=null}}
   else if(a==='cs')V.cs=s;
   else if(a==='gopt'){const el=$('#gx');if(el)el.hidden=!el.hidden;return}
@@ -1908,7 +2046,8 @@ document.addEventListener('click',e=>{
   else if(a==='taddo'){V.tadd=b.dataset.s;render();setTimeout(()=>{const e=$(V.tadd==='d'?'#ti':'#g'+V.tadd);if(e)e.focus()},60);return}
   else if(a==='taddx'){V.tadd=null}
   else if(a==='nnew'){const N=NS(),id='n'+Date.now().toString(36);N.l.unshift({id,f:(V.nf&&V.nf!=='')?V.nf:'',ti:'',t:'',u:Date.now()});V.nid=id;render();setTimeout(()=>{const e=document.querySelector('.ntitle');if(e)e.focus()},60);return}
-  else if(a==='nopen'){V.nid=b.dataset.id;render();window.scrollTo(0,0);return}
+  else if(a==='nopen'){const id=b.dataset.id,n0=NS().l.find(x=>x.id===id);if(n0&&n0.lk&&!(V.nun||{})[id]){waVerify().then(ok=>{if(ok){V.nun=V.nun||{};V.nun[id]=1;V.nid=id;render();window.scrollTo(0,0)}});return}V.nid=id;render();window.scrollTo(0,0);return}
+  else if(a==='nlock'){const n0=NS().l.find(x=>x.id===V.nid);if(!n0)return;if(n0.lk){n0.lk=0;save();render();noteToast('Note déverrouillée');return}waVerify(1).then(ok=>{if(ok){n0.lk=1;V.nun=V.nun||{};V.nun[n0.id]=1;save();render();noteToast('🔒 Note verrouillée par Face ID')}});return}
   else if(a==='nclose'){notesClean();V.nid=null}
   else if(a==='npin'){const n=NS().l.find(x=>x.id===V.nid);if(n){n.p=n.p?0:1;save()}}
   else if(a==='nshare'){const n=NS().l.find(x=>x.id===V.nid);if(!n||!nHas(n))return;const tx=[(n.ti||'').trim(),n.t||''].filter(Boolean).join('\n\n');let pr;try{pr=navigator.share({text:tx})}catch(e2){pr=Promise.reject(e2)}pr.catch(e2=>{if(e2&&e2.name==='AbortError')return;copyTxt(tx)});return}
@@ -2113,14 +2252,14 @@ fdel=async id=>{await _fdel(id);if(UID)sb.storage.from('files').remove([fp(id)])
 
 /* --- démarrage --- */
 sb.auth.onAuthStateChange((ev,ses)=>{if(ev==='PASSWORD_RECOVERY'){show('auth',1);show('aform',0);show('anew',1);$('#asub').textContent='Choisis un nouveau mot de passe.'}});
-(async()=>{let ses=null;try{ses=(await sb.auth.getSession()).data.session}catch(e){}
+(async()=>{if(SHID){showShare(SHID);return}let ses=null;try{ses=(await sb.auth.getSession()).data.session}catch(e){}
   if(location.hash&&/type=recovery/.test(location.hash))return;
   if(!ses){if(UID&&!navigator.onLine){start();return}show('auth',1);return}
   if(ses.user.id!==UID){location.replace(back);return}
   if(location.hash||location.search)history.replaceState(null,'',back);
   UEMAIL=ses.user.email||UEMAIL;start()})();
-async function start(){show('auth',0);render();await pull();if(!S.cfg)openCfg()}
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&UID&&navigator.onLine)pull()});
+async function start(){show('auth',0);render();await pull();if(!S.cfg)openCfg();extRefresh()}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&UID&&navigator.onLine){pull();extRefresh()}});
 })();
 
 /* Ouvre Google Maps dans l'application sur iPhone (repli sur le site si l'appli n'est pas installée) */
