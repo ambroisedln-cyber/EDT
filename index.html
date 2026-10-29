@@ -839,6 +839,7 @@ html.fsl .hl,html.fsl .otdt,html.fsl .nrow .nopen b{font-size:17px}
 .ef .vdel{margin-top:10px}
 .vtrip .vact{padding:2px 0 2px 0;margin-top:6px}
 .swp{position:relative;margin:6px 0;border-radius:12px}
+.swp>.it.c.swi{display:flex}
 .swp>.swi{touch-action:pan-y;position:relative;z-index:1;margin:0!important}
 .vsheet .swp{margin:0 0 6px}
 .tk{position:relative}
@@ -1332,11 +1333,11 @@ const CATL={Meeting:'Meetings',Médical:'Rendez-vous médicaux',Resto:'Restauran
 function catItems(cat,y,m,yr){
   const ym=y+'-'+pad(m+1),ok=k=>yr?k.slice(0,4)===String(y):k.slice(0,7)===ym,R=[];
   Object.keys(S.days).sort().forEach(k=>{if(!ok(k))return;const d=S.days[k];
-    d.r.forEach(x=>{if(x.c===cat)R.push({k,t:x.x,hd:HEAD(x.h,endOf(x.h,x.du),x.c,x.x,x.c)+((x.tele||x.l)?'<small class="hsub">'+esc(x.tele?TL(x):x.l)+'</small>':'')})});
-    if(cat==='Tâche')d.t.forEach(x=>{if(!x.f&&!x.cx)R.push({k,t:x.x})})});
-  if(cat==='Tâche')Object.keys(S.g).forEach(s=>(S.g[s]||[]).forEach(x=>{if(x.d&&ok(x.d)&&!x.f&&!x.cx)R.push({k:x.d,t:x.x})}));
-  if(cat==='Date')S.dates.forEach(x=>{const k=x.rec?y+'-'+x.d.slice(5):x.d;if(ok(k))R.push({k,t:(x.rec?'':'')+x.n})});
-  if(cat==='Vacances')S.vac.forEach(x=>{if(yr?(x.a.slice(0,4)<=String(y)&&x.b.slice(0,4)>=String(y)):(x.a.slice(0,7)<=ym&&x.b.slice(0,7)>=ym))R.push({k:x.a,t:x.l||'Vacances',dt:'<span class="vdt">'+fdate(x.a)+'<i>–</i>'+fdate(x.b)+'</span>'})});
+    d.r.forEach((x,i)=>{if(x.c===cat)R.push({k,dl:'r|'+k+'|'+i,t:x.x,hd:HEAD(x.h,endOf(x.h,x.du),x.c,x.x,x.c)+((x.tele||x.l)?'<small class="hsub">'+esc(x.tele?TL(x):x.l)+'</small>':'')})});
+    if(cat==='Tâche')d.t.forEach((x,i)=>{if(!x.f&&!x.cx)R.push({k,dl:'t|'+k+'|'+i,t:x.x})})});
+  if(cat==='Tâche')Object.keys(S.g).forEach(s=>(S.g[s]||[]).forEach((x,i)=>{if(x.d&&ok(x.d)&&!x.f&&!x.cx)R.push({k:x.d,dl:'g|'+s+'|'+i,t:x.x})}));
+  if(cat==='Date')S.dates.forEach((x,i)=>{const k=x.rec?y+'-'+x.d.slice(5):x.d;if(ok(k))R.push({k,dl:'d|'+i,t:(x.rec?'':'')+x.n})});
+  if(cat==='Vacances')S.vac.forEach((x,vi)=>{if(yr?(x.a.slice(0,4)<=String(y)&&x.b.slice(0,4)>=String(y)):(x.a.slice(0,7)<=ym&&x.b.slice(0,7)>=ym))R.push({k:x.a,dl:'v|'+vi,t:x.l||'Vacances',dt:'<span class="vdt">'+fdate(x.a)+'<i>–</i>'+fdate(x.b)+'</span>'})});
   if(cat==='Férié')Object.entries(HOL(y)).forEach(([k,n])=>{if(ok(k))R.push({k,t:''+n})});
   return R.sort((a,b)=>a.k.localeCompare(b.k));
 }
@@ -1382,7 +1383,7 @@ function vMois(){
   let h=nv(MOIS[m]+' '+y,'Touchez un jour, une semaine ou une pastille')+'<div class="card"><h2>Ajouter à votre planning</h2>'+qaChips()+'</div>'+(V.qa?qaCard():'')+'<div class="card">'+grid(y,m,false)+'</div>';
   h+=catLegend();
   if(V.cat){const R=catItems(V.cat,y,m,V.catYr);
-    h+='<div class="card" '+sty(V.cat)+'><h2>'+esc((S.cats&&S.cats.n&&S.cats.n[V.cat])||CATL[V.cat]||CN(V.cat))+' · '+(V.catYr?y:MOIS[m]+' '+y)+' · '+R.length+'</h2><div class="lg" style="margin-bottom:6px"><button class="chip" data-a="catyr" style="--c:#8e8e93">'+(V.catYr?'Voir ce mois':'Voir toute l’année')+'</button><button class="chip" data-a="cat" data-c="'+V.cat+'" style="--c:#8e8e93">Fermer</button></div>'+(R.length?R.map(r=>'<button class="it c" data-a="day" data-d="'+r.k+'" style="--c:'+C[V.cat]+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+(r.dt||fdate(r.k))+'</span><span class="t">'+(r.hd||esc(r.t))+'</span></button>').join(''):'<div class="em">Rien pour cette catégorie</div>')+'</div>';
+    h+='<div class="card" '+sty(V.cat)+'><h2>'+esc((S.cats&&S.cats.n&&S.cats.n[V.cat])||CATL[V.cat]||CN(V.cat))+' · '+(V.catYr?y:MOIS[m]+' '+y)+' · '+R.length+'</h2><div class="lg" style="margin-bottom:6px"><button class="chip" data-a="catyr" style="--c:#8e8e93">'+(V.catYr?'Voir ce mois':'Voir toute l’année')+'</button><button class="chip" data-a="cat" data-c="'+V.cat+'" style="--c:#8e8e93">Fermer</button></div>'+(R.length?R.map(r=>(r.dl?'<div class="swp"><button hidden class="swdel" data-a="cdel" data-x="'+esc(r.dl)+'"></button>':'')+'<button class="it c'+(r.dl?' swi':'')+'" data-a="day" data-d="'+r.k+'" style="--c:'+C[V.cat]+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+(r.dt||fdate(r.k))+'</span><span class="t">'+(r.hd||esc(r.t))+'</span></button>'+(r.dl?'</div>':'')).join(''):'<div class="em">Rien pour cette catégorie</div>')+'</div>';
     return h}
   if(V.ev&&!V.evin)h+=evCard();
   const n=new Date(y,m+1,0).getDate(),rc=recapHTML(Array.from({length:n},(_,i)=>new Date(y,m,i+1)),true);
@@ -1391,7 +1392,7 @@ function vMois(){
 function vAnnee(){
   const y=V.d.getFullYear();
   let h=nv(String(y),'Les 12 mois avec leurs numéros de semaine',1)+'<div class="srch"><input type="search" id="sq" placeholder="Rechercher un rendez-vous, une tâche, un lieu…" value="'+esc(V.q||'')+'" autocomplete="off"></div><div class="card" id="sr"'+((V.q||'').trim().length<2?' hidden':'')+'>'+searchHTML(V.q||'')+'</div>'+'<div class="pills ypl">'+Array.from({length:YMAX-YMIN+1},(_,i)=>i).map(i=>'<button data-a="yr" data-y="'+(YMIN+i)+'" class="'+(YMIN+i===y?'on':'')+'">'+(YMIN+i)+'</button>').join('')+'</div><div class="yr">';
-  h+='<div class="card"><h2>Ajouter à votre planning</h2>'+qaChips()+'</div>'+(V.qa?qaCard():'');h+=catLegend();if(V.cat){const R=catItems(V.cat,y,0,true);h+='<div class="card" '+sty(V.cat)+'><h2 class="hh"><span>'+esc((S.cats&&S.cats.n&&S.cats.n[V.cat])||CATL[V.cat]||CN(V.cat))+' · '+y+' · '+R.length+'</span><span class="hha"><button class="hide" data-a="cat" data-c="'+V.cat+'">Fermer</button></span></h2>'+(R.length?R.map(r=>'<button class="it c" data-a="day" data-d="'+r.k+'" style="--c:'+C[V.cat]+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+(r.dt||fdate(r.k))+'</span><span class="t">'+(r.hd||esc(r.t))+'</span></button>').join(''):'<div class="em">Rien pour cette catégorie en '+y+'</div>')+'</div>'}
+  h+='<div class="card"><h2>Ajouter à votre planning</h2>'+qaChips()+'</div>'+(V.qa?qaCard():'');h+=catLegend();if(V.cat){const R=catItems(V.cat,y,0,true);h+='<div class="card" '+sty(V.cat)+'><h2 class="hh"><span>'+esc((S.cats&&S.cats.n&&S.cats.n[V.cat])||CATL[V.cat]||CN(V.cat))+' · '+y+' · '+R.length+'</span><span class="hha"><button class="hide" data-a="cat" data-c="'+V.cat+'">Fermer</button></span></h2>'+(R.length?R.map(r=>(r.dl?'<div class="swp"><button hidden class="swdel" data-a="cdel" data-x="'+esc(r.dl)+'"></button>':'')+'<button class="it c'+(r.dl?' swi':'')+'" data-a="day" data-d="'+r.k+'" style="--c:'+C[V.cat]+';width:100%"><span class="tm" style="min-width:68px;color:var(--mu)">'+(r.dt||fdate(r.k))+'</span><span class="t">'+(r.hd||esc(r.t))+'</span></button>'+(r.dl?'</div>':'')).join(''):'<div class="em">Rien pour cette catégorie en '+y+'</div>')+'</div>'}
   for(let m=0;m<12;m++)h+='<div class="card"><h3><button data-a="mo" data-m="'+m+'">'+MOIS[m]+'</button></h3>'+grid(y,m,true)+'</div>';
   return h+'</div>';
 }
@@ -1788,6 +1789,13 @@ document.addEventListener('click',e=>{
   else if(a==='qdadd'){const box=$('#qdst');if(!box)return;const rows=box.querySelectorAll('.qdr'),last=rows[rows.length-1],a0=(last&&last.querySelector('[data-qd=a]').value)||($('#qd')||{}).value||'',b0=($('#qe')||{}).value||a0;
     const d=document.createElement('div');d.className='qdr';d.innerHTML='<div class="qdrh"><input type="text" data-qd="l" placeholder="Destination suivante (ex. Lyon)" autocomplete="off"><button class="vsegx" data-a="qdx" aria-label="Retirer">×</button></div><div class="vtd"><label class="fld"><span>Du</span><input type="date" data-qd="a" value="'+a0+'" min="'+(($('#qd')||{}).value||'')+'"></label><label class="fld"><span>au</span><input type="date" data-qd="b" value="'+b0+'"></label></div>';box.appendChild(d);d.querySelector('input').focus();return}
   else if(a==='qdx'){const r=b.closest('.qdr');if(r)r.remove();return}
+  else if(a==='cdel'){const p=b.dataset.x.split('|');let lab='';
+    if(p[0]==='r'){const L=(S.days[p[1]]||{}).r;if(L&&L[+p[2]]){const x=L.splice(+p[2],1)[0];(x.df||[]).forEach(f=>qdel(f.id));lab='Rendez-vous supprimé'}}
+    else if(p[0]==='t'){const L=(S.days[p[1]]||{}).t;if(L&&L[+p[2]]){L.splice(+p[2],1);lab='Tâche supprimée'}}
+    else if(p[0]==='g'){const L=S.g[p[1]];if(L&&L[+p[2]]){L.splice(+p[2],1);lab='Tâche supprimée'}}
+    else if(p[0]==='d'){if(S.dates[+p[1]]){S.dates.splice(+p[1],1);lab='Anniversaire supprimé'}}
+    else if(p[0]==='v'){const v0=S.vac[+p[1]];if(v0){if(!confirm('Supprimer les vacances « '+(v0.l||'Vacances')+' » ?')){render();return}S.vac.splice(+p[1],1);vacAssets(v0).forEach(qdel);V.vso=null;lab='Vacances supprimées'}}
+    save();render();if(lab)noteToast(lab);return}
   else if(a==='vte'){V.vte={vi:+b.dataset.i,w:b.dataset.w};V.vse=null;V.vst=null;V.segk=null;if(V.sg)V.sg.leg=null}
   else if(a==='segadd'){readSegs();const k=b.dataset.k,L=V.sg[k],q=L[L.length-1]||{};L.push(segNew('Bus',q.to||''));segRedraw(k);return}
   else if(a==='segx'){readSegs();const k=b.dataset.k;V.sg[k].splice(+b.dataset.i,1);segRedraw(k);return}
