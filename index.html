@@ -905,6 +905,8 @@ body.shr-mode .topg{display:none}
 .tri small{font-size:12px;color:var(--mu)}
 .rrsub{display:block;font-size:12px;color:var(--mu);margin-top:1px}
 .rrt{white-space:normal!important}
+.ted{flex:1;min-width:0;text-align:left;color:inherit;font:inherit;padding:0}
+.tnin{flex:1;min-width:0;border:0;border-radius:9px;background:var(--bg);padding:7px 10px;font-size:16px;color:var(--tx);outline:none;box-shadow:0 0 0 2px color-mix(in srgb,var(--c,var(--ac)) 40%,transparent)}
 </style>
 </head>
 <body>
@@ -1027,7 +1029,7 @@ const gname=s=>(GT.find(g=>g[0]===s)||[0,s])[1];
 const taskRow=(x,i,a,extra,src,tag,nd,min)=>{const kk=src+'|'+i,open=!min&&V.tn===kk,cls='it'+(x.f?' done':'')+(x.cx?' cx':'');
   const ck='<button class="ck" data-a="'+a+'" data-i="'+i+'" '+extra+'></button>',dl='<button class="x" title="Supprimer" data-a="'+a+'x" data-i="'+i+'" '+extra+'><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
   const pl='<button class="opt2" title="Date, remarque, récurrence" data-a="tnote" data-src="'+src+'" data-i="'+i+'">'+(open?'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"/></svg>':'<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>')+'</button>';
-  if(min)return '<div class="tk"'+(src==='c'?' data-ci="'+i+'" data-rs="c"':'')+'>'+'<button hidden class="swdel" data-a="'+a+'x" data-i="'+i+'" '+extra+'></button>'+'<div class="'+cls+'">'+ck+'<span class="t">'+esc(x.x)+'</span>'+dl+'</div></div>';
+  if(min)return '<div class="tk"'+(src==='c'?' data-ci="'+i+'" data-rs="c"':'')+'>'+'<button hidden class="swdel" data-a="'+a+'x" data-i="'+i+'" '+extra+'></button>'+'<div class="'+cls+'">'+ck+(V.ced===kk?'<input class="tnin" data-tname="'+kk+'" value="'+esc(x.x)+'" enterkeyhint="done" autocomplete="off">':'<button class="t ted" data-a="ced" data-k="'+kk+'">'+esc(x.x)+'</button>')+dl+'</div></div>';
   const sub=(x.cx?' <small>(annulée)</small>':'')+(tag?' <span class="tag">'+esc(tag)+'</span>':'')+((x.d&&!nd)?' <span class="tag" style="--c:#007aff">'+fdate(x.d)+'</span>':'')+(x.rc?' <span class="tag" style="--c:#5856d6">'+RCL[x.rc]+'</span>':'')+(x.ra?' <span class="tag" style="--c:#ff9500">'+BELL+fdt(x.ra)+'</span>':'')+((x.nt&&!open)?(src==='d'?'<br><small>'+esc(x.nt)+'</small>':'<span class="tnd">'+esc(x.nt)+'</span>'):'');
   const pk=src==='d'?key(V.d):(x.d||''),dvt=src==='d'?'Reporter à une autre date':(x.d?''+fdate(x.d):'Reporter à une autre date');
   const panel=open?'<div class="tp"><input class="nt tname" data-tname="'+kk+'" placeholder="Nom de la tâche" value="'+esc(x.x||'')+'">'+(src==='d'?'<input class="nt" data-tn="'+kk+'" placeholder="Remarque…" value="'+esc(x.nt||'')+'">':'<textarea class="nt tna" rows="3" data-tn="'+kk+'" placeholder="Note liée à cette tâche…">'+esc(x.nt||'')+'</textarea>')+'<div class="tpr"><label class="dpk"><span class="dv">'+dvt+'</span><input type="date" data-gdate="'+kk+'" value="'+pk+'"></label>'+((x.d&&src!=='d')?'<button class="x" data-a="gundate" data-src="'+src+'" data-i="'+i+'" style="font-size:13px;color:var(--ac)">Retirer</button>':'')+'</div><div class="tpr"><span>Répéter</span><select class="nt" data-grc="'+kk+'">'+RCO.map(([v,n])=>'<option value="'+v+'"'+((x.rc||'')===v?' selected':'')+'>'+n+'</option>').join('')+'</select></div>'+'<div class="tpr"><span>Rappel</span>'+remIn('ra-'+kk.replace('|','-'),x.ra,kk)+'</div>'+(pk?calLinks('t|'+src+'|'+i+(src==='d'?'|'+pk:'')):'')+'<div class="tpb"><button class="tdel" data-a="'+a+'x" data-i="'+i+'" '+extra+'>Supprimer</button><button class="tsave" data-a="tsave">Enregistrer</button></div></div>':'';
@@ -1380,6 +1382,8 @@ async function waVerify(setup){if(!window.PublicKeyCredential||!navigator.creden
   catch(e){if(id&&e&&e.name!=='NotAllowedError'){try{return await create()}catch(e2){}}if(id&&e&&e.name==='NotAllowedError'&&!V.waRetry){V.waRetry=1;noteToast('Déverrouillage annulé · réessaie');setTimeout(()=>{V.waRetry=0},4000);return false}
     if(e&&e.name==='NotAllowedError'&&V.waRetry){if(confirm('Face ID ne reconnaît pas cet appareil. Le configurer à nouveau ?')){try{localStorage.removeItem('edt-wa')}catch(_){}try{return await create()}catch(e3){}}}noteToast('Déverrouillage impossible');return false}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){V.nun={};const n0=V.nid&&NS().l.find(x=>x.id===V.nid);if(n0&&n0.lk){V.nid=null;try{render()}catch(e){}}}});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('tnin')){e.preventDefault();e.target.blur()}});
+document.addEventListener('focusout',e=>{if(e.target.classList&&e.target.classList.contains('tnin')){V.ced=null;setTimeout(()=>{if(!V.ced)render()},120)}});
 /* ===== Prochain rendez-vous ===== */
 const tsOf=(k,h)=>{const [y,m,d]=k.split('-').map(Number),[hh,mm]=(h||'00:00').split(':').map(Number);return new Date(y,m-1,d,hh,mm).getTime()};
 const durMin=du=>{if(!du)return 60;const m=/(\d+)\s*h\s*(\d+)?/.exec(du);if(m)return (+m[1])*60+(+(m[2]||0));const n=/(\d+)\s*min/.exec(du);return n?+n[1]:60};
@@ -1986,6 +1990,7 @@ document.addEventListener('click',e=>{
   else if(a==='soonn'){S.cfg=S.cfg||{w:{}};S.cfg.soonN=+b.dataset.v;save();render();return}
   else if(a==='trres'){const e=(S.trash||[]).find(q=>q.id===b.dataset.id);if(!e)return;if(trRestore(e)){S.trash=S.trash.filter(q=>q!==e);save();render();noteToast('✓ Restauré : '+TRL[e.ty].toLowerCase())}else noteToast('Impossible : les vacances d’origine n’existent plus');return}
   else if(a==='trempty'){if(!confirm('Vider la corbeille ? Les éléments seront supprimés définitivement.'))return;S.trash=[];save();render();return}
+  else if(a==='ced'){V.ced=b.dataset.k;render();const i=document.querySelector('.tnin');if(i){i.focus();const n=i.value.length;try{i.setSelectionRange(n,n)}catch(e){}}return}
   else if(a==='vte'){V.vte={vi:+b.dataset.i,w:b.dataset.w};V.vse=null;V.vst=null;V.segk=null;if(V.sg)V.sg.leg=null}
   else if(a==='segadd'){readSegs();const k=b.dataset.k,L=V.sg[k],q=L[L.length-1]||{};L.push(segNew('Bus',q.to||''));segRedraw(k);return}
   else if(a==='segx'){readSegs();const k=b.dataset.k;V.sg[k].splice(+b.dataset.i,1);segRedraw(k);return}
