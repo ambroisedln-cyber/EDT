@@ -867,6 +867,11 @@ html.fsl .hl,html.fsl .otdt,html.fsl .nrow .nopen b{font-size:17px}
 .vseg .vfile{margin-top:2px}
 .evinl{flex:1;min-width:0;width:100%}
 .evinl>.card{margin:6px 0!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--c) 30%,transparent)!important;background:color-mix(in srgb,var(--c) 5%,var(--card))!important;padding:14px!important}
+.qdr{margin-top:8px;padding:10px;border-radius:12px;background:color-mix(in srgb,#30b0c7 6%,var(--bg))}
+.qdrh{display:flex;gap:6px;align-items:center}
+.qdrh input{flex:1;min-width:0}
+#qdst{display:flex;flex-direction:column}
+.add>.vadd{width:100%}
 </style>
 </head>
 <body>
@@ -1043,7 +1048,7 @@ const vGoD=v=>(v.go&&v.go.d)||v.a,vBkD=v=>(v.back&&v.back.d)||v.b;
 const ndays=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
 const fds=k=>parse(k).toLocaleDateString(LOC(),{weekday:'short',day:'numeric',month:'short'});
 const VICO='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 9c0-3 3-6 7-6s7 3 7 6c-2-1.5-4.5-1.5-7 0-2.5-1.5-5-1.5-7 0z"/><path d="M5 21h14"/></svg>';
-const vacNext=k=>S.vac.filter(v=>v.a>k||vGoD(v)>=k).map(v=>({v,d:ndays(k,vGoD(v)<v.a?vGoD(v):v.a)})).filter(o=>o.d>=0&&o.d<=30).sort((a,b)=>a.d-b.d).map(o=>o.v)[0];
+const vacNext=k=>S.vac.filter(v=>v.a>k||vGoD(v)>=k).map(v=>({v,d:ndays(k,vGoD(v)<v.a?vGoD(v):v.a)})).filter(o=>o.d>=0&&o.d<=7).sort((a,b)=>a.d-b.d).map(o=>o.v)[0];
 function vacBubble(v,k,pre){const vi=S.vac.indexOf(v),op=V.vso===vi,pl=pre?v.l:vPlaceOn(k),place=pl?esc(short(pl)):'',dep=vGoD(v);let lab,tag;
   if(dep===k){lab='Départ aujourd’hui'+(place?' · '+place:'');tag=''}
   else if(ndays(k,dep)===1){lab='Départ demain'+(place?' · '+place:'');tag=''}
@@ -1076,7 +1081,6 @@ const vActs=t=>{let h='';const SG=(t.sg||[]).filter(x=>(x.lk||[]).length||(x.df|
   if(t.f)h+='<a class="vab" href="'+gdir(t.f,S.home||'')+'" target="_blank" rel="noopener">'+PIN2+'Itinéraire · '+esc(short(t.f))+'</a>';
   return h?'<div class="vact">'+h+'</div>':''};
 function vacSheet(v,vi){const bag=v.bag||[],dn=bag.filter(x=>x.f).length;
-  if(V.vse===vi)return vacEdit(v,vi);
   if(V.vte&&V.vte.vi===vi)return legEdit(v,vi,V.vte.w);
   if(V.vst&&V.vst.vi===vi)return stayEdit(v,vi,V.vst.i);
   let h='<div class="card vsheet" '+sty('Vacances')+'><button class="vclose" data-a="vso" data-i="'+vi+'" aria-label="Fermer">×</button><div class="vst">'+esc(v.l||'Vacances')+'</div><div class="vsd">Du '+fds(v.a)+' au '+fds(v.b)+' · '+(ndays(v.a,v.b)+1)+' jours</div>';
@@ -1084,15 +1088,15 @@ function vacSheet(v,vi){const bag=v.bag||[],dn=bag.filter(x=>x.f).length;
     const sw=t.k==='Trajet';const SG=legSegs(t),multi=SG.length>1;return (sw?'<div class="swp"><button hidden class="swdel" data-a="vlegx" data-i="'+vi+'" data-w="'+t.w+'"></button>':'')+'<div class="vtr'+(sw?' swi':'')+'"><div class="vtrh"><button class="vtrm" data-a="day" data-d="'+t.d+'"><span class="vrl">'+t.k+'</span><span class="vrv"><b>'+fds(t.d)+(t.h?' · '+HM(t.h):'')+'</b>'+(multi?SG.map(segLine).join(''):(tx?'<small>'+esc(tx)+'</small>':'')+(t.t?'<small>'+esc(t.t)+'</small>':''))+'</span></button><button class="vted" data-a="vte" data-i="'+vi+'" data-w="'+t.w+'" aria-label="Modifier">'+PEN+'</button></div>'+vActs(t)+'</div>'+(sw?'</div>':'')}).join('')
     +'<button class="vadd" data-a="vte" data-i="'+vi+'" data-w="new">＋ Ajouter un trajet</button>';
   const ST=vStays(v);
-  h+='<div class="vsec2">Étapes et logements</div>'+ST.map((s0,si)=>{const idx=s0._i?'imp':String(v.st.indexOf(s0)),ir=(l,val,href)=>val?'<'+(href?'a href="'+href+'"'+(href.startsWith('tel:')?'':' target="_blank" rel="noopener"'):'div')+' class="vir"><span class="vil">'+l+'</span><span class="viv">'+esc(val)+'</span></'+(href?'a':'div')+'>':'';
+  h+='<div class="vsec2">Destinations et logements</div>'+ST.map((s0,si)=>{const idx=s0._i?'imp':String(v.st.indexOf(s0)),ir=(l,val,href)=>val?'<'+(href?'a href="'+href+'"'+(href.startsWith('tel:')?'':' target="_blank" rel="noopener"'):'div')+' class="vir"><span class="vil">'+l+'</span><span class="viv">'+esc(val)+'</span></'+(href?'a':'div')+'>':'';
     const inf=ir('Logement',s0.h,s0.h?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s0.h):'')+ir('Accès',s0.c)+ir('Réservation',s0.r)+ir('Contact',s0.n)+ir('Téléphone',s0.t,s0.t?'tel:'+s0.t.replace(/[^\d+]/g,''):'');
     const sw=!s0._i&&ST.length>1;return (sw?'<div class="swp"><button hidden class="swdel" data-a="vstx" data-i="'+vi+'" data-s="'+idx+'"></button>':'')+'<div class="vstay'+(sw?' swi':'')+'"><div class="vtrh"><div class="vtrm"><span class="vrv"><b>'+esc(short(s0.l)||'Étape')+'</b><small>'+fds(s0.a)+' → '+fds(s0.b)+'</small></span></div><button class="vted" data-a="vsted" data-i="'+vi+'" data-s="'+idx+'" aria-label="Modifier">'+PEN+'</button></div>'+(inf?'<div class="vinf">'+inf+'</div>':'<button class="vaddi" data-a="vsted" data-i="'+vi+'" data-s="'+idx+'">Ajouter l’adresse du logement, le code…</button>')+'</div>'+(sw?'</div>':'')}).join('')
-    +'<button class="vadd" data-a="vsted" data-i="'+vi+'" data-s="new">＋ Ajouter une étape</button>';
+    +'<button class="vadd" data-a="vsted" data-i="'+vi+'" data-s="new">＋ Ajouter une destination</button>';
   h+='<button class="vrow vbag" data-a="vbag" data-i="'+vi+'"><span class="vrl">Valise</span><span class="vrv"><b>'+(bag.length?dn+' / '+bag.length+' prêts':'Liste vide')+'</b></span><span class="chv'+(V.vbag===vi?' up':'')+'">›</span></button>';
   if(V.vbag===vi)h+='<div class="vbagc">'+bagHTML(v,vi).replace('<div style="margin-top:16px"><b style="font-size:14px">Valise'+(bag.length?' · '+dn+'/'+bag.length:'')+'</b>','<div>')+'</div>';
   h+='<div class="grp" style="margin-top:10px">'+calLinks('v|'+vi)+'</div>';
-  h+='<div class="vfoot"><button class="vlink" data-a="vse" data-i="'+vi+'">Modifier le lieu et les dates</button><button class="vdel" data-a="vx" data-i="'+vi+'">Supprimer ces vacances</button></div></div>';
-  return h}
+  h+='<div class="vfoot">'+(V.vse===vi?'':'<button class="vlink" data-a="vse" data-i="'+vi+'">Modifier le lieu et les dates</button>')+'<button class="vdel" data-a="vx" data-i="'+vi+'">Supprimer ces vacances</button></div></div>';
+  return (V.vse===vi?vacEdit(v,vi):'')+h}
 const vForm=(vi,title,body,save,del)=>'<div class="card vsheet ef" '+sty('Vacances')+'><div class="eft">✎ '+title+'</div>'+body+'<div id="vemsg" class="sub" style="margin:6px 0 0"></div><div class="fb"><button data-a="'+save+'" data-i="'+vi+'">Enregistrer</button><button class="sec" data-a="vecancel">Annuler</button></div>'+(del?'<button class="vdel" '+del+'>Supprimer</button>':'')+'</div>';
 const vin=(id,val,ph,ty)=>'<input type="'+(ty||'text')+'" id="'+id+'" value="'+esc(val||'')+'" placeholder="'+ph+'" autocomplete="off">';
 function vacEdit(v,vi){return vForm(vi,'Lieu et dates','<label class="ff"><span>Lieu principal</span><input type="text" id="vel" value="'+esc(v.l||'')+'"></label><div class="fg"><label class="ff"><span>Du</span><input type="date" id="vea" value="'+v.a+'"></label><label class="ff"><span>Au</span><input type="date" id="veb" value="'+v.b+'"></label></div>','vesave')}
@@ -1116,7 +1120,7 @@ function legEdit(v,vi,w){const nw=w==='new',t=nw?{d:vGoD(v)}:w==='go'?(v.go||{})
 function stayEdit(v,vi,i){const nw=i==='new',s0=nw?{}:i==='imp'?Object.assign({l:v.l,a:v.a,b:v.b},v.info||{}):(v.st[+i]||{});
   const body='<label class="ff"><span>Lieu</span><input type="text" id="vsl" value="'+esc(s0.l||'')+'" placeholder="Ex. Lyon"></label><div class="fg"><label class="ff"><span>Du</span><input type="date" id="vsa" value="'+(s0.a||'')+'"></label><label class="ff"><span>Au</span><input type="date" id="vsb" value="'+(s0.b||'')+'"></label></div>'
     +'<div class="vedb">'+vin('vih',s0.h,'Adresse du logement')+vin('vic',s0.c,'Code / accès (digicode, boîte à clés…)')+vin('vir',s0.r,'N° de réservation')+vin('vin',s0.n,'Contact sur place')+vin('vit',s0.t,'Téléphone','tel')+'</div>';
-  return vForm(vi,nw?'Nouvelle étape':'Étape · '+esc(short(s0.l)||''),body,'vssave',(!nw&&i!=='imp')?'data-a="vsdel" data-i="'+vi+'"':'')}
+  return vForm(vi,nw?'Nouvelle destination':'Étape · '+esc(short(s0.l)||''),body,'vssave',(!nw&&i!=='imp')?'data-a="vsdel" data-i="'+vi+'"':'')}
 async function saveLeg(btn,vi){const v0=S.vac[vi],w=V.vte&&V.vte.w;if(!v0||!w)return;readSegs();const m=$('#vemsg')||{};
   const d=V.segd;if(!d){m.textContent='Indique la date du trajet.';return}
   const o=segsToLeg(V.sg.leg,d);
@@ -1301,6 +1305,8 @@ async function addVac(dk,e2,btn){
   const items=(V.vp||[]).slice();
   if(items.some(q=>q.d<dk||q.d>e2)){msg.textContent='Un élément du programme est en dehors des dates des vacances.';return}
   readSegs();const rec={a:dk,b:e2,l:g('#ql').trim(),go:segsToLeg(V.sg.go,g('#qgdt')||dk),back:segsToLeg(V.sg.back,g('#qrdt')||e2),items};
+  const xs=[...document.querySelectorAll('#qdst .qdr')].map(r=>({l:r.querySelector('[data-qd=l]').value.trim(),a:r.querySelector('[data-qd=a]').value,b:r.querySelector('[data-qd=b]').value})).filter(o=>o.l&&o.a&&o.b&&o.b>=o.a).sort((p,q)=>p.a.localeCompare(q.a));
+  if(xs.length){rec.st=[{l:rec.l,a:dk,b:xs[0].a}].concat(xs)}
   V.sg.go=null;V.sg.back=null;S.vac.push(rec);S.vac.sort((p,q)=>p.a.localeCompare(q.a));V.qa=null;V.jp=false;V.vp=[];V.tab='jour';setD(parse(rec.go.d||dk));V.vso=S.vac.indexOf(rec);V.vse=null;V.vte=null;V.vst=null;V.vbag=null;save();render();window.scrollTo(0,0);noteToast('✓ Vacances ajoutées · complète-les ici');
 }
 async function vpAdd(btn){
@@ -1554,7 +1560,7 @@ const tmodes=n=>['Train','Avion','Voiture','Bus'].map(t=>'<label class="chip" st
 const qaCard=()=>{const c=V.qa,lb=t=>'<span class="sub" style="margin:0;align-self:center">'+t+'</span>';
   let f='';
   if(c==='Date')f='<input type="date" id="qd" value="'+key(V.d)+'"><input type="text" id="qx" placeholder="Nom (ex. Camille)">';
-  else if(c==='Vacances')f='<label class="fld"><span>Du</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>au</span><input type="date" id="qe" value="'+key(V.d)+'"></label><input type="text" id="ql" autocomplete="off" placeholder="Lieu">'+(V.sg=V.sg||{},V.sg.go=V.sg.go||[segNew('Train')],V.sg.back=V.sg.back||[segNew('Train')],'')+[['Aller','qg','go'],['Retour','qr','back']].map(([t,n,k])=>'<div class="vqa" style="width:100%" '+sty('Vacances')+'><b style="font-size:15px">'+t+'</b><div class="vtd"><label class="fld"><span>Le</span><input type="date" id="'+n+'dt"></label></div>'+segEditor(k)+'</div>').join('')+'<p class="sub" style="width:100%;margin:0">Sans date, l’aller est le premier jour et le retour le dernier. Après l’ajout, la fiche s’ouvre pour ajouter d’autres trajets, les étapes et logements, et la valise.</p><div id="qmsg" class="sub" style="width:100%;margin:0"></div>';
+  else if(c==='Vacances')f='<label class="fld"><span>Du</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>au</span><input type="date" id="qe" value="'+key(V.d)+'"></label><input type="text" id="ql" autocomplete="off" placeholder="Destination"><div id="qdst" style="width:100%"></div><button class="vadd" data-a="qdadd" style="--c:#30b0c7">＋ Ajouter une autre destination</button>'+(V.sg=V.sg||{},V.sg.go=V.sg.go||[segNew('Train')],V.sg.back=V.sg.back||[segNew('Train')],'')+[['Aller','qg','go'],['Retour','qr','back']].map(([t,n,k])=>'<div class="vqa" style="width:100%" '+sty('Vacances')+'><b style="font-size:15px">'+t+'</b><div class="vtd"><label class="fld"><span>Le</span><input type="date" id="'+n+'dt"></label></div>'+segEditor(k)+'</div>').join('')+'<p class="sub" style="width:100%;margin:0">Sans date, l’aller est le premier jour et le retour le dernier. Après l’ajout, la fiche s’ouvre pour ajouter d’autres trajets, les étapes et logements, et la valise.</p><div id="qmsg" class="sub" style="width:100%;margin:0"></div>';
   else{f='<label class="fld"><span>Date</span><input type="date" id="qd" value="'+key(V.d)+'"></label><label class="fld"><span>Heure</span><input type="time" id="qh"></label><input type="text" id="qx" list="dl-t-'+c+'" placeholder="Intitulé">'+durSel('qdu','')+'<div class="trem"><span>'+BELL+'Rappel</span>'+remIn('qra','')+'</div>';
     f+=HASMODE(c)?'<select id="qm"><option value="p">Présentiel</option><option value="t">'+(c==='Meeting'?'Visio':'Téléconsultation')+'</option></select><input type="text" id="ql" autocomplete="off" placeholder="Adresse"><input type="text" id="qk" placeholder="'+(c==='Meeting'?'Lien Teams, Zoom, Meet…':'Lien de la téléconsultation')+'" style="display:none">':'<input type="text" id="ql" autocomplete="off" placeholder="Lieu">';
     f+=((c==='Resto'||c==='Sport')?'<input type="text" id="qw" placeholder="Avec qui">':c==='Meeting'?'<input type="text" id="qw" placeholder="Participants" style="width:100%">':'')+(c==='Meeting'?'<textarea id="qp" class="nt tna" rows="2" placeholder="Ordre du jour / remarques (facultatif)" style="width:100%"></textarea>':'<input type="text" id="qp" placeholder="Remarques (facultatif)">')+'<input type="tel" id="qtel" placeholder="Téléphone (facultatif)"><input type="text" id="qdl" placeholder="Lien d’un mail, d’une réservation…" style="width:100%"><span class="sub" style="width:100%;margin:0">'+(c==='Meeting'?'Joindre un fichier (présentation, document, PDF…)':'Joindre un fichier (ordonnance, confirmation, PDF, photo…)')+'</span><input type="file" id="qdf" multiple style="max-width:100%"><div id="qmsg" class="sub" style="width:100%;margin:0"></div>'}
@@ -1779,6 +1785,9 @@ document.addEventListener('click',e=>{
   else if(a==='vecancel'){V.vse=null;V.vte=null;V.vst=null;V.segk=null;if(V.sg)V.sg.leg=null}
   else if(a==='vlegx'){const v0=S.vac[+b.dataset.i],w=+b.dataset.w;if(v0&&v0.tr&&v0.tr[w]){const t0=v0.tr.splice(w,1)[0];(t0.df||[]).forEach(f=>qdel(f.id));save();render();noteToast('Trajet supprimé')}return}
   else if(a==='vstx'){const v0=S.vac[+b.dataset.i],w=+b.dataset.s;if(v0&&v0.st&&v0.st[w]){v0.st.splice(w,1);save();render();noteToast('Étape supprimée')}return}
+  else if(a==='qdadd'){const box=$('#qdst');if(!box)return;const rows=box.querySelectorAll('.qdr'),last=rows[rows.length-1],a0=(last&&last.querySelector('[data-qd=a]').value)||($('#qd')||{}).value||'',b0=($('#qe')||{}).value||a0;
+    const d=document.createElement('div');d.className='qdr';d.innerHTML='<div class="qdrh"><input type="text" data-qd="l" placeholder="Destination suivante (ex. Lyon)" autocomplete="off"><button class="vsegx" data-a="qdx" aria-label="Retirer">×</button></div><div class="vtd"><label class="fld"><span>Du</span><input type="date" data-qd="a" value="'+a0+'" min="'+(($('#qd')||{}).value||'')+'"></label><label class="fld"><span>au</span><input type="date" data-qd="b" value="'+b0+'"></label></div>';box.appendChild(d);d.querySelector('input').focus();return}
+  else if(a==='qdx'){const r=b.closest('.qdr');if(r)r.remove();return}
   else if(a==='vte'){V.vte={vi:+b.dataset.i,w:b.dataset.w};V.vse=null;V.vst=null;V.segk=null;if(V.sg)V.sg.leg=null}
   else if(a==='segadd'){readSegs();const k=b.dataset.k,L=V.sg[k],q=L[L.length-1]||{};L.push(segNew('Bus',q.to||''));segRedraw(k);return}
   else if(a==='segx'){readSegs();const k=b.dataset.k;V.sg[k].splice(+b.dataset.i,1);segRedraw(k);return}
