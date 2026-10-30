@@ -726,7 +726,15 @@ html.nbx,html.nbx body{overflow-x:clip}
 #nbu .nbdim{position:absolute;inset:0;background:rgba(0,0,0,.1);will-change:opacity}
 html,body{touch-action:manipulation}
 .otdl{display:flex;flex-direction:column;gap:6px;margin-top:2px}
-.otdr{--c:#7b6ef6;position:relative;display:block;text-decoration:none;color:var(--tx);background:color-mix(in srgb,var(--c) 7%,var(--card));border-radius:12px;padding:9px 12px 10px 20px}
+.otdr{--c:#7b6ef6;position:relative;display:flex;align-items:flex-start;gap:6px;color:var(--tx);background:color-mix(in srgb,var(--c) 7%,var(--card));border-radius:12px;padding:9px 6px 10px 20px}
+.otdm{flex:1;min-width:0;display:block;text-decoration:none;color:inherit}
+.otsh{flex:none;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--c);opacity:.75;border-radius:50%}
+.otsh:active{background:color-mix(in srgb,var(--c) 14%,transparent)}
+.otdth{display:flex;gap:6px;overflow-x:auto;margin:0 -2px 10px;padding:0 2px;scrollbar-width:none}
+.otdth::-webkit-scrollbar{display:none}
+.otdth button{flex:none;padding:5px 11px;border-radius:14px;font-size:13px;font-weight:600;color:#7b6ef6;background:color-mix(in srgb,#7b6ef6 9%,var(--card))}
+.otdth button.on{background:#7b6ef6;color:#fff}
+.otsec{font-size:12px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--mu);margin:14px 2px 6px}
 .otdr::before{content:"";position:absolute;left:8px;top:10px;bottom:10px;width:3px;border-radius:3px;background:var(--c)}
 .otdh{display:block;font-size:12.5px;font-weight:500;color:var(--mu);margin-bottom:2px;font-variant-numeric:tabular-nums}
 .otdh b{font-weight:650;color:var(--c);font-size:13px}
@@ -1406,26 +1414,42 @@ setInterval(()=>{document.querySelectorAll('[data-nxts]').forEach(el=>{const o={
 const OTD={};
 const otdKey=d=>(S.lang==='en'?'en':'fr')+':'+String(d.getMonth()+1).padStart(2,'0')+'/'+String(d.getDate()).padStart(2,'0');
 function otdLoad(d){const k=otdKey(d);if(OTD[k])return;OTD[k]={st:'load'};
-  try{const c=JSON.parse(localStorage.getItem('edt-otd:'+k)||'null');if(c&&c.l&&c.l.length&&Date.now()-c.t<30*864e5){OTD[k]={st:'ok',l:c.l};return}}catch(e){}
+  try{const c=JSON.parse(localStorage.getItem('edt-otd2:'+k)||'null');if(c&&c.l&&c.l.length&&Date.now()-c.t<30*864e5){OTD[k]={st:'ok',l:c.l,b:c.b||[]};return}}catch(e){}
   const [lg,md]=k.split(':');
   fetch('https://'+lg+'.wikipedia.org/api/rest_v1/feed/onthisday/all/'+md).then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>{
-    const mk=a=>(a||[]).filter(x=>x&&x.text&&x.year!=null).map(x=>{const p=(x.pages||[])[0]||{};return{y:x.year,t:x.text,u:(p.content_urls&&(p.content_urls.mobile||p.content_urls.desktop)||{}).page||''}});
+    const url=p=>(p.content_urls&&(p.content_urls.mobile||p.content_urls.desktop)||{}).page||'';
+    const mk=a=>(a||[]).filter(x=>x&&x.text&&x.year!=null).map(x=>{const P=x.pages||[],p=P[0]||{};return{y:x.year,t:x.text,u:url(p),ds:P.slice(0,3).map(q=>q.description||'').join(' · ')}});
     const sel=mk(j.selected),ev=mk(j.events),seen=new Set(sel.map(x=>x.y+'|'+x.t));
-    let l=sel.concat(ev.filter(x=>!seen.has(x.y+'|'+x.t)));
-    l=l.slice(0,30);if(!sel.length)l.sort((a,b)=>b.y-a.y);
-    OTD[k]={st:l.length?'ok':'none',l};try{if(l.length)localStorage.setItem('edt-otd:'+k,JSON.stringify({t:Date.now(),l}))}catch(e){}
+    let l=sel.map(x=>Object.assign(x,{s:1})).concat(ev.filter(x=>!seen.has(x.y+'|'+x.t))).slice(0,90);
+    const b=(j.births||[]).filter(x=>x&&x.text&&x.year!=null).map(x=>{const p=(x.pages||[])[0]||{};return{y:x.year,t:x.text,n:(p.titles&&p.titles.normalized)||'',ds:p.description||'',u:url(p),im:p.thumbnail?1:0,len:(p.extract||'').length}}).slice(0,150);
+    OTD[k]={st:l.length?'ok':'none',l,b};try{if(l.length)localStorage.setItem('edt-otd2:'+k,JSON.stringify({t:Date.now(),l,b}))}catch(e){}
   }).catch(()=>{OTD[k]={st:'err'}}).finally(()=>{const el=document.getElementById('otd');if(el&&V.tab==='jour'&&otdKey(V.d)===k)el.innerHTML=otdHTML(V.d)})}
-function otdHTML(d){const k=otdKey(d),o=OTD[k];if(!o)otdLoad(d);const O=OTD[k]||{st:'load'};
-  let h='<h2 class="hh"><span>Ce jour-là · '+d.getDate()+(d.getDate()===1&&S.lang!=='en'?'er':'')+' '+MOIS[d.getMonth()]+'</span><span class="hha"><button class="hide" data-a="hideotd">Masquer</button></span></h2>';
+const OTH=[['all','Tout'],['h','Histoire'],['sp','Sport'],['sc','Sciences'],['cu','Culture'],['so','Société']];
+const OTK={sp:'football,tennis,cycli,tour de france,olympi,championnat,coupe du monde,coupe d europe,match,rugby,boxe,boxeur,formule 1,grand prix,athlet,record du monde,ski,basket,nba,golf,marathon,natation,nageu,footballeur,sportif,sportive,equipe de france,ligue des champions,medaille,joueur,joueuse,entraineur,handball,volley,judo,escrime,alpinis,everest,course,pilote,cyclist,stade,jo ',
+  sc:'scien,decouv,spatial,espace,nasa,fusee,satellite,lune,planete,astronom,physic,chimi,medec,vaccin,invent,brevet,ordinateur,internet,informati,technolog,mathemat,biolog,nobel de physique,nobel de chimie,nobel de medecine,sonde,telescope,comete,genet,adn,laboratoire,ingenieur,mission apollo,cosmonaute,astronaute,radio,electri,nucleaire,avion,aviat',
+  cu:'film,cinema,musique,musical,chanteu,album,concert,roman,livre,ecrivain,poete,poeme,peintre,peinture,tableau,opera,theatre,musee,exposition,festival,acteur,actrice,compositeur,photograph,sculpt,televis,artiste,goncourt,oscar,cesar,beatles,rock,ballet,litter,bande dessinee,serie,realisat,disque,chanson',
+  h:'guerre,bataille,traite,roi ,reine,empereur,president,election,revolution,gouvernement,independance,armee,empire,republique,parlement,assassin,coup d etat,ministre,pape,siege,accord,constitution,dynastie,royaume,conquete,croisade,invasion,armistice,capitul,proclam,couronn,abdiqu,colonie,occupation,resistance,napoleon,hitler,staline,soviet,urss,otan,onu',
+  so:'catastrophe,seisme,tremblement,incendie,accident,attentat,naufrage,epidemie,pandemie,greve,manifestation,loi ,droit,femmes,ouverture,inaugur,fondation,eruption,ouragan,cyclone,explosion,metro,pont,tunnel,abolition,vote,referendum,emeute,record,mariage,inondation,crash,deraill'};
+const otdTheme=x=>{const t=' '+nz(x.t+' '+(x.ds||'')+' ').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ')+' ';for(const th of ['sp','sc','cu','so','h']){if(OTK[th].split(',').some(w=>w&&t.includes(w)))return th}return 'h'};
+async function otdShare(txt,u){const text=txt+(u?'\n'+u:'');if(navigator.share){try{await navigator.share({text:txt,url:u||undefined});return}catch(e){if(e&&e.name==='AbortError')return}}noteToast((await copyTxt(text))?'✓ Copié':'Partage indisponible')}
+function otdHTML(d){const k=otdKey(d),o=OTD[k];if(!o)otdLoad(d);const O=OTD[k]||{st:'load'},TH=(S.cfg&&S.cfg.otdTh)||'all',dl=d.getDate()+(d.getDate()===1&&S.lang!=='en'?'er':'')+' '+MOIS[d.getMonth()];
+  let h='<h2 class="hh"><span>Ce jour-là · '+dl+'</span><span class="hha"><button class="hide" data-a="hideotd">Masquer</button></span></h2>';
+  h+='<div class="otdth">'+OTH.map(([v,n])=>'<button class="'+(TH===v?'on':'')+'" data-a="otdth" data-v="'+v+'">'+n+'</button>').join('')+'</div>';
   if(O.st==='load')return h+'<div class="em">Chargement…</div>';
   if(O.st!=='ok')return h+'<div class="em">'+(O.st==='none'?'Rien trouvé pour cette date':'Éphéméride indisponible pour le moment.')+' <button class="glk" data-a="otdre">Réessayer</button></div>';
   const SUM=t=>{t=t.replace(/\s*\([^)]*\)/g,'').replace(/\s*\[[^\]]*\]/g,'').replace(/\s+/g,' ').trim();if(t.length<=140)return{t,c:0};
     const mm=t.match(/^.*?[.!?](?=\s+[A-ZÀ-Ý]|$)/),f=mm?mm[0]:t;if(f.length<=140)return{t:f,c:1};
     const cut=t.slice(0,140),m=Math.max(cut.lastIndexOf(', '),cut.lastIndexOf(' ; '),cut.lastIndexOf(' : '),cut.lastIndexOf(' – '),cut.lastIndexOf(' — '));
     return{t:(m>35?cut.slice(0,m):cut.slice(0,cut.lastIndexOf(' '))).replace(/[,;:\s–—]+$/,'')+'.',c:2}};
-  const P=O.l.slice(0,20).map((x,i)=>({x,i,s:SUM(x.t)})).sort((a,b)=>a.s.c-b.s.c||a.i-b.i).slice(0,4).sort((a,b)=>a.x.y-b.x.y).map(o=>Object.assign({},o.x,{t:o.s.t.charAt(0).toLocaleUpperCase('fr')+o.s.t.slice(1)}));
-  h+='<div class="otdl">'+P.map(x=>{const y=x.y<0?(-x.y)+' av. J.-C.':x.y,ago=x.y>0?new Date().getFullYear()-x.y:0,tg=x.u?'a href="'+esc(x.u)+'" target="_blank" rel="noopener"':'div';
-    return '<'+tg+' class="otdr"><span class="otdh"><b>'+y+'</b>'+(ago>0?'<i>·</i>il y a '+ago+' an'+(ago>1?'s':''):'')+'</span><span class="otdt">'+esc(x.t.replace(/\s+/g,' ').trim())+'</span></'+tg.split(' ')[0]+'>'}).join('')+'</div>';
+  const cap=t=>t.charAt(0).toLocaleUpperCase('fr')+t.slice(1),yl=y=>y<0?(-y)+' av. J.-C.':y,ago=y=>{const a=y>0?new Date().getFullYear()-y:0;return a>0?'<i>·</i>il y a '+a+' an'+(a>1?'s':''):''};
+  const pool=O.l.map((x,i)=>({x,i,th:otdTheme(x)})).filter(o=>TH==='all'||o.th===TH);
+  const P=pool.slice(0,TH==='all'?20:90).map(o=>Object.assign(o,{s:SUM(o.x.t)})).sort((a,b)=>a.s.c-b.s.c||(b.x.s?1:0)-(a.x.s?1:0)||a.i-b.i).slice(0,4).sort((a,b)=>a.x.y-b.x.y).map(o=>Object.assign({},o.x,{t:cap(o.s.t)}));
+  const shareBtn=(txt,u)=>'<button class="otsh" data-a="otdsh" data-t="'+esc(txt)+'" data-u="'+esc(u||'')+'" aria-label="Partager"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5M7.5 8L12 3.5 16.5 8"/><path d="M8 11H6.5A1.5 1.5 0 0 0 5 12.5v7A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-7a1.5 1.5 0 0 0-1.5-1.5H16"/></svg></button>';
+  const row=(x,txt,lab)=>{const tg=x.u?'a href="'+esc(x.u)+'" target="_blank" rel="noopener"':'div';return '<div class="otdr"><'+tg+' class="otdm"><span class="otdh"><b>'+yl(x.y)+'</b>'+ago(x.y)+'</span><span class="otdt">'+esc(txt)+'</span></'+tg.split(' ')[0]+'>'+shareBtn(dl+' '+(x.y<0?(-x.y)+' av. J.-C.':x.y)+' · '+(lab||'')+txt,x.u)+'</div>'};
+  h+=P.length?'<div class="otdl">'+P.map(x=>row(x,x.t)).join('')+'</div>':'<div class="em">Rien sur ce thème ce jour-là</div>';
+  if(!(S.cfg&&S.cfg.show&&S.cfg.show.otdb===0)&&(O.b||[]).length){const B=(O.b||[]).map((x,i)=>Object.assign({},x,{i,th:otdTheme(x)}));const C2=B.filter(x=>x.y>=1850);
+    const pick=C2.sort((a,b)=>((TH!=='all'&&b.th===TH)?1:0)-((TH!=='all'&&a.th===TH)?1:0)||(b.im-a.im)||(b.len-a.len)).slice(0,2).sort((a,b)=>a.y-b.y);
+    if(pick.length)h+='<div class="otsec">Nés un '+dl+'</div><div class="otdl">'+pick.map(x=>{const nm=x.n||x.t.split(',')[0],ds=x.ds||x.t.split(',').slice(1).join(',').trim();return row(x,nm+(ds?', '+ds:''),'Naissance · ')}).join('')+'</div>'}
   return h}
 function vSemaine(){
   const m=mon(V.d),e=add(m,6),[y,w]=isoWeek(m);
@@ -1823,6 +1847,7 @@ function regPage(p){const P=regParts(),cf=S.cfg||{};let h='<h1 class="hc1 rph1">
   if(p==='jour'){const O=JORD(),NM=Object.fromEntries(JSEC);
     h+='<div class="card"><h2>Rubriques et ordre</h2><p class="sub" style="margin:0 0 8px">Reste appuyé sur une rubrique puis fais-la glisser pour changer l’ordre.</p><div class="jordl">'+O.map((k,i)=>'<div class="tk jrow" data-ci="'+i+'" data-rs="jord"><div class="it"><span class="jgr"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span><span class="rl">'+NM[k]+'</span><button class="swb" data-a="shw" data-k="'+k+'"><span class="sw'+(SH(k)?' on':'')+'"></span></button></div></div>').join('')+'</div></div>';
     h+='<div class="card"><h2>Sous la date</h2><div class="grp">'+[['wkn','Numéro de semaine'],['saint','Saint du jour']].map(([q,n])=>'<button class="row" data-a="shw" data-k="'+q+'"><span class="rl">'+n+'</span><span class="sw'+(SH(q)?' on':'')+'"></span></button>').join('')+'<button class="row" data-a="doytg"><span class="rl">Jour de l’année (ex. jour 302 sur 365)</span><span class="sw'+((S.cfg&&S.cfg.show&&S.cfg.show.doy===1)?' on':'')+'"></span></button></div></div>';
+    h+='<div class="card"><h2>Ce jour-là</h2><div class="grp"><button class="row" data-a="otdbtg"><span class="rl">Naissances du jour</span><span class="sw'+((S.cfg&&S.cfg.show&&S.cfg.show.otdb===0)?'':' on')+'"></span></button></div><p class="sub" style="margin:8px 2px 0">Le thème se choisit directement dans la rubrique.</p></div>';
     h+='<div class="card"><h2>Durée de « À venir »</h2>'+segH('soonn',String(SOONN()),[['3','3 jours'],['7','7 jours'],['14','14 jours']])+'</div>';
     return h}
   if(p==='cats'){const L=catAll();
@@ -1994,6 +2019,9 @@ document.addEventListener('click',e=>{
   else if(a==='trres'){const e=(S.trash||[]).find(q=>q.id===b.dataset.id);if(!e)return;if(trRestore(e)){S.trash=S.trash.filter(q=>q!==e);save();render();noteToast('✓ Restauré : '+TRL[e.ty].toLowerCase())}else noteToast('Impossible : les vacances d’origine n’existent plus');return}
   else if(a==='trempty'){if(!confirm('Vider la corbeille ? Les éléments seront supprimés définitivement.'))return;S.trash=[];save();render();return}
   else if(a==='ced'){V.ced=b.dataset.k;render();const i=document.querySelector('.tnin');if(i){i.focus();const n=i.value.length;try{i.setSelectionRange(n,n)}catch(e){}}return}
+  else if(a==='otdth'){S.cfg=S.cfg||{w:{}};S.cfg.otdTh=b.dataset.v;save();const el=document.getElementById('otd');if(el){el.innerHTML=otdHTML(V.d);return}}
+  else if(a==='otdsh'){otdShare(b.dataset.t,b.dataset.u);return}
+  else if(a==='otdbtg'){S.cfg=S.cfg||{w:{}};S.cfg.show=S.cfg.show||{};S.cfg.show.otdb=S.cfg.show.otdb===0?1:0;save();render();return}
   else if(a==='vte'){V.vte={vi:+b.dataset.i,w:b.dataset.w};V.vse=null;V.vst=null;V.segk=null;if(V.sg)V.sg.leg=null}
   else if(a==='segadd'){readSegs();const k=b.dataset.k,L=V.sg[k],q=L[L.length-1]||{};L.push(segNew('Bus',q.to||''));segRedraw(k);return}
   else if(a==='segx'){readSegs();const k=b.dataset.k;V.sg[k].splice(+b.dataset.i,1);segRedraw(k);return}
