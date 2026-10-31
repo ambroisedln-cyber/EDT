@@ -919,7 +919,7 @@ body.shr-mode .topg{display:none}
 .tp textarea.nt{resize:none;line-height:1.35}
 textarea.tnin{resize:none;overflow:hidden;line-height:1.35;font-family:inherit;display:block}
 .ulk{color:#007aff;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px;word-break:break-all;cursor:pointer}
-.nlks{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}.nlks:empty{display:none}
+.nview{min-height:32vh;border-radius:14px;background:var(--card);padding:14px 16px;font-size:17px;line-height:1.5;color:var(--tx);box-shadow:var(--sh);white-space:pre-wrap;word-break:break-word;cursor:text;-webkit-user-select:text;user-select:text}
 .ulc{display:inline-flex;align-items:center;gap:5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none;font-size:13.5px;font-weight:600;padding:6px 11px;border-radius:14px;background:color-mix(in srgb,#007aff 10%,var(--card))}
 .ulc svg{flex:none}
 </style>
@@ -977,7 +977,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 // Liens cliquables dans le texte saisi (URL, www., e-mail)
 const LKRE=/(?:https?:\/\/|www\.)[^\s<>"]+[^\s<>".,;:!?)\]'»]|[\w.+-]+@[\w-]+(?:\.[\w-]+)*\.[a-z]{2,}/gi;
 const lkHref=u=>/^https?:/i.test(u)?u:/@/.test(u)&&!/^www\./i.test(u)?'mailto:'+u:'https://'+u;
-const lk=t=>{t=String(t==null?'':t);let o='',p=0;t.replace(LKRE,(m,i)=>{o+=esc(t.slice(p,i))+'<span class="ulk" role="link" data-href="'+esc(lkHref(m))+'">'+esc(m.replace(/^https?:\/\/(www\.)?/i,'').replace(/\/$/,''))+'</span>';p=i+m.length;return m});return o+esc(t.slice(p))};
+const lk=(t,full)=>{t=String(t==null?'':t);let o='',p=0;t.replace(LKRE,(m,i)=>{o+=esc(t.slice(p,i))+'<span class="ulk" role="link" data-href="'+esc(lkHref(m))+'">'+esc(full?m:m.replace(/^https?:\/\/(www\.)?/i,'').replace(/\/$/,''))+'</span>';p=i+m.length;return m});return o+esc(t.slice(p))};
 const lkList=t=>{const L=[...new Set(String(t||'').match(LKRE)||[])];return L.map(m=>'<span class="ulk ulc" role="link" data-href="'+esc(lkHref(m))+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>'+esc(m.replace(/^https?:\/\/(www\.)?/i,'').slice(0,40))+'</span>').join('')};
 function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),n=h+l-7*m+114;return new Date(y,Math.floor(n/31)-1,n%31+1)}
 const HC={};
@@ -1617,7 +1617,7 @@ function vNotes(){const N=NS();
     const fo=N.f.map(f=>'<option value="'+f.k+'"'+(n.f===f.k?' selected':'')+'>'+esc(f.n)+'</option>').join('');
     return '<div class="nbar"><button class="nback" data-a="nclose">‹ '+esc(V.nf===null||V.nf===undefined?'Notes':((N.f.find(f=>f.k===V.nf)||{}).n||'Général'))+'</button><span class="nact"><button class="nic'+(n.lk?' on':'')+'" data-a="nlock" title="Verrouiller">'+NLOCK+'</button><button class="nic'+(n.p?' on':'')+'" data-a="npin" title="Épingler">'+PIN+'</button><button class="nic" data-a="nshare" title="Partager"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button><button class="nic" data-a="ndel1" title="Supprimer" style="color:#ff3b30"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button></span></div>'
      +'<div class="nmeta"><span>'+nDate(n.u)+'</span><label class="nmv">Dossier <select data-nmove="'+n.id+'"><option value="">Aucun</option>'+fo+'</select></label></div>'
-     +'<input class="ntitle" data-ntitle="'+n.id+'" placeholder="Nom de la note" value="'+esc(n.ti||'')+'" autocomplete="off"><textarea class="nedit tna" data-note="'+n.id+'" placeholder="Écris ta note…">'+esc(n.t||'')+'</textarea><div class="nlks" id="nlks">'+lkList(n.t)+'</div>'
+     +'<input class="ntitle" data-ntitle="'+n.id+'" placeholder="Nom de la note" value="'+esc(n.ti||'')+'" autocomplete="off">'+((n.t||'').trim()&&V.ned!==n.id?'<div class="nedit nview" data-nview="'+n.id+'">'+lk(n.t,1)+'</div>':'<textarea class="nedit tna" data-note="'+n.id+'" placeholder="Écris ta note…">'+esc(n.t||'')+'</textarea>')
      +'<div class="natt">'+(n.a||[]).map(f=>'<div class="nat">'+(/^image\//.test(f.t||'')?'<a href="#" data-fid="'+esc(f.id)+'" class="nimg"><img data-nimg="'+esc(f.id)+'" alt=""></a>':'<a href="#" data-fid="'+esc(f.id)+'" class="nfile">'+CLIP+'<span>'+esc(f.n)+'</span></a>')+'<button class="natx" data-a="natx" data-id="'+esc(f.id)+'" aria-label="Retirer">'+XSVG+'</button></div>').join('')+'</div>'
      +'<label class="naddf">'+CLIP+' Ajouter une photo ou une pièce jointe<input type="file" data-natt="'+n.id+'" multiple accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"></label><div class="sub" id="nmsg" style="text-align:center;margin:4px 0 0"></div>'}
   const q=nz(V.nq||'').trim(),home=V.nf===null||V.nf===undefined,cur=V.nf||'';
@@ -2211,7 +2211,7 @@ document.addEventListener('input',e=>{
   else if(t.id==='nt'){D(key(V.d)).n=t.value;save()}
   else if(t.dataset.tname){const[s,i]=t.dataset.tname.split('|'),arr=s==='d'?D(key(V.d)).t:S.g[s],x=arr&&arr[+i];if(x&&t.value.trim()){x.x=t.value;save();const r=t.closest('.tk'),b=r&&r.querySelector('.tt');if(b&&b.firstChild&&b.firstChild.nodeType===3)b.firstChild.nodeValue=t.value}}
   else if(t.dataset.ntitle){const n=NS().l.find(x=>x.id===t.dataset.ntitle);if(n){n.ti=t.value;n.u=Date.now();save()}}
-  else if(t.dataset.note){const n=NS().l.find(x=>x.id===t.dataset.note);if(n){n.t=t.value;n.u=Date.now();save();const q=document.getElementById('nlks');if(q){const h=lkList(n.t);if(q.innerHTML!==h)q.innerHTML=h}}}
+  else if(t.dataset.note){const n=NS().l.find(x=>x.id===t.dataset.note);if(n){n.t=t.value;n.u=Date.now();save()}}
   else if(t.id==='nq'){V.nq=t.value;const p=t.selectionStart;render();const e=$('#nq');if(e){e.focus();try{e.setSelectionRange(p,p)}catch(_){}}}
   else if(t.dataset.tn){const[s,i]=t.dataset.tn.split('|'),arr=s==='d'?D(key(V.d)).t:S.g[s],x=arr&&arr[+i];if(x){x.nt=t.value;save()}}
   else if(t.dataset.nt==='dn'){D(key(V.d)).dn=t.value;save()}
@@ -2419,6 +2419,10 @@ const swEnd=()=>{if(!SW)return;const s0=SW;SW=null;if(!s0.on)return;SWblock=Date
   if(go){s0.it.style.transform='translateX(-110%)';setTimeout(()=>{const b=s0.tk.querySelector(':scope>.swdel');if(b){b.hidden=false;b.click()}},180)}
   else{s0.it.style.transform='';setTimeout(()=>{s0.it.style.transition='';s0.tk.classList.remove('swiping','swgo');const bg=s0.tk.querySelector(':scope>.swbg');if(bg)bg.remove()},200)}};
 document.addEventListener('pointerup',swEnd);document.addEventListener('pointercancel',swEnd);
+document.addEventListener('click',e=>{const d=e.target.closest&&e.target.closest('[data-nview]');if(!d||e.target.closest('.ulk'))return;e.stopPropagation();
+  let off=(d.textContent||'').length;try{const rg=document.caretRangeFromPoint?document.caretRangeFromPoint(e.clientX,e.clientY):null;if(rg&&d.contains(rg.startContainer)){const w=document.createTreeWalker(d,NodeFilter.SHOW_TEXT);let n,o=0;while((n=w.nextNode())){if(n===rg.startContainer){off=o+rg.startOffset;break}o+=n.length}}}catch(x){}
+  V.ned=d.dataset.nview;const n=NS().l.find(x=>x.id===V.ned);const ta=document.createElement('textarea');ta.className='nedit tna';ta.dataset.note=V.ned;ta.placeholder='Écris ta note…';ta.value=n?(n.t||''):d.textContent;d.replaceWith(ta);grow(ta);ta.focus({preventScroll:true});try{ta.setSelectionRange(off,off)}catch(x){}},true);
+document.addEventListener('focusout',e=>{const t=e.target;if(!t.dataset||!t.dataset.note||!t.classList.contains('nedit'))return;setTimeout(()=>{if(document.activeElement===t||!t.isConnected)return;V.ned=null;if(!(t.value||'').trim())return;const d=document.createElement('div');d.className='nedit nview';d.dataset.nview=t.dataset.note;d.innerHTML=lk(t.value,1);t.replaceWith(d)},0)});
 document.addEventListener('click',e=>{const u=e.target.closest&&e.target.closest('.ulk');if(!u||(Date.now()-SWblock<350))return;e.preventDefault();e.stopPropagation();const h=u.dataset.href;if(/^mailto:/.test(h))location.href=h;else window.open(h,'_blank','noopener')},true);
 document.addEventListener('click',e=>{if(Date.now()-SWblock<350&&e.target.closest('.tk,.swp')&&!e.target.closest('.swdel')){e.stopPropagation();e.preventDefault()}},true);
 </script>
