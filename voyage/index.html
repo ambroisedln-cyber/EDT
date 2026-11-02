@@ -113,7 +113,7 @@ textarea.inp{resize:vertical;min-height:80px}
 .empty.box{background:var(--surface);border:1px solid var(--line);border-radius:12px}
 .letter{padding:6px 12px;font-family:var(--f-mono);font-size:.72rem;color:var(--muted);background:var(--bg);border-top:1px solid var(--line)}
 .letter:first-child{border-top:0}
-@media (max-width:420px){.c-row{grid-template-columns:auto 1fr}.c-act{grid-column:1/-1;justify-content:flex-end}}
+
 
 .sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:24px 0 10px;flex-wrap:wrap}
 .sec-h h2{font-size:1.25rem}
@@ -331,12 +331,60 @@ input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;displa
 .city{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:10px}
 .city input{flex:1;min-width:120px;border:0;background:none;padding:6px 4px;font-weight:600}
 .city span{font-size:.8rem;color:var(--muted)}
+/* Épuré */
+:root{--line:#E4E9EE}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--line:#223039}}
+:root[data-theme="dark"]{--line:#223039}
+.blk,.card,.list,.proj,.pass,.map-card,.my-item,.empty.box,.city{border-color:transparent;box-shadow:0 1px 2px rgba(16,32,48,.05),0 0 0 1px rgba(16,32,48,.03)}
+.search,.inp,.add input,.add select{border-color:transparent;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.sheet .inp,.sheet .search{background:var(--surface)}
+.chip{border-color:transparent;background:var(--surface)}
+.seg{border-color:transparent}
+.pass-side{border-left-style:solid;border-left-width:1px}
+@media (max-width:520px){.pass-side{border-top-style:solid;border-top-width:1px}}
+.legend{border-top:0;padding-top:4px}
+.letter{background:none;border-top:0;padding:14px 14px 4px;color:var(--muted);letter-spacing:.08em}
+.list>.sw{border-top:1px solid var(--line)}
+.list>.letter+.sw{border-top:0}
+.c-row{grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:6px 10px 6px 4px}
+.c-open{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;border:0;background:none;text-align:left;padding:6px 8px;min-height:44px;border-radius:10px;min-width:0}
+.c-open:active{background:var(--bg)}
+.c-name span{display:block}
+.st{border-color:transparent;background:var(--bg);color:var(--muted);font-weight:500;padding:6px 10px}
+.btn{border-color:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.btn.pri{box-shadow:none}
+.btn.ghost{background:var(--bg);box-shadow:none;display:inline-flex;align-items:center;justify-content:center;width:auto}
+.card{gap:6px}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card-top h3{min-width:0}
+.card-top .tag{flex:none;margin-top:2px}
+.card p.when{font-size:.76rem;color:var(--muted);text-transform:capitalize}
+.card .act{padding-top:4px}
+.hint[data-off]{display:none}
+.sync{font-size:.7rem}
+/* Journal : pièces jointes */
+.entry-act{display:flex;gap:16px}
+.danger-t{color:var(--todo)}
+.fsec{display:grid;gap:8px}
+.attach{display:grid;gap:6px}
+.attach:empty{display:none}
+.att{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--bg);border-radius:10px;padding:8px 10px;color:inherit;text-decoration:none;min-height:44px}
+.att-k{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.att-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.9rem}
+.att .x{padding:2px 6px}
+.add-link{display:grid;grid-template-columns:1fr 1.4fr auto;gap:6px}
+@media (max-width:520px){.add-link{grid-template-columns:1fr 1fr}.add-link .btn{grid-column:1/-1}}
+.close.mini{position:absolute;top:4px;right:4px;width:26px;height:26px;font-size:.75rem}
+.photos>div{min-width:0}
+.add.four{grid-template-columns:2fr 1fr 1fr auto}
+@media (max-width:520px){.add.four{grid-template-columns:1fr 1fr}}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:6px 0}
 .auth{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));overflow-y:auto}
 .auth-box{width:100%;max-width:380px;display:grid;gap:14px}
 .auth-box h1{font-size:2rem;font-weight:800}
 .auth-box p{margin:0}
 .auth-box .btn{min-height:46px;font-size:1rem}
-.linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:6px 0;text-align:left}
+.auth .linkbtn{text-align:left}
 a{color:var(--accent)}
 a.item{color:inherit;text-decoration:none}
 .acct{border:1px solid var(--line);background:var(--surface);border-radius:999px;width:34px;height:34px;display:grid;place-items:center;font-weight:700;font-family:var(--f-display);color:var(--accent);flex:none}
@@ -370,7 +418,7 @@ a.item{color:inherit;text-decoration:none}
         <div class="pass-label">Pays visités</div>
         <div class="pass-big" id="s-done">0 <small>/ 197</small></div>
         <div class="bar"><i id="s-bar" style="width:0"></i></div>
-        <div class="conts" id="s-conts"></div>
+        <div class="conts" id="s-conts" hidden></div>
       </div>
       <div class="pass-side">
         <div><span class="muted">Du monde</span><b id="s-pct">0 %</b></div>
@@ -385,7 +433,7 @@ a.item{color:inherit;text-decoration:none}
         <button id="z-out" aria-label="Dézoomer">−</button>
         <button id="z-reset" aria-label="Vue entière">⤢</button>
       </div>
-      <div class="legend"><span><i style="background:var(--done)"></i>Fait</span><span><i style="background:var(--todo)"></i>À faire</span><span><i style="background:var(--land)"></i>Pas encore</span><span>Touche un pays pour sa fiche</span></div>
+      <div class="legend"><span><i style="background:var(--done)"></i>Fait</span><span><i style="background:var(--todo)"></i>À faire</span><span><i style="background:var(--land)"></i>Pas encore</span></div>
     </div>
 
     <div class="blk dl" id="dl" hidden>
@@ -408,7 +456,7 @@ a.item{color:inherit;text-decoration:none}
     </div>
     <button class="addc" id="addc" hidden>+ Ajouter un pays</button>
     <div class="list" id="list"></div>
-    <p class="hint" id="list-hint" hidden>Glisse un pays coché vers la gauche pour le retirer de tes listes.</p>
+    <p class="hint" id="list-hint" hidden data-off>Glisse un pays coché vers la gauche pour le retirer de tes listes.</p>
   </section>
 
   <!-- WEEK-ENDS -->
@@ -699,7 +747,7 @@ const ovCache = lsGet(LS+"-ov",{});
 const sample=null;
 const sb=supabase.createClient("https://rbofulzwbhrnlgbjqasn.supabase.co","sb_publishable_xxOalgbQ9LqsXMYpST_Xaw_HEemlkQt",{auth:{storageKey:"voyage-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let uid=null, online=false;
-const assets={ async upload(blob,opts){ const ext=(opts&&opts.contentType==="application/pdf")?"pdf":"jpg"; const path=uid+"/"+Date.now()+"-"+rid()+"."+ext;
+const assets={ async upload(blob,opts){ const nm=(opts&&opts.name)||""; const ext=(nm.match(/\.([a-z0-9]{1,5})$/i)||[])[1]||((opts&&opts.contentType==="application/pdf")?"pdf":"jpg"); const path=uid+"/"+Date.now()+"-"+rid()+"."+ext;
   const {error}=await sb.storage.from("voyage").upload(path,blob,{contentType:(opts&&opts.contentType)||blob.type||"image/jpeg",upsert:false}); if(error) throw error; return {id:path,url:"",path}; } };
 
 
@@ -707,7 +755,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const rid = () => Math.random().toString(36).slice(2,10);
 const norm = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
-const setSync = t => { $("#sync").textContent = t; };
+const setSync = t => { const e=$("#sync"); e.textContent = t; e.hidden = /^(Synchronisé|Chargement…|Enregistrement…)$/.test(t); };
 const timers = {};
 function remote(key, fn){
   if (!online || !uid) return;
@@ -788,12 +836,11 @@ function renderList(){
     if(!q&&fSt==="all"&&L!==last){ html+=`<div class="letter">${L}</div>`; last=L; }
     const j=jCount(c.iso);
     const has=!!state.status[c.iso];
-    const row=`<div class="c-row"><span class="flag" aria-hidden="true">${flag(c.iso)}</span><div class="c-name"><b>${esc(c.name)}</b><span>${CONT[c.cont]}${j?` · ${j} souvenir${j>1?"s":""}`:""}</span></div><div class="c-act">${statusBtns(c.iso,true)}<button class="ov" data-ov="${c.iso}">Overview</button></div></div>`;
+    const row=`<div class="c-row"><button class="c-open" data-ov="${c.iso}" aria-label="Fiche ${esc(c.name)}"><span class="flag" aria-hidden="true">${flag(c.iso)}</span><span class="c-name"><b>${esc(c.name)}</b>${j?`<span>${j} souvenir${j>1?"s":""}</span>`:""}</span></button><div class="c-act">${statusBtns(c.iso,true)}</div></div>`;
     html+=has?`<div class="sw" data-sw="c:${c.iso}"><div class="sw-act"><button type="button" aria-label="Retirer ${esc(c.name)}">Retirer</button></div><div class="sw-fg">${row}</div></div>`:`<div class="sw">${row}</div>`;
   });
   $("#list").innerHTML=html;
   const ac=$("#addc"); ac.hidden=!(fSt==="done"||fSt==="todo"); ac.classList.toggle("todo",fSt==="todo"); ac.textContent=fSt==="todo"?"+ Ajouter un pays à faire":"+ Ajouter un pays visité";
-  $("#list-hint").hidden=!items.some(c=>state.status[c.iso]);
 }
 function setStatus(iso,s,force){
   if (force) state.status[iso]=s; else { state.status[iso]=state.status[iso]===s?undefined:s; }
@@ -887,6 +934,7 @@ function openPicker(mode){
 function closeSheet(){ $("#sheet-root").innerHTML=""; document.body.style.overflow=""; }
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeSheet(); });
 function openSheet(head, label){
+  document.querySelector(".toast")?.remove();
   document.body.style.overflow="hidden";
   $("#sheet-root").innerHTML=`<div class="sheet-bg" id="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(label)}"><div class="sheet-head">${head}</div><div id="sheet-body"></div></div></div>`;
   $("#sheet-root .close").onclick=closeSheet;
@@ -1026,16 +1074,17 @@ function renderJournal(iso, editId){
   const box=$("#sheet-body"); const J=journals[iso]||{entries:[]};
   const entries=J.entries.slice().sort((a,b)=>(b.from||"").localeCompare(a.from||""));
   const editing = editId!==undefined;
-  const cur = editing ? (J.entries.find(e=>e.id===editId) || {id:editId,from:"",to:"",with:"",rating:0,text:"",photos:[]}) : null;
+  const cur = editing ? (J.entries.find(e=>e.id===editId) || {id:editId,from:"",to:"",with:"",rating:0,text:"",photos:[],links:[],docs:[]}) : null;
   box.innerHTML=`<div class="ov-body">
-    ${editing ? journalForm(iso,cur) : `<div class="row-ctl"><span class="muted small">${entries.length?entries.length+" voyage"+(entries.length>1?"s":"")+" notés":"Aucun souvenir pour l'instant"}</span><button class="btn pri" id="j-add">Ajouter un voyage</button></div>`}
-    ${!editing && entries.length ? `<div class="blk">${entries.map(e=>`<div class="entry">
+    ${editing ? journalForm(iso,cur) : `<div class="row-ctl"><span class="muted small">${entries.length?entries.length+" voyage"+(entries.length>1?"s":""):"Aucun souvenir pour l'instant"}</span><button class="btn pri" id="j-add">+ Nouveau voyage</button></div>`}
+    ${!editing && entries.length ? entries.map(e=>`<article class="blk entry">
       <div class="entry-h"><b>${esc(fmtRange(e.from,e.to))}</b>${starsRO(e.rating)}</div>
       ${e.with?`<span class="muted small">Avec ${esc(e.with)}</span>`:""}
       ${e.text?`<p class="journal-text">${esc(e.text)}</p>`:""}
       ${e.photos&&e.photos.length?`<div class="photos">${e.photos.map(ph=>`<a href="${esc(photoUrl(ph))}" target="_blank" rel="noopener"><img src="${esc(photoUrl(ph))}" alt="Photo ${esc(BY_ISO[iso].name)}" loading="lazy"></a>`).join("")}</div>`:""}
-      <div class="row-ctl" style="justify-content:flex-start"><button class="btn" data-jedit="${e.id}">Modifier</button><span id="jdel-${e.id}"><button class="btn danger" data-jdel="${e.id}">Supprimer</button></span></div>
-    </div>`).join("")}</div>` : (!editing ? `<div class="empty box">Note ici tes voyages dans ce pays : dates, avec qui, une note sur 5, tes souvenirs et des photos.</div>`:"")}
+      ${(e.links||[]).length||(e.docs||[]).length?`<div class="attach">${(e.links||[]).map(l=>`<a class="att" href="${esc(safeUrl(l.u))}" target="_blank" rel="noopener"><span class="att-k">Lien</span><span class="att-t">${esc(l.t||hostOf(l.u))}</span><span class="muted">↗</span></a>`).join("")}${(e.docs||[]).map(d=>`<a class="att" href="${esc(photoUrl(d))}" target="_blank" rel="noopener"><span class="att-k">${esc(docKind(d))}</span><span class="att-t">${esc(d.name||"Document")}</span><span class="muted">↗</span></a>`).join("")}</div>`:""}
+      <div class="entry-act"><button class="linkbtn" data-jedit="${e.id}">Modifier</button><span id="jdel-${e.id}"><button class="linkbtn danger-t" data-jdel="${e.id}">Supprimer</button></span></div>
+    </article>`).join("") : (!editing ? `<div class="empty box">Note ici tes voyages dans ce pays : dates, avec qui, une note, tes souvenirs, des photos, des liens et des documents.</div>`:"")}
   </div>`;
   const add=$("#j-add"); if(add) add.onclick=()=>renderJournal(iso,rid());
   box.querySelectorAll("[data-jedit]").forEach(b=>b.onclick=()=>renderJournal(iso,b.dataset.jedit));
@@ -1044,39 +1093,60 @@ function renderJournal(iso, editId){
     $("#jn").onclick=()=>renderJournal(iso); });
   if (editing) bindJournalForm(iso,cur);
 }
+const hostOf = u => { try{ return new URL(safeUrl(u)).hostname.replace(/^www\./,""); }catch(e){ return u; } };
+const docKind = d => { const n=(d.name||"").toLowerCase(); return /\.pdf$/.test(n)||d.type==="application/pdf"?"PDF":/\.(docx?|odt)$/.test(n)?"Word":/\.(xlsx?|csv|ods)$/.test(n)?"Tableur":/\.(pptx?|key)$/.test(n)?"Présentation":/\.(png|jpe?g|heic|webp|gif)$/.test(n)?"Image":"Fichier"; };
 function updJTab(iso){ const b=$("#cs-tabs [data-t=j]"); if(b) b.textContent="Journal"+(jCount(iso)?` (${jCount(iso)})`:""); }
-let draftPhotos=[];
+let draftPhotos=[], draftLinks=[], draftDocs=[];
 function journalForm(iso,e){
-  draftPhotos=(e.photos||[]).slice();
+  draftPhotos=(e.photos||[]).slice(); draftLinks=(e.links||[]).slice(); draftDocs=(e.docs||[]).slice();
   return `<form class="blk form" id="j-form"><h3>${e.from||e.text?"Modifier le souvenir":"Nouveau voyage"}</h3>
     <div class="two"><label>Du<input class="inp" type="date" id="j-from" value="${esc(e.from)}"></label><label>Au<input class="inp" type="date" id="j-to" value="${esc(e.to)}"></label></div>
     <label>Avec qui<input class="inp" id="j-with" value="${esc(e.with)}" placeholder="Seul, avec Paul, en famille…"></label>
     <div><span class="muted small">Note</span><div class="stars" id="j-stars">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" class="${n<=(e.rating||0)?"on":""}" aria-label="${n} sur 5">★</button>`).join("")}</div></div>
     <label>Souvenirs<textarea class="inp" id="j-text" rows="5" placeholder="Ce qui t'a marqué, les meilleurs endroits, ce que tu referais…">${esc(e.text)}</textarea></label>
-    <div><span class="muted small">Photos</span><div class="photos" id="j-photos" style="margin-top:6px"></div>
-      ${assets?`<label class="btn" style="display:inline-block;margin-top:8px;width:auto">Ajouter des photos<input type="file" id="j-file" accept="image/*" multiple hidden></label><span class="small muted" id="j-up"></span>`:""}</div>
+    <div class="fsec"><span class="muted small">Photos</span><div class="photos" id="j-photos"></div>
+      ${assets?`<label class="btn ghost">+ Ajouter des photos<input type="file" id="j-file" accept="image/*" multiple hidden></label>`:""}</div>
+    <div class="fsec"><span class="muted small">Liens</span><div class="attach" id="j-links"></div>
+      <div class="add-link"><input class="inp" id="j-lt" placeholder="Titre (optionnel)"><input class="inp" id="j-lu" type="url" inputmode="url" placeholder="https://…"><button class="btn ghost" type="button" id="j-ladd">+ Ajouter</button></div></div>
+    <div class="fsec"><span class="muted small">Documents</span><div class="attach" id="j-docs"></div>
+      ${assets?`<label class="btn ghost">+ Ajouter un document<input type="file" id="j-dfile" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.txt,image/*" multiple hidden></label>`:""}</div>
+    <span class="small muted" id="j-up" role="status"></span>
     <div class="row-ctl" style="justify-content:flex-start"><button class="btn pri" type="submit">Enregistrer</button><button class="btn" type="button" id="j-cancel">Annuler</button></div></form>`;
 }
-function drawDraftPhotos(){ const el=$("#j-photos"); if(!el) return; el.innerHTML=draftPhotos.map((ph,i)=>`<a href="${esc(photoUrl(ph))}" style="position:relative" target="_blank" rel="noopener"><img src="${esc(photoUrl(ph))}" alt="Photo ${i+1}"></a>`).join("") + draftPhotos.map((ph,i)=>"").join("");
-  if(draftPhotos.length) el.insertAdjacentHTML("afterend",""); }
+function drawDraft(){
+  const ph=$("#j-photos"); if(ph){ ph.innerHTML=draftPhotos.map((p,i)=>`<div style="position:relative"><a href="${esc(photoUrl(p))}" target="_blank" rel="noopener"><img src="${esc(photoUrl(p))}" alt="Photo ${i+1}"></a><button type="button" class="close mini" data-phx="${i}" aria-label="Retirer la photo">✕</button></div>`).join("");
+    ph.querySelectorAll("[data-phx]").forEach(b=>b.onclick=()=>{ draftPhotos.splice(+b.dataset.phx,1); drawDraft(); }); }
+  const ln=$("#j-links"); if(ln){ ln.innerHTML=draftLinks.map((l,i)=>`<div class="att"><span class="att-k">Lien</span><span class="att-t">${esc(l.t||hostOf(l.u))}</span><button type="button" class="x" data-lx="${i}" aria-label="Retirer le lien">×</button></div>`).join("");
+    ln.querySelectorAll("[data-lx]").forEach(b=>b.onclick=()=>{ draftLinks.splice(+b.dataset.lx,1); drawDraft(); }); }
+  const dc=$("#j-docs"); if(dc){ dc.innerHTML=draftDocs.map((d,i)=>`<div class="att"><span class="att-k">${esc(docKind(d))}</span><span class="att-t">${esc(d.name||"Document")}</span><button type="button" class="x" data-dx="${i}" aria-label="Retirer le document">×</button></div>`).join("");
+    dc.querySelectorAll("[data-dx]").forEach(b=>b.onclick=()=>{ draftDocs.splice(+b.dataset.dx,1); drawDraft(); }); }
+}
 function bindJournalForm(iso,e){
   let rating=e.rating||0;
-  drawDraftPhotos();
+  drawDraft();
   $("#j-stars").addEventListener("click",ev=>{const b=ev.target.closest("[data-n]");if(!b)return;rating=+b.dataset.n===rating?0:+b.dataset.n;[...$("#j-stars").children].forEach(x=>x.classList.toggle("on",+x.dataset.n<=rating));});
   $("#j-cancel").onclick=()=>renderJournal(iso);
-  const f=$("#j-file");
-  if(f) f.onchange=async()=>{
-    const files=[...f.files]; f.value="";
+  const addLink=()=>{ const u=$("#j-lu").value.trim(); if(!u){ $("#j-lu").focus(); return; } draftLinks.push({id:rid(),t:$("#j-lt").value.trim(),u}); $("#j-lu").value=""; $("#j-lt").value=""; drawDraft(); };
+  $("#j-ladd").onclick=addLink;
+  $("#j-lu").addEventListener("keydown",ev=>{ if(ev.key==="Enter"){ ev.preventDefault(); addLink(); } });
+  const up=async(files,isDoc)=>{
+    let bad=0;
     for (let i=0;i<files.length;i++){
-      $("#j-up").textContent=` Envoi ${i+1}/${files.length}…`;
-      try{ const blob=await compress(files[i]); const r=await assets.upload(blob,{contentType:"image/jpeg"}); draftPhotos.push({path:r.path}); drawDraftPhotos(); }
-      catch(err){ $("#j-up").textContent=" Une photo n'a pas pu être ajoutée."; }
+      $("#j-up").textContent=`Envoi ${i+1}/${files.length}…`;
+      try{ const f=files[i], img=f.type.startsWith("image/");
+        if(!isDoc){ const blob=await compress(f); const r=await assets.upload(blob,{contentType:"image/jpeg"}); draftPhotos.push({id:r.id,url:r.url,path:r.path}); }
+        else { const blob=img?await compress(f):f; const r=await assets.upload(blob,{contentType:img?"image/jpeg":(f.type||"application/octet-stream"),name:f.name}); draftDocs.push({id:r.id,url:r.url,path:r.path,name:f.name,type:img?"image/jpeg":f.type}); }
+        drawDraft(); }
+      catch(err){ bad++; }
     }
-    if(!/pas pu/.test($("#j-up").textContent)) $("#j-up").textContent="";
+    $("#j-up").textContent=bad?`${bad} fichier${bad>1?"s n'ont":" n'a"} pas pu être ajouté${bad>1?"s":""}.`:"";
   };
+  const f=$("#j-file"); if(f) f.onchange=()=>{ const fl=[...f.files]; f.value=""; up(fl,false); };
+  const d=$("#j-dfile"); if(d) d.onchange=()=>{ const fl=[...d.files]; d.value=""; up(fl,true); };
   $("#j-form").onsubmit=ev=>{ ev.preventDefault();
+    if($("#j-lu").value.trim()) addLink();
     const J=journals[iso]||{entries:[]};
-    const entry={id:e.id,from:$("#j-from").value,to:$("#j-to").value,with:$("#j-with").value.trim(),rating,text:$("#j-text").value.trim(),photos:draftPhotos};
+    const entry={id:e.id,from:$("#j-from").value,to:$("#j-to").value,with:$("#j-with").value.trim(),rating,text:$("#j-text").value.trim(),photos:draftPhotos,links:draftLinks,docs:draftDocs};
     const i=J.entries.findIndex(x=>x.id===e.id); if(i>=0) J.entries[i]=entry; else J.entries.push(entry);
     journals[iso]=J; saveJournal(iso);
     if(state.status[iso]!=="done") setStatus(iso,"done",true);
@@ -1100,11 +1170,11 @@ function renderMine(){
 const inMine = n => state.weekends.some(x=>norm(x.name)===norm(n));
 function wCard(x){
   const added=inMine(x.n), ok=x.iso&&BY_ISO[x.iso];
-  return `<div class="card"><h3>${ok?`<span aria-hidden="true">${flag(x.iso)}</span>`:""}${esc(x.n)}</h3>
-    <div class="meta"><span class="tag t">${esc(x.tr)} · ${esc(x.t)}</span>${(x.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>
-    <p>${esc(x.i)}</p>${x.m&&x.m.length?`<p class="note" style="margin:0">Idéal : ${x.m.map(n=>MONTHS[n-1]).join(", ")}</p>`:""}
-    <div class="act"><button class="btn ${added?"":"pri"}" data-wadd="${esc(x.n)}" data-wnote="${esc(x.tr+" · "+x.t)}" ${added?"disabled":""}>${added?"Dans ma liste":"Ajouter à ma liste"}</button>${ok?`<button class="btn" data-ov="${x.iso}">Fiche pays</button>`:""}</div></div>`;
+  return `<div class="card"><div class="card-top"><h3>${ok?`<span aria-hidden="true">${flag(x.iso)}</span>`:""}${esc(x.n)}</h3><span class="tag t">${esc(x.tr)} · ${esc(x.t)}</span></div>
+    <p>${esc(x.i)}</p>${x.m&&x.m.length?`<p class="when">${monthsTxt(x.m)}</p>`:""}
+    <div class="act"><button class="btn ${added?"":"pri"}" data-wadd="${esc(x.n)}" data-wnote="${esc(x.tr+" · "+x.t)}" ${added?"disabled":""}>${added?"✓ Dans ma liste":"+ Ma liste"}</button>${ok?`<button class="btn ghost" data-ov="${x.iso}">Fiche</button>`:""}</div></div>`;
 }
+const monthsTxt = m => { const a=[...new Set(m)].filter(n=>n>=1&&n<=12).sort((x,y)=>x-y); return a.length===12?"Toute l'année":a.map(n=>MONTHS[n-1].toLowerCase()).join(" · "); };
 function renderProps(){
   $("#w-filter").innerHTML=["all","Avion","Train","Voiture","Bus"].map(t=>`<button class="chip" data-tr="${t}" aria-pressed="${wTr===t}">${t==="all"?"Tous":t}</button>`).join("");
   $("#w-paris").hidden=isParis();
@@ -1165,10 +1235,9 @@ $("#e-mode").addEventListener("click",e=>{const b=e.target.closest("[data-m]");i
 const durLabel = d => d<=4?"3–4 jours":d<=8?"~1 semaine":d<=15?"~2 semaines":"3 semaines+";
 function sCard(s){
   const [n,iso,why,months,days]=s, st=state.status[iso], c=BY_ISO[iso];
-  return `<div class="card"><h3><span aria-hidden="true">${flag(iso)}</span>${esc(n)}</h3>
-    <div class="meta">${c?`<span class="tag">${esc(c.name)}</span>`:""}${days?`<span class="tag t">${durLabel(days)}</span>`:""}${st==="done"?`<span class="tag ok">Déjà fait</span>`:st==="todo"?`<span class="tag no">À faire</span>`:""}</div>
-    <p>${esc(why)}</p><p class="note" style="margin:0">Idéal : ${(months||[]).map(m=>MONTHS[m-1]).join(", ")||"—"}</p>
-    <div class="act">${c?`<button class="btn pri" data-ov="${iso}">Overview</button><button class="btn" data-addtodo="${iso}" ${st==="todo"?"disabled":""}>${st==="todo"?"Dans « À faire »":"Ajouter à « À faire »"}</button>`:""}</div></div>`;
+  return `<div class="card"><div class="card-top"><h3><span aria-hidden="true">${flag(iso)}</span>${esc(n)}</h3>${st==="done"?`<span class="tag ok">Fait</span>`:st==="todo"?`<span class="tag no">À faire</span>`:days?`<span class="tag t">${durLabel(days)}</span>`:""}</div>
+    <p>${esc(why)}</p>${(months||[]).length?`<p class="when">${monthsTxt(months)}</p>`:""}
+    <div class="act">${c?`<button class="btn ghost" data-ov="${iso}">Fiche</button>${st?"":`<button class="btn pri" data-addtodo="${iso}">+ À faire</button>`}`:""}</div></div>`;
 }
 function renderSugg(){
   const t=TYPES.find(x=>x.k===curType), m=+$("#month").value, key=curType+"|"+m+"|"+curDur, ai=aiSugg[key]||[];
@@ -1307,7 +1376,7 @@ function renderProjects(){
   const all=Object.values(projects).map(fixProject).sort((a,b)=>(a.from||"9999").localeCompare(b.from||"9999"));
   const up=all.filter(p=>!isPast(p)), past=all.filter(isPast);
   $("#p-list").innerHTML=up.length?up.map(projCard).join(""):`<div class="empty box">Aucun projet en cours. Crée-en un pour suivre tes réservations, ton programme, ta check-list, tes bagages et ton budget.</div>`;
-  $("#p-past").innerHTML=(all.length?`<p class="hint">Glisse un projet vers la gauche pour le supprimer.</p>`:"")+(past.length?`<div class="sec-h"><h2>Voyages terminés</h2></div><div class="my">${past.map(projCard).join("")}</div>`:"");
+  $("#p-past").innerHTML=(past.length?`<div class="sec-h"><h2>Voyages terminés</h2></div><div class="my">${past.map(projCard).join("")}</div>`:"");
 }
 $("#p-new").onclick=()=>openProjectForm(null,"");
 document.addEventListener("click",e=>{ const b=e.target.closest("[data-proj]"); if(b) openProject(b.dataset.proj); });
