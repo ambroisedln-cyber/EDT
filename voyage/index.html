@@ -272,6 +272,13 @@ input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;displa
 .sw.card .sw-act{background:none}
 .sw.card .sw-act button{background:var(--todo);border-radius:var(--r);width:120px;padding-left:24px}
 .sw.card .sw-fg{background:none}
+.addc{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:9px 16px;margin:0 0 10px;font-weight:600;font-size:.9rem;background:var(--done);color:#fff;box-shadow:0 2px 8px color-mix(in srgb,var(--done) 30%,transparent)}
+.addc.todo{background:var(--todo);box-shadow:0 2px 8px color-mix(in srgb,var(--todo) 30%,transparent)}
+.pick{display:grid}
+.pick button{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:var(--surface);padding:11px 12px;min-height:52px}
+.pick button:first-child{border-top:0}
+.pick .flag{font-size:1.5rem;width:auto}
+.pick .st-l{font-size:.75rem;font-weight:600}
 .hint{font-size:.75rem;color:var(--muted);margin:8px 2px 0}
 .toast{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));margin:0 auto;width:fit-content;justify-content:space-between;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 12px 10px 16px;display:flex;gap:14px;align-items:center;font-size:.9rem;box-shadow:0 6px 24px rgba(0,0,0,.18);max-width:440px}
 .toast button{border:0;background:none;color:var(--accent-soft);font-weight:700;padding:6px}
@@ -393,6 +400,7 @@ a.item{color:inherit;text-decoration:none}
         <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id="bulk"></span><span class="muted small" id="count"></span></span>
       </div>
     </div>
+    <button class="addc" id="addc" hidden>+ Ajouter un pays</button>
     <div class="list" id="list"></div>
     <p class="hint" id="list-hint" hidden>Glisse un pays coché vers la gauche pour le retirer de tes listes.</p>
   </section>
@@ -766,6 +774,7 @@ function renderList(){
   const q=norm(query);
   const items=COUNTRIES.filter(c=>(fCont==="all"||c.cont===fCont)&&(fSt==="all"||(fSt==="journal"?jCount(c.iso)>0:state.status[c.iso]===fSt))&&(!q||norm(c.name).includes(q)));
   $("#count").textContent=items.length+" pays";
+  { const ac=$("#addc"); ac.hidden=!(fSt==="done"||fSt==="todo"); ac.classList.toggle("todo",fSt==="todo"); ac.textContent=fSt==="todo"?"+ Ajouter un pays à faire":"+ Ajouter un pays visité"; }
   const bk=$("#bulk");
   if((fSt==="done"||fSt==="todo")&&items.length){ bk.innerHTML=`<button class="btn danger" id="bulk-b">${items.length>1?`Retirer ces ${items.length} pays`:"Retirer ce pays"}</button>`;
     $("#bulk-b").onclick=()=>{ bk.innerHTML=`<span class="confirm"><span class="small">Retirer ${items.length} pays de « ${fSt==="done"?"Faits":"À faire"} » ?</span><button class="btn danger" id="bulk-y">Oui</button><button class="btn" id="bulk-n">Non</button></span>`;
@@ -783,6 +792,7 @@ function renderList(){
     html+=has?`<div class="sw" data-sw="c:${c.iso}"><div class="sw-act"><button type="button" aria-label="Retirer ${esc(c.name)}">Retirer</button></div><div class="sw-fg">${row}</div></div>`:`<div class="sw">${row}</div>`;
   });
   $("#list").innerHTML=html;
+  const ac=$("#addc"); ac.hidden=!(fSt==="done"||fSt==="todo"); ac.classList.toggle("todo",fSt==="todo"); ac.textContent=fSt==="todo"?"+ Ajouter un pays à faire":"+ Ajouter un pays visité";
   $("#list-hint").hidden=!items.some(c=>state.status[c.iso]);
 }
 function setStatus(iso,s,force){
@@ -845,6 +855,23 @@ function toast(msg,undo){
   document.body.appendChild(t);
   if(undo) t.querySelector("button").onclick=()=>{ undo(); t.remove(); };
   toastT=setTimeout(()=>t.remove(),6000);
+}
+
+/* ---------- Ajouter un pays ---------- */
+$("#addc").onclick=()=>openPicker(fSt==="todo"?"todo":"done");
+function openPicker(mode){
+  const body=openSheet(`<div class="sheet-title"><div><h2>${mode==="done"?"Ajouter un pays visité":"Ajouter un pays à faire"}</h2><span class="sub">Touche un pays pour l'ajouter</span></div><button class="close" aria-label="Fermer">✕</button></div>
+    <input class="search" id="pk-q" type="search" placeholder="Rechercher un pays…" autocomplete="off">`, "Ajouter un pays");
+  const draw=()=>{
+    const q=norm($("#pk-q").value);
+    const items=COUNTRIES.filter(c=>!q||norm(c.name).includes(q));
+    body.innerHTML=items.length?`<div class="list pick" style="margin-top:12px">${items.map(c=>{ const st=state.status[c.iso];
+      return `<button type="button" data-pk="${c.iso}"><span class="flag" aria-hidden="true">${flag(c.iso)}</span><span><b style="font-weight:600">${esc(c.name)}</b><br><span class="small muted">${CONT[c.cont]}</span></span>${st===mode?`<span class="st-l" style="color:${mode==="done"?"var(--done)":"var(--todo)"}">${mode==="done"?"✓ Fait":"✓ À faire"}</span>`:st?`<span class="st-l muted">${st==="done"?"Fait":"À faire"}</span>`:`<span class="st-l" style="color:var(--accent)">Ajouter</span>`}</button>`; }).join("")}</div>`
+      :`<div class="empty">Aucun pays ne correspond.</div>`;
+    body.querySelectorAll("[data-pk]").forEach(b=>b.onclick=()=>{ const iso=b.dataset.pk; if(state.status[iso]===mode) return;
+      setStatus(iso,mode,true); toast(`${BY_ISO[iso].name} ajouté ${mode==="done"?"aux pays visités":"à « À faire »"}`); draw(); });
+  };
+  $("#pk-q").addEventListener("input",draw); draw();
 }
 
 /* ---------- Feuilles ---------- */
