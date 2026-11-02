@@ -836,7 +836,7 @@ function renderList(){
     if(!q&&fSt==="all"&&L!==last){ html+=`<div class="letter">${L}</div>`; last=L; }
     const j=jCount(c.iso);
     const has=!!state.status[c.iso];
-    const row=`<div class="c-row"><button class="c-open" data-ov="${c.iso}" aria-label="Fiche ${esc(c.name)}"><span class="flag" aria-hidden="true">${flag(c.iso)}</span><span class="c-name"><b>${esc(c.name)}</b>${j?`<span>${j} souvenir${j>1?"s":""}</span>`:""}</span></button><div class="c-act">${statusBtns(c.iso,true)}</div></div>`;
+    const row=`<div class="c-row"><button class="c-open" data-ov="${c.iso}" aria-label="Fiche ${esc(c.name)}"><span class="flag" aria-hidden="true">${flag(c.iso)}</span><span class="c-name"><b>${esc(c.name)}</b>${j?`<span>${j} souvenir${j>1?"s":""}</span>`:""}</span></button><div class="c-act">${statusBtns(c.iso,true)}<button class="ov" data-ov="${c.iso}">Fiche</button></div></div>`;
     html+=has?`<div class="sw" data-sw="c:${c.iso}"><div class="sw-act"><button type="button" aria-label="Retirer ${esc(c.name)}">Retirer</button></div><div class="sw-fg">${row}</div></div>`:`<div class="sw">${row}</div>`;
   });
   $("#list").innerHTML=html;
