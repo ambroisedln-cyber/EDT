@@ -331,6 +331,20 @@ input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;displa
 .city{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:10px}
 .city input{flex:1;min-width:120px;border:0;background:none;padding:6px 4px;font-weight:600}
 .city span{font-size:.8rem;color:var(--muted)}
+.fsmap{position:fixed;inset:0;z-index:50;background:var(--surface);overflow:hidden;touch-action:none}
+.fs-stage{position:absolute;top:50%;left:50%;transform-origin:center}
+.fs-stage svg{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+.fs-stage svg.drag{cursor:grabbing}
+.fsmap path,.fsmap circle{stroke:var(--surface);stroke-width:.4;vector-effect:non-scaling-stroke}
+.fsmap circle.r{stroke-width:1}
+.fsmap .r{fill:var(--land)} .fsmap .r.done{fill:var(--done)} .fsmap .r.todo{fill:var(--todo)} .fsmap .r.nil{opacity:.55}
+.fs-tools{position:absolute;top:max(12px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:6px}
+.fs-tools button{width:40px;height:40px;border-radius:12px;border:0;background:var(--bg);font-size:1.1rem;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.fs-legend{position:absolute;left:max(14px,env(safe-area-inset-left,0px));bottom:12px;display:flex;gap:12px;font-size:.75rem;color:var(--muted);background:color-mix(in srgb,var(--surface) 85%,transparent);padding:6px 10px;border-radius:10px}
+.fs-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.fs-chip{position:absolute;left:max(14px,env(safe-area-inset-left,0px));top:12px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:14px;padding:8px 8px 8px 12px;box-shadow:0 4px 16px rgba(0,0,0,.14);max-width:calc(100% - 90px)}
+.fs-chip .flag{font-size:1.5rem;width:auto}
+.fs-chip b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* Épuré */
 :root{--line:#E4E9EE}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--line:#223039}}
@@ -431,7 +445,7 @@ a.item{color:inherit;text-decoration:none}
       <div class="map-tools">
         <button id="z-in" aria-label="Zoomer">+</button>
         <button id="z-out" aria-label="Dézoomer">−</button>
-        <button id="z-reset" aria-label="Vue entière">⤢</button>
+        <button id="z-reset" aria-label="Ouvrir la carte en grand">⤢</button>
       </div>
       <div class="legend"><span><i style="background:var(--done)"></i>Fait</span><span><i style="background:var(--todo)"></i>À faire</span><span><i style="background:var(--land)"></i>Pas encore</span></div>
     </div>
@@ -784,31 +798,66 @@ function project(lat,lng){
   const x=R*d*rd, y=-R*Math.log(Math.tan((45+0.4*lat)*rd))/0.8;
   return [(x-b0.x)/(b1.x-b0.x)*MAPW, (y-b0.y)/(b1.y-b0.y)*MAPH];
 }
-const svg = $("#map");
-(function buildMap(){
+let MAP_SVG="";
+(function(){
   let h="";
   for (const k in MAP_PATHS){ const known = BY_ISO[k]; h += `<path class="r${known?"":" nil"}" data-map="${known?k:""}" d="${MAP_PATHS[k]}"><title>${known?esc(known.name):""}</title></path>`; }
   for (const k in DOTS){ const [x,y]=project(DOTS[k][0],DOTS[k][1]); h += `<circle class="r" data-map="${k}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.4"><title>${esc(BY_ISO[k].name)}</title></circle>`; }
-  svg.innerHTML = h;
+  MAP_SVG=h;
 })();
-function paintMap(){ svg.querySelectorAll("[data-map]").forEach(el=>{ const k=el.dataset.map; if(!k) return; const s=state.status[k]; el.classList.toggle("done",s==="done"); el.classList.toggle("todo",s==="todo"); }); }
-let vb={x:0,y:0,w:900,h:440};
-const setVB = () => { vb.w=Math.min(900,Math.max(60,vb.w)); vb.h=vb.w*440/900; vb.x=Math.min(900-vb.w,Math.max(0,vb.x)); vb.y=Math.min(440-vb.h,Math.max(0,vb.y)); svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`); svg.querySelectorAll("circle").forEach(c=>c.setAttribute("r",(2.4*Math.max(.35,vb.w/900)).toFixed(2))); };
-function zoom(f,cx,cy){ if(cx==null){cx=vb.x+vb.w/2;cy=vb.y+vb.h/2;} const nw=Math.min(900,Math.max(60,vb.w*f)), k=nw/vb.w; vb.x=cx-(cx-vb.x)*k; vb.y=cy-(cy-vb.y)*k; vb.w=nw; setVB(); }
-$("#z-in").onclick=()=>zoom(.6); $("#z-out").onclick=()=>zoom(1/.6); $("#z-reset").onclick=()=>{vb={x:0,y:0,w:900,h:440};setVB();};
-const toSvg = (cx,cy) => { const r=svg.getBoundingClientRect(); return [vb.x+(cx-r.left)/r.width*vb.w, vb.y+(cy-r.top)/r.height*vb.h]; };
-const ptrs=new Map(); let moved=0, pinch0=null, downTarget=null;
-svg.addEventListener("pointerdown",e=>{ svg.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); moved=0; downTarget=e.target.closest("[data-map]"); if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),w:vb.w}; } });
-svg.addEventListener("pointermove",e=>{ const p=ptrs.get(e.pointerId); if(!p) return;
-  const r=svg.getBoundingClientRect();
-  if (ptrs.size===2 && pinch0){ ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); const [a,b]=[...ptrs.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); const [cx,cy]=toSvg((a.x+b.x)/2,(a.y+b.y)/2); zoom((pinch0.w*pinch0.d/d)/vb.w,cx,cy); moved+=10; return; }
-  const dx=e.clientX-p.x, dy=e.clientY-p.y; moved+=Math.abs(dx)+Math.abs(dy);
-  if (moved>6){ svg.classList.add("drag"); vb.x-=dx/r.width*vb.w; vb.y-=dy/r.height*vb.h; setVB(); }
-  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); });
-const up = e => { ptrs.delete(e.pointerId); if(ptrs.size<2) pinch0=null; svg.classList.remove("drag");
-  if (e.type==="pointerup" && ptrs.size===0 && moved<=6 && downTarget && downTarget.dataset.map) openCountry(downTarget.dataset.map); };
-svg.addEventListener("pointerup",up); svg.addEventListener("pointercancel",up);
-svg.addEventListener("wheel",e=>{ e.preventDefault(); const [cx,cy]=toSvg(e.clientX,e.clientY); zoom(e.deltaY>0?1.15:1/1.15,cx,cy); },{passive:false});
+function paintMap(){ document.querySelectorAll(".wmap [data-map]").forEach(el=>{ const k=el.dataset.map; if(!k) return; const s=state.status[k]; el.classList.toggle("done",s==="done"); el.classList.toggle("todo",s==="todo"); }); }
+function makeMap(svg, onTap, rotated){
+  svg.classList.add("wmap"); svg.innerHTML=MAP_SVG;
+  let vb={x:0,y:0,w:900,h:440};
+  const setVB=()=>{ vb.w=Math.min(900,Math.max(40,vb.w)); vb.h=vb.w*440/900; vb.x=Math.min(900-vb.w,Math.max(0,vb.x)); vb.y=Math.min(440-vb.h,Math.max(0,vb.y));
+    svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${vb.h}`); const r=(2.4*Math.max(.3,vb.w/900)).toFixed(2); svg.querySelectorAll("circle").forEach(c=>c.setAttribute("r",r)); };
+  const zoom=(f,cx,cy)=>{ if(cx==null){cx=vb.x+vb.w/2;cy=vb.y+vb.h/2;} const nw=Math.min(900,Math.max(40,vb.w*f)), k=nw/vb.w; vb.x=cx-(cx-vb.x)*k; vb.y=cy-(cy-vb.y)*k; vb.w=nw; setVB(); };
+  const toSvg=(x,y)=>{ const r=svg.getBoundingClientRect(), rot=rotated&&rotated();
+    const W0=rot?r.height:r.width, H0=rot?r.width:r.height; const lx=rot?(y-r.top):(x-r.left), ly=rot?(r.right-x):(y-r.top);
+    const sc=Math.min(W0/vb.w,H0/vb.h)||1, ox=(W0-vb.w*sc)/2, oy=(H0-vb.h*sc)/2;
+    return [vb.x+(lx-ox)/sc, vb.y+(ly-oy)/sc]; };
+  const ptrs=new Map(); let moved=0, pinch0=null, downTarget=null;
+  svg.addEventListener("pointerdown",e=>{ try{svg.setPointerCapture(e.pointerId);}catch(_){} ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); moved=0; downTarget=e.target.closest("[data-map]");
+    if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),w:vb.w}; } });
+  svg.addEventListener("pointermove",e=>{ const p=ptrs.get(e.pointerId); if(!p) return;
+    if(ptrs.size===2&&pinch0){ ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); const [a,b]=[...ptrs.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y)||1; const [cx,cy]=toSvg((a.x+b.x)/2,(a.y+b.y)/2); zoom((pinch0.w*pinch0.d/d)/vb.w,cx,cy); moved+=10; return; }
+    moved+=Math.abs(e.clientX-p.x)+Math.abs(e.clientY-p.y);
+    if(moved>6){ svg.classList.add("drag"); const [x0,y0]=toSvg(p.x,p.y), [x1,y1]=toSvg(e.clientX,e.clientY); vb.x-=x1-x0; vb.y-=y1-y0; setVB(); }
+    ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); });
+  const up=e=>{ ptrs.delete(e.pointerId); if(ptrs.size<2) pinch0=null; svg.classList.remove("drag");
+    if(e.type==="pointerup"&&ptrs.size===0&&moved<=6&&downTarget&&downTarget.dataset.map) onTap(downTarget.dataset.map); };
+  svg.addEventListener("pointerup",up); svg.addEventListener("pointercancel",up);
+  svg.addEventListener("wheel",e=>{ e.preventDefault(); const [cx,cy]=toSvg(e.clientX,e.clientY); zoom(e.deltaY>0?1.15:1/1.15,cx,cy); },{passive:false});
+  setVB();
+  return { zoom, reset:()=>{ vb={x:0,y:0,w:900,h:440}; setVB(); }, setVB };
+}
+const mainMap=makeMap($("#map"), iso=>openCountry(iso));
+$("#z-in").onclick=()=>mainMap.zoom(.6); $("#z-out").onclick=()=>mainMap.zoom(1/.6);
+const setVB=()=>{};
+/* Carte plein écran (paysage) */
+$("#z-reset").onclick=openFsMap;
+function openFsMap(){
+  document.querySelector(".toast")?.remove();
+  const o=document.createElement("div"); o.className="fsmap"; o.setAttribute("role","dialog"); o.setAttribute("aria-label","Carte du monde en grand");
+  o.innerHTML=`<div class="fs-stage" id="fs-stage"><svg id="fs-svg" viewBox="0 0 900 440" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Carte du monde"></svg>
+      <div class="fs-legend"><span><i style="background:var(--done)"></i>Fait</span><span><i style="background:var(--todo)"></i>À faire</span><span><i style="background:var(--land)"></i>Pas encore</span></div>
+      <div class="fs-chip" id="fs-chip" hidden></div>
+      <div class="fs-tools"><button id="fs-in" aria-label="Zoomer">+</button><button id="fs-out" aria-label="Dézoomer">−</button><button id="fs-close" aria-label="Fermer la carte">✕</button></div></div>`;
+  document.body.appendChild(o); document.body.style.overflow="hidden";
+  const fit=()=>{ const st=$("#fs-stage"); if(!st) return; const W=innerWidth, H=innerHeight, portrait=H>W;
+    st.style.width=(portrait?H:W)+"px"; st.style.height=(portrait?W:H)+"px"; st.style.transform=`translate(-50%,-50%)${portrait?" rotate(90deg)":""}`; };
+  fit(); addEventListener("resize",fit); addEventListener("orientationchange",fit);
+  const fm=makeMap($("#fs-svg"), iso=>{
+    const c=BY_ISO[iso], s=state.status[iso], chip=$("#fs-chip");
+    chip.innerHTML=`<span class="flag" aria-hidden="true">${flag(iso)}</span><b>${esc(c.name)}</b>${s?`<span class="tag ${s==="done"?"ok":"no"}">${s==="done"?"Fait":"À faire"}</span>`:""}<button class="btn pri" id="fs-open">Fiche</button>`;
+    chip.hidden=false; $("#fs-open").onclick=()=>{ close(); openCountry(iso); };
+  }, ()=>innerHeight>innerWidth);
+  paintMap();
+  $("#fs-in").onclick=()=>fm.zoom(.6); $("#fs-out").onclick=()=>fm.zoom(1/.6);
+  const close=()=>{ removeEventListener("resize",fit); removeEventListener("orientationchange",fit); o.remove(); document.body.style.overflow=""; };
+  $("#fs-close").onclick=close;
+  const esc_=e=>{ if(e.key==="Escape"){ close(); removeEventListener("keydown",esc_); } }; addEventListener("keydown",esc_);
+}
 
 /* ---------- Pays ---------- */
 let fCont="all", fSt="all", query="";
