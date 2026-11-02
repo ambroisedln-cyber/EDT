@@ -345,6 +345,29 @@ input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;displa
 .fs-chip{position:absolute;left:max(14px,env(safe-area-inset-left,0px));top:12px;display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:14px;padding:8px 8px 8px 12px;box-shadow:0 4px 16px rgba(0,0,0,.14);max-width:calc(100% - 90px)}
 .fs-chip .flag{font-size:1.5rem;width:auto}
 .fs-chip b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-r{display:flex;gap:8px;align-items:center;min-width:0}
+.acct{border:0;background:var(--surface);border-radius:999px;width:36px;height:36px;display:grid;place-items:center;font-weight:700;font-family:var(--f-display);color:var(--accent);flex:none;box-shadow:0 1px 2px rgba(16,32,48,.06),0 0 0 1px rgba(16,32,48,.04)}
+.gear{color:var(--muted)}
+.settings .blk{display:grid;gap:12px}
+.set-field{display:grid;gap:6px}
+.set-field>span{font-size:.85rem;font-weight:600}
+.set-row{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px}
+.set-row>span{display:grid}
+.set-row b{font-weight:600;font-size:.92rem}
+.switch{width:50px;height:30px;border-radius:999px;border:0;background:var(--line);position:relative;flex:none;transition:background .2s}
+.switch i{position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"] i{transform:translateX(20px)}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.sw-c{border:0;background:var(--bg);border-radius:12px;padding:6px 10px 6px 6px;display:flex;align-items:center;gap:8px;font-size:.8rem}
+.sw-c i{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--c1) 50%,var(--c2) 50%)}
+.sw-c[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--accent);font-weight:600}
+body.dense .c-row{padding:2px 8px 2px 2px}
+body.dense .c-open{min-height:36px;padding:4px 8px}
+body.dense .c-open .flag{font-size:1.3rem}
+body.dense .st,body.dense .ov,body.dense .jr{padding:4px 8px}
+body.dense .card{padding:10px 12px}
+@media (prefers-reduced-motion:reduce){.switch,.switch i{transition:none}}
 /* Épuré */
 :root{--line:#E4E9EE}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--line:#223039}}
@@ -354,8 +377,8 @@ input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;displa
 .sheet .inp,.sheet .search{background:var(--surface)}
 .chip{border-color:transparent;background:var(--surface)}
 .seg{border-color:transparent}
-.pass-side{border-left-style:solid;border-left-width:1px}
-@media (max-width:520px){.pass-side{border-top-style:solid;border-top-width:1px}}
+@media (min-width:521px){.pass-side{border-left-style:solid;border-left-width:1px}}
+@media (max-width:520px){.pass-side{border-left:0;border-top-style:solid;border-top-width:1px}}
 .legend{border-top:0;padding-top:4px}
 .letter{background:none;border-top:0;padding:14px 14px 4px;color:var(--muted);letter-spacing:.08em}
 .list>.sw{border-top:1px solid var(--line)}
@@ -422,7 +445,7 @@ a.item{color:inherit;text-decoration:none}
 <div class="wrap">
   <header class="top">
     <h1>Carnet de route</h1>
-    <span style="display:flex;gap:10px;align-items:center;min-width:0"><span class="sync" id="sync">Hors ligne</span><button class="acct" id="acct" aria-label="Mon compte">·</button></span>
+    <span class="top-r"><span class="sync" id="sync">Hors ligne</span><button class="acct" id="acct" aria-label="Mon compte">·</button><button class="acct gear" id="gear" aria-label="Réglages"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></span>
   </header>
 
   <!-- PAYS -->
@@ -750,7 +773,7 @@ const BUD_CATS = ["Transport","Logement","Nourriture","Activités","Autre"];
 let LS = "carnet-route-v1";
 const lsGet = (k,d) => { try { const v = JSON.parse(localStorage.getItem(k)||"null"); return v ?? d; } catch(e){ return d; } };
 const lsSet = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
-let state = Object.assign({status:{}, weekends:[], seasons:{}, depart:"Paris", weCity:{}}, lsGet(LS,{}));
+let state = Object.assign({status:{}, weekends:[], seasons:{}, depart:"Paris", weCity:{}, settings:{}}, lsGet(LS,{}));
 state.seasons = state.seasons||{}; state.weCity = state.weCity||{}; state.depart = state.depart||"Paris";
 const depart = () => state.depart||"Paris";
 const isParis = () => true;
@@ -777,7 +800,7 @@ function remote(key, fn){
   timers[key] = setTimeout(async()=>{ try { const r=await fn(); if(r&&r.error) throw r.error; setSync("Synchronisé"); } catch(e){ setSync("Non synchronisé"); } }, 600);
 }
 const now = () => new Date().toISOString();
-function saveState(){ lsSet(LS,state); remote("travel",()=>sb.from("voyage_state").upsert({user_id:uid,data:{status:state.status,weekends:state.weekends,seasons:state.seasons,depart:state.depart,weCity:state.weCity},updated_at:now()})); }
+function saveState(){ lsSet(LS,state); remote("travel",()=>sb.from("voyage_state").upsert({user_id:uid,data:{status:state.status,weekends:state.weekends,seasons:state.seasons,depart:state.depart,weCity:state.weCity,settings:state.settings||{}},updated_at:now()})); }
 function saveJournal(iso){ lsSet(LS+"-j",journals); remote("j"+iso,()=> journals[iso]&&journals[iso].entries.length ? sb.from("voyage_journal").upsert({user_id:uid,iso,data:journals[iso],updated_at:now()}) : sb.from("voyage_journal").delete().eq("user_id",uid).eq("iso",iso)); }
 function saveProject(id){ lsSet(LS+"-p",projects); remote("p"+id,()=> projects[id] ? sb.from("voyage_projects").upsert({user_id:uid,id,data:projects[id],updated_at:now()}) : sb.from("voyage_projects").delete().eq("user_id",uid).eq("id",id)); }
 function persistOv(){ lsSet(LS+"-ov",ovCache); }
@@ -875,14 +898,17 @@ const statusBtns = (iso,noClr) => { const s=state.status[iso], j=jCount(iso); re
 const jCount = iso => (journals[iso]&&journals[iso].entries.length)||0;
 function renderList(){
   const q=norm(query);
-  const items=COUNTRIES.filter(c=>(fCont==="all"||c.cont===fCont)&&(fSt==="all"||(fSt==="journal"?jCount(c.iso)>0:state.status[c.iso]===fSt))&&(!q||norm(c.name).includes(q)));
+  const set=S(), byCont=set.sort==="cont", CO=Object.keys(CONT);
+  let items=COUNTRIES.filter(c=>(fCont==="all"||c.cont===fCont)&&(fSt==="all"||(fSt==="journal"?jCount(c.iso)>0:state.status[c.iso]===fSt))&&(!q||norm(c.name).includes(q)));
+  if(byCont) items=items.slice().sort((a,b)=>CO.indexOf(a.cont)-CO.indexOf(b.cont)||a.name.localeCompare(b.name,"fr",{sensitivity:"base"}));
   $("#count").textContent=items.length+" pays";
   { const ac=$("#addc"); ac.hidden=!(fSt==="done"||fSt==="todo"); ac.classList.toggle("todo",fSt==="todo"); ac.textContent=fSt==="todo"?"+ Ajouter un pays à faire":"+ Ajouter un pays visité"; }
   if(!items.length){ $("#list").innerHTML=`<div class="empty">${fSt==="done"?"Aucun pays marqué « Fait » ici pour l'instant.":fSt==="todo"?"Aucun pays « À faire » ici. Touche « À faire » sur un pays pour l'ajouter.":fSt==="journal"?"Pas encore de journal. Ouvre la fiche d'un pays visité, onglet « Journal ».":"Aucun pays ne correspond."}</div>`; return; }
   let html="", last="";
   items.forEach(c=>{
     const L=norm(c.name)[0].toUpperCase();
-    if(!q&&fSt==="all"&&L!==last){ html+=`<div class="letter">${L}</div>`; last=L; }
+    const G=byCont?CONT[c.cont]:L;
+    if(set.letters&&!q&&(byCont||fSt==="all")&&G!==last){ html+=`<div class="letter">${G}</div>`; last=G; }
     const j=jCount(c.iso);
     const has=!!state.status[c.iso];
     const row=`<div class="c-row"><button class="c-open" data-ov="${c.iso}" aria-label="Fiche ${esc(c.name)}"><span class="flag" aria-hidden="true">${flag(c.iso)}</span><span class="c-name"><b>${esc(c.name)}</b>${j?`<span>${j} souvenir${j>1?"s":""}</span>`:""}</span></button><div class="c-act">${statusBtns(c.iso,true)}<button class="ov" data-ov="${c.iso}">Fiche</button></div></div>`;
@@ -911,6 +937,89 @@ document.addEventListener("click",e=>{
   const td=e.target.closest("[data-addtodo]"); if(td){ if(!td.disabled) setStatus(td.dataset.addtodo,"todo",true); return; }
   const ov=e.target.closest("[data-ov]"); if(ov){openCountry(ov.dataset.ov);return;}
 });
+
+/* ---------- Réglages ---------- */
+const DEF_SET={theme:"auto",accent:"teal",status:"classic",font:"md",display:"bricolage",density:"comfort",start:"pays",showMap:true,showStats:true,showConts:false,letters:true,sort:"alpha",defFilter:"all",weReg:"all",weTr:"all",currency:"EUR",stars:true,mapZoomBtns:true};
+const S = () => Object.assign({},DEF_SET,state.settings||{});
+const ACCENTS={teal:["#0F6B70","#4BBAB4","Sarcelle"],ocean:["#1D5FBF","#6FA3F2","Océan"],violet:["#6B4CC7","#A994F0","Violet"],rose:["#C23A73","#F07FAE","Framboise"],terre:["#B5562A","#EE9466","Terre"],foret:["#2F6B3A","#7CC48A","Forêt"],ardoise:["#3D4B5C","#A3B3C4","Ardoise"]};
+const STATUSES={classic:["#1E9A57","#D23F3F","Vert / Rouge"],ocean:["#1E9A57","#E08A1E","Vert / Orange"],blue:["#2563C9","#8A94A3","Bleu / Gris"],mono:["#13212E","#9AA6B2","Noir / Gris"]};
+const DISPLAY_FONTS={bricolage:['"Bricolage Grotesque",ui-rounded,system-ui,sans-serif',"Moderne"],serif:['ui-serif,Georgia,"Times New Roman",serif',"Classique"],system:['system-ui,-apple-system,"Segoe UI",sans-serif',"Système"]};
+const CURRENCIES={EUR:"€",USD:"$",GBP:"£",CHF:"CHF"};
+function applySettings(first){
+  const s=S(), r=document.documentElement;
+  if(s.theme==="auto") r.removeAttribute("data-theme"); else r.setAttribute("data-theme",s.theme);
+  const dark = s.theme==="dark" || (s.theme==="auto" && matchMedia("(prefers-color-scheme: dark)").matches);
+  const a=ACCENTS[s.accent]||ACCENTS.teal, st=STATUSES[s.status]||STATUSES.classic;
+  const acc=dark?a[1]:a[0];
+  r.style.setProperty("--accent",acc); r.style.setProperty("--accent-soft",`color-mix(in srgb, ${acc} ${dark?22:14}%, var(--surface))`);
+  const sd=s.status==="mono"&&dark?"#E5ECF2":st[0];
+  r.style.setProperty("--done",sd); r.style.setProperty("--done-soft",`color-mix(in srgb, ${sd} ${dark?24:14}%, var(--surface))`);
+  r.style.setProperty("--todo",st[1]); r.style.setProperty("--todo-soft",`color-mix(in srgb, ${st[1]} ${dark?24:14}%, var(--surface))`);
+  r.style.setProperty("--f-display",(DISPLAY_FONTS[s.display]||DISPLAY_FONTS.bricolage)[0]);
+  document.body.style.fontSize={sm:"14px",md:"15px",lg:"17px",xl:"19px"}[s.font]||"15px";
+  document.body.classList.toggle("dense",s.density==="compact");
+  $("#map-card").hidden=!s.showMap; $(".pass").hidden=!s.showStats; $("#s-conts").hidden=!s.showConts;
+  document.querySelector(".map-tools").hidden=!s.mapZoomBtns;
+  const tc=document.querySelector('meta[name="theme-color"]'); if(tc&&s.theme!=="auto") tc.setAttribute("content",dark?"#0D141B":"#F1F4F6");
+  if(first){ fSt=s.defFilter; [...$("#f-st").children].forEach(x=>x.setAttribute("aria-pressed",x.dataset.v===fSt)); wReg=s.weReg; wTr=s.weTr; }
+}
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>applySettings());
+function setSetting(k,v){ state.settings=Object.assign({},state.settings||{},{[k]:v}); saveState(); applySettings(); renderAll(); drawSettings(); }
+function seg(k,opts){ const v=S()[k]; return `<div class="ptabs" style="grid-template-columns:repeat(${opts.length},1fr)">${opts.map(([val,lab])=>`<button type="button" data-set="${k}" data-val="${val}" aria-pressed="${String(v)===String(val)}">${lab}</button>`).join("")}</div>`; }
+function tog(k,label,sub){ const v=!!S()[k]; return `<label class="set-row"><span><b>${label}</b>${sub?`<span class="small muted">${sub}</span>`:""}</span><button type="button" class="switch" role="switch" aria-checked="${v}" data-tog="${k}" aria-label="${label}"><i></i></button></label>`; }
+function swatches(k,map){ const v=S()[k]; return `<div class="swatches">${Object.entries(map).map(([key,val])=>`<button type="button" class="sw-c" data-set="${k}" data-val="${key}" aria-pressed="${v===key}" aria-label="${val[2]}" title="${val[2]}" style="--c1:${val[0]};--c2:${val[1]}"><i></i><span>${val[2]}</span></button>`).join("")}</div>`; }
+function openSettings(){ openSheet(`<div class="sheet-title"><div><h2>Réglages</h2><span class="sub">Personnalise ton carnet</span></div><button class="close" aria-label="Fermer">✕</button></div>`,"Réglages"); drawSettings(); }
+function drawSettings(){
+  const body=$("#sheet-body"); if(!body||!document.querySelector('[aria-label="Réglages"]')) return;
+  const sc=$("#sheet-root .sheet").scrollTop;
+  body.innerHTML=`<div class="ov-body settings">
+    <section class="blk"><h3>Apparence</h3>
+      <div class="set-field"><span>Thème</span>${seg("theme",[["auto","Auto"],["light","Clair"],["dark","Sombre"]])}</div>
+      <div class="set-field"><span>Couleur principale</span>${swatches("accent",ACCENTS)}</div>
+      <div class="set-field"><span>Couleurs Fait / À faire</span>${swatches("status",Object.fromEntries(Object.entries(STATUSES).map(([k,v])=>[k,[v[0],v[1],v[2]]])))}</div>
+      <div class="set-field"><span>Taille du texte</span>${seg("font",[["sm","A−"],["md","A"],["lg","A+"],["xl","A++"]])}</div>
+      <div class="set-field"><span>Police des titres</span>${seg("display",Object.entries(DISPLAY_FONTS).map(([k,v])=>[k,v[1]]))}</div>
+      <div class="set-field"><span>Densité des listes</span>${seg("density",[["comfort","Aérée"],["compact","Compacte"]])}</div>
+    </section>
+    <section class="blk"><h3>Démarrage</h3>
+      <div class="set-field"><span>Onglet à l'ouverture</span>${seg("start",[["pays","Pays"],["weekends","Week-ends"],["envies","Envies"],["avenir","À venir"]])}</div>
+    </section>
+    <section class="blk"><h3>Onglet Pays</h3>
+      ${tog("showStats","Compteur de pays","Pays visités, % du monde, continents")}
+      ${tog("showConts","Détail par continent","Pastilles sous le compteur")}
+      ${tog("showMap","Carte du monde")}
+      ${tog("mapZoomBtns","Boutons de la carte","Zoom et plein écran")}
+      ${tog("letters","Lettres dans la liste","Séparateurs A, B, C…")}
+      <div class="set-field"><span>Tri de la liste</span>${seg("sort",[["alpha","Alphabétique"],["cont","Par continent"]])}</div>
+      <div class="set-field"><span>Filtre à l'ouverture</span>${seg("defFilter",[["all","Tous"],["done","Faits"],["todo","À faire"]])}</div>
+    </section>
+    <section class="blk"><h3>Week-ends</h3>
+      <div class="set-field"><span>Région par défaut</span>${seg("weReg",[["all","Tous"],["fr","France"],["int","Étranger"]])}</div>
+      <div class="set-field"><span>Transport par défaut</span>${seg("weTr",[["all","Tous"],["Train","Train"],["Avion","Avion"],["Voiture","Voiture"]])}</div>
+    </section>
+    <section class="blk"><h3>Projets et journal</h3>
+      <div class="set-field"><span>Devise du budget</span>${seg("currency",Object.entries(CURRENCIES).map(([k,v])=>[k,v]))}</div>
+      ${tog("stars","Note sur 5 étoiles","Dans le journal")}
+    </section>
+    <section class="blk"><h3>Mes données</h3>
+      <div class="set-stats small muted">${COUNTRIES.filter(c=>state.status[c.iso]==="done").length} pays faits · ${COUNTRIES.filter(c=>state.status[c.iso]==="todo").length} à faire · ${Object.values(journals).reduce((n,j)=>n+((j&&j.entries)||[]).length,0)} souvenirs · ${Object.keys(projects).length} projets · ${state.weekends.length} week-ends</div>
+      <div class="row-ctl" style="justify-content:flex-start"><button class="btn" id="set-export">Exporter (fichier JSON)</button><button class="btn" id="set-reset">Réglages par défaut</button></div>
+      <p class="small muted" id="set-msg" role="status"></p>
+    </section>
+  </div>`;
+  $("#sheet-root .sheet").scrollTop=sc;
+  body.querySelectorAll("[data-set]").forEach(b=>b.onclick=()=>{ const k=b.dataset.set; let v=b.dataset.val; if(v==="true"||v==="false") v=v==="true"; setSetting(k,v);
+    if(k==="defFilter"){ fSt=v; [...$("#f-st").children].forEach(x=>x.setAttribute("aria-pressed",x.dataset.v===fSt)); renderList(); }
+    if(k==="weReg"){ wReg=v; renderProps(); } if(k==="weTr"){ wTr=v; renderProps(); } });
+  body.querySelectorAll("[data-tog]").forEach(b=>b.onclick=e=>{ e.preventDefault(); setSetting(b.dataset.tog,!S()[b.dataset.tog]); });
+  $("#set-reset").onclick=()=>{ state.settings={}; saveState(); applySettings(true); renderAll(); drawSettings(); toast("Réglages remis par défaut"); };
+  $("#set-export").onclick=()=>{
+    const data={exporte_le:new Date().toISOString(),pays:state.status,weekends:state.weekends,journaux:journals,projets:projects,reglages:state.settings||{}};
+    try{ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="carnet-de-route-"+new Date().toISOString().slice(0,10)+".json"; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000); $("#set-msg").textContent="Fichier enregistré dans tes téléchargements."; }
+    catch(e){ $("#set-msg").textContent="L'export n'est pas disponible ici."; }
+  };
+}
+$("#gear").onclick=openSettings;
 
 /* ---------- Glisser pour supprimer ---------- */
 const SW_W=96; let swOpen=null, swState=null, swSuppress=false;
@@ -1118,7 +1227,7 @@ async function hydrate(){
   hydrating=false; if(document.querySelector('[src^="about:blank#sp="],[href^="about:blank#sp="]')&&els.some(e=>e.isConnected&&(e.getAttribute("src")||e.getAttribute("href")||"").startsWith(BLANK))) return; 
 }
 new MutationObserver(()=>{ clearTimeout(hydrate.t); hydrate.t=setTimeout(hydrate,30); }).observe(document.documentElement,{subtree:true,childList:true});
-const starsRO = n => n ? `<span class="stars-ro" aria-label="${n} sur 5">${"★".repeat(n)}${"☆".repeat(5-n)}</span>` : "";
+const starsRO = n => n && S().stars ? `<span class="stars-ro" aria-label="${n} sur 5">${"★".repeat(n)}${"☆".repeat(5-n)}</span>` : "";
 function renderJournal(iso, editId){
   const box=$("#sheet-body"); const J=journals[iso]||{entries:[]};
   const entries=J.entries.slice().sort((a,b)=>(b.from||"").localeCompare(a.from||""));
@@ -1151,7 +1260,7 @@ function journalForm(iso,e){
   return `<form class="blk form" id="j-form"><h3>${e.from||e.text?"Modifier le souvenir":"Nouveau voyage"}</h3>
     <div class="two"><label>Du<input class="inp" type="date" id="j-from" value="${esc(e.from)}"></label><label>Au<input class="inp" type="date" id="j-to" value="${esc(e.to)}"></label></div>
     <label>Avec qui<input class="inp" id="j-with" value="${esc(e.with)}" placeholder="Seul, avec Paul, en famille…"></label>
-    <div><span class="muted small">Note</span><div class="stars" id="j-stars">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" class="${n<=(e.rating||0)?"on":""}" aria-label="${n} sur 5">★</button>`).join("")}</div></div>
+    <div ${S().stars?"":"hidden"}><span class="muted small">Note</span><div class="stars" id="j-stars">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" class="${n<=(e.rating||0)?"on":""}" aria-label="${n} sur 5">★</button>`).join("")}</div></div>
     <label>Souvenirs<textarea class="inp" id="j-text" rows="5" placeholder="Ce qui t'a marqué, les meilleurs endroits, ce que tu referais…">${esc(e.text)}</textarea></label>
     <div class="fsec"><span class="muted small">Photos</span><div class="photos" id="j-photos"></div>
       ${assets?`<label class="btn ghost">+ Ajouter des photos<input type="file" id="j-file" accept="image/*" multiple hidden></label>`:""}</div>
@@ -1401,7 +1510,7 @@ function fixProject(p){ p.resa=(p.resa||[]).map(normResa); p.days=p.days||{}; p.
 const allExp = p => (p.budget.exp||[]).concat(resaExp(p));
 const spent = p => allExp(p).reduce((s,x)=>s+(+x.a||0),0);
 const planned = p => BUD_CATS.reduce((s,c)=>s+(+p.budget.plan[c]||0),0);
-const eur = n => (Math.round(n*100)/100).toLocaleString("fr-FR",{maximumFractionDigits:2})+" €";
+const eur = n => { const c=S().currency, v=(Math.round(n*100)/100).toLocaleString("fr-FR",{maximumFractionDigits:2}); return c==="USD"?"$"+v:c==="GBP"?"£"+v:v+" "+(CURRENCIES[c]||"€"); };
 function countdown(p){
   if(!p.from) return `<span class="cd">Dates à fixer</span>`;
   const d=daysBetween(today(),parseD(p.from)), end=p.to?daysBetween(today(),parseD(p.to)):d;
@@ -1747,10 +1856,10 @@ async function loadFiches(){
 }
 function useUser(u){
   uid=u.id; LS="carnet-route-v1-"+uid;
-  state=Object.assign({status:{},weekends:[],seasons:{},depart:"Paris",weCity:{}},lsGet(LS,{})); state.depart="Paris";
+  state=Object.assign({status:{},weekends:[],seasons:{},depart:"Paris",weCity:{},settings:{}},lsGet(LS,{})); state.depart="Paris";
   journals=lsGet(LS+"-j",{}); projects=lsGet(LS+"-p",{}); Object.values(projects).forEach(fixProject);
   $("#acct").textContent=(u.email||"?")[0].toUpperCase(); $("#acct").dataset.mail=u.email||"";
-  $("#auth").hidden=true; renderAll(); show(location.hash.slice(1));
+  $("#auth").hidden=true; applySettings(true); renderAll(); show(location.hash.slice(1)||S().start);
 }
 async function loadRemote(){
   setSync("Chargement…");
@@ -1758,8 +1867,8 @@ async function loadRemote(){
     const [st,pr,jo]=await Promise.all([sb.from("voyage_state").select("data").eq("user_id",uid).maybeSingle(),sb.from("voyage_projects").select("id,data").eq("user_id",uid),sb.from("voyage_journal").select("iso,data").eq("user_id",uid)]);
     if(st.error||pr.error||jo.error) throw (st.error||pr.error||jo.error);
     online=true;
-    if(st.data&&st.data.data){ const x=st.data.data; state.status=x.status||{}; state.weekends=Array.isArray(x.weekends)?x.weekends:[]; state.seasons=x.seasons||{}; state.weCity=x.weCity||{}; lsSet(LS,state); }
-    else { state.status={}; state.weekends=[]; state.seasons={}; lsSet(LS,state); }
+    if(st.data&&st.data.data){ const x=st.data.data; state.status=x.status||{}; state.weekends=Array.isArray(x.weekends)?x.weekends:[]; state.seasons=x.seasons||{}; state.weCity=x.weCity||{}; state.settings=x.settings||{}; lsSet(LS,state); applySettings(true); if(!location.hash) show(S().start); }
+    else { state.status={}; state.weekends=[]; state.seasons={}; state.settings={}; lsSet(LS,state); applySettings(true); }
     if(pr.data.length){ projects={}; pr.data.forEach(r=>{ if(r.data) projects[r.id]=fixProject(Object.assign(r.data,{id:r.id})); }); lsSet(LS+"-p",projects); } else { projects={}; lsSet(LS+"-p",projects); }
     if(jo.data.length){ journals={}; jo.data.forEach(r=>{ journals[r.iso]=r.data; }); lsSet(LS+"-j",journals); } else { journals={}; lsSet(LS+"-j",journals); }
     setSync("Synchronisé");
