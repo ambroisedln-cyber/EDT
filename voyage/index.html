@@ -107,6 +107,7 @@ textarea.inp{resize:vertical;min-height:80px}
 .st{border:1px solid var(--line);background:none;border-radius:8px;padding:5px 9px;font-size:.78rem;font-weight:600;color:var(--muted)}
 .st.done[aria-pressed="true"]{background:var(--done);border-color:var(--done);color:#fff}
 .st.todo[aria-pressed="true"]{background:var(--todo);border-color:var(--todo);color:#fff}
+.jr{border:0;background:var(--warn-soft);color:var(--warn);border-radius:8px;padding:5px 9px;font-size:.78rem;font-weight:600;white-space:nowrap}
 .ov{border:0;background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:5px 9px;font-size:.78rem;font-weight:600}
 .empty{padding:24px;text-align:center;color:var(--muted)}
 .empty.box{background:var(--surface);border:1px solid var(--line);border-radius:12px}
@@ -402,7 +403,7 @@ a.item{color:inherit;text-decoration:none}
           <button data-v="todo" aria-pressed="false">À faire</button>
           <button data-v="journal" aria-pressed="false">Journal</button>
         </div>
-        <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span id="bulk"></span><span class="muted small" id="count"></span></span>
+        <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="muted small" id="count"></span></span>
       </div>
     </div>
     <button class="addc" id="addc" hidden>+ Ajouter un pays</button>
@@ -773,19 +774,13 @@ function renderStats(){
   $("#s-cont").textContent=contDone.size+"/6";
   $("#s-conts").innerHTML=Object.keys(CONT).map(k=>{const n=done.filter(c=>c.cont===k).length;return `<span class="cont-pill ${n?"on":""}">${CONT_SHORT[k]} ${n}</span>`;}).join("");
 }
-const statusBtns = (iso,noClr) => { const s=state.status[iso]; return `<button class="st done" data-iso="${iso}" data-s="done" aria-pressed="${s==="done"}">Fait</button><button class="st todo" data-iso="${iso}" data-s="todo" aria-pressed="${s==="todo"}">À faire</button>${s&&!noClr?`<button class="x" data-clr="${iso}" aria-label="Retirer ${esc(BY_ISO[iso].name)} de mes listes" title="Retirer">×</button>`:""}`; };
+const statusBtns = (iso,noClr) => { const s=state.status[iso], j=jCount(iso); return `<button class="st done" data-iso="${iso}" data-s="done" aria-pressed="${s==="done"}">Fait</button>${s==="done"?(noClr?`<button class="jr" data-jr="${iso}">${j?"Journal ("+j+")":"Journal"}</button>`:""):`<button class="st todo" data-iso="${iso}" data-s="todo" aria-pressed="${s==="todo"}">À faire</button>`}${s&&!noClr?`<button class="x" data-clr="${iso}" aria-label="Retirer ${esc(BY_ISO[iso].name)} de mes listes" title="Retirer">×</button>`:""}`; };
 const jCount = iso => (journals[iso]&&journals[iso].entries.length)||0;
 function renderList(){
   const q=norm(query);
   const items=COUNTRIES.filter(c=>(fCont==="all"||c.cont===fCont)&&(fSt==="all"||(fSt==="journal"?jCount(c.iso)>0:state.status[c.iso]===fSt))&&(!q||norm(c.name).includes(q)));
   $("#count").textContent=items.length+" pays";
   { const ac=$("#addc"); ac.hidden=!(fSt==="done"||fSt==="todo"); ac.classList.toggle("todo",fSt==="todo"); ac.textContent=fSt==="todo"?"+ Ajouter un pays à faire":"+ Ajouter un pays visité"; }
-  const bk=$("#bulk");
-  if((fSt==="done"||fSt==="todo")&&items.length){ bk.innerHTML=`<button class="btn danger" id="bulk-b">${items.length>1?`Retirer ces ${items.length} pays`:"Retirer ce pays"}</button>`;
-    $("#bulk-b").onclick=()=>{ bk.innerHTML=`<span class="confirm"><span class="small">Retirer ${items.length} pays de « ${fSt==="done"?"Faits":"À faire"} » ?</span><button class="btn danger" id="bulk-y">Oui</button><button class="btn" id="bulk-n">Non</button></span>`;
-      $("#bulk-y").onclick=()=>{ items.forEach(c=>delete state.status[c.iso]); saveState(); refreshAll(); };
-      $("#bulk-n").onclick=renderList; }; }
-  else bk.innerHTML="";
   if(!items.length){ $("#list").innerHTML=`<div class="empty">${fSt==="done"?"Aucun pays marqué « Fait » ici pour l'instant.":fSt==="todo"?"Aucun pays « À faire » ici. Touche « À faire » sur un pays pour l'ajouter.":fSt==="journal"?"Pas encore de journal. Ouvre la fiche d'un pays visité, onglet « Journal ».":"Aucun pays ne correspond."}</div>`; return; }
   let html="", last="";
   items.forEach(c=>{
@@ -815,6 +810,7 @@ document.addEventListener("click",e=>{
   const st=e.target.closest(".st[data-iso]"); if(st){ const iso=st.dataset.iso, was=state.status[iso]; setStatus(iso,st.dataset.s);
     if(state.status[iso]==="done"&&was!=="done"&&!document.querySelector("#cs-tabs")) toast(`${BY_ISO[iso].name} ajouté aux pays visités`,()=>openJournalNew(iso),"Écrire le journal");
     return; }
+  const jr=e.target.closest("[data-jr]"); if(jr){ const iso=jr.dataset.jr; jCount(iso)?openCountry(iso,"j"):openJournalNew(iso); return; }
   const cl=e.target.closest("[data-clr]"); if(cl){ delete state.status[cl.dataset.clr]; saveState(); refreshAll(); const sh=$("#sheet-st"); if(sh) sh.innerHTML=statusBtns(cl.dataset.clr); return; }
   const td=e.target.closest("[data-addtodo]"); if(td){ if(!td.disabled) setStatus(td.dataset.addtodo,"todo",true); return; }
   const ov=e.target.closest("[data-ov]"); if(ov){openCountry(ov.dataset.ov);return;}
