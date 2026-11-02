@@ -1605,9 +1605,9 @@ async function loadRemote(){
     if(st.error||pr.error||jo.error) throw (st.error||pr.error||jo.error);
     online=true;
     if(st.data&&st.data.data){ const x=st.data.data; state.status=x.status||{}; state.weekends=Array.isArray(x.weekends)?x.weekends:[]; state.seasons=x.seasons||{}; state.weCity=x.weCity||{}; lsSet(LS,state); }
-    else if(Object.keys(state.status).length||state.weekends.length) saveState();
-    if(pr.data.length){ projects={}; pr.data.forEach(r=>{ if(r.data) projects[r.id]=fixProject(Object.assign(r.data,{id:r.id})); }); lsSet(LS+"-p",projects); } else for(const id in projects) saveProject(id);
-    if(jo.data.length){ journals={}; jo.data.forEach(r=>{ journals[r.iso]=r.data; }); lsSet(LS+"-j",journals); } else for(const iso in journals) saveJournal(iso);
+    else { state.status={}; state.weekends=[]; state.seasons={}; lsSet(LS,state); }
+    if(pr.data.length){ projects={}; pr.data.forEach(r=>{ if(r.data) projects[r.id]=fixProject(Object.assign(r.data,{id:r.id})); }); lsSet(LS+"-p",projects); } else { projects={}; lsSet(LS+"-p",projects); }
+    if(jo.data.length){ journals={}; jo.data.forEach(r=>{ journals[r.iso]=r.data; }); lsSet(LS+"-j",journals); } else { journals={}; lsSet(LS+"-j",journals); }
     setSync("Synchronisé");
   }catch(e){ setSync("Hors ligne"); }
   renderAll();
@@ -1642,7 +1642,19 @@ $("#auth-form").onsubmit=async e=>{ e.preventDefault();
   btn.disabled=false; };
 $("#acct").onclick=()=>{
   const body=openSheet(`<div class="sheet-title"><div><h2>Mon compte</h2><span class="sub">${esc($("#acct").dataset.mail||"")}</span></div><button class="close" aria-label="Fermer">✕</button></div>`,"Mon compte");
-  body.innerHTML=`<div class="ov-body"><div class="blk"><p>Tes pays, week-ends, journaux et projets sont enregistrés sur ton compte et visibles uniquement par toi.</p><p class="note">Pour installer l'appli sur iPhone : dans Safari, touche Partager puis « Sur l'écran d'accueil ».</p></div><button class="btn danger" id="logout">Se déconnecter</button></div>`;
+  body.innerHTML=`<div class="ov-body"><div class="blk"><p>Tes pays, week-ends, journaux et projets sont enregistrés sur ton compte et visibles uniquement par toi.</p><p class="note">Pour installer l'appli sur iPhone : dans Safari, touche Partager puis « Sur l'écran d'accueil ».</p></div><div id="wipe"><button class="btn danger" id="wipe-b">Effacer toutes mes données</button></div><button class="btn" id="logout">Se déconnecter</button></div>`;
+  $("#wipe-b").onclick=()=>{ $("#wipe").innerHTML=`<div class="banner"><p>Effacer tes pays, week-ends, journaux, projets, photos et billets ? Ton compte reste actif, mais l'appli repart de zéro. C'est définitif.</p><div class="confirm"><button class="btn danger" id="wipe-y">Tout effacer</button><button class="btn" id="wipe-n">Annuler</button></div></div>`;
+    $("#wipe-n").onclick=()=>$("#acct").click();
+    $("#wipe-y").onclick=async()=>{ $("#wipe-y").disabled=true; $("#wipe-y").textContent="Suppression…";
+      try{
+        const r=await Promise.all([sb.from("voyage_state").delete().eq("user_id",uid),sb.from("voyage_projects").delete().eq("user_id",uid),sb.from("voyage_journal").delete().eq("user_id",uid)]);
+        const err=r.find(x=>x.error); if(err) throw err.error;
+        try{ const {data}=await sb.storage.from("voyage").list(uid,{limit:1000}); const paths=(data||[]).map(f=>uid+"/"+f.name); if(paths.length) await sb.storage.from("voyage").remove(paths); }catch(e){}
+        state={status:{},weekends:[],seasons:{},depart:"Paris",weCity:{}}; projects={}; journals={};
+        lsSet(LS,state); lsSet(LS+"-p",projects); lsSet(LS+"-j",journals);
+        closeSheet(); renderAll(); toast("Toutes tes données ont été effacées");
+      }catch(e){ $("#wipe").innerHTML=`<p class="err">La suppression n'a pas abouti. Vérifie ta connexion et réessaie.</p><button class="btn danger" id="wipe-b2">Réessayer</button>`; $("#wipe-b2").onclick=()=>$("#acct").click(); } };
+  };
   $("#logout").onclick=async()=>{ await sb.auth.signOut(); location.reload(); };
 };
 let started=false;
