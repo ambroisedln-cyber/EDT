@@ -275,8 +275,13 @@ input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;displa
 .addc{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:9px 16px;margin:0 0 10px;font-weight:600;font-size:.9rem;background:var(--done);color:#fff;box-shadow:0 2px 8px color-mix(in srgb,var(--done) 30%,transparent)}
 .addc.todo{background:var(--todo);box-shadow:0 2px 8px color-mix(in srgb,var(--todo) 30%,transparent)}
 .pick{display:grid}
-.pick button{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:var(--surface);padding:11px 12px;min-height:52px}
-.pick button:first-child{border-top:0}
+.pick .pk-row>button{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;border:0;border-top:1px solid var(--line);background:var(--surface);padding:11px 12px;min-height:52px}
+.pick>.pk-row:first-child>button{border-top:0}
+.pk-row{position:relative}
+.pk-row>button{width:100%}
+.pk-row:has(.pk-side)>button{padding-right:160px}
+.pk-side{position:absolute;right:12px;top:50%;transform:translateY(-50%)}
+.pick .pk-side button{display:inline-flex;border:1px solid var(--line);min-height:34px;padding:5px 10px;grid-template-columns:none}
 .pick .flag{font-size:1.5rem;width:auto}
 .pick .st-l{font-size:.75rem;font-weight:600}
 .hint{font-size:.75rem;color:var(--muted);margin:8px 2px 0}
@@ -807,7 +812,9 @@ $("#f-cont").addEventListener("click",e=>{const b=e.target.closest("[data-c]");i
 $("#f-st").addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(!b)return;fSt=b.dataset.v;[...$("#f-st").children].forEach(x=>x.setAttribute("aria-pressed",x===b));renderList();});
 $("#q").addEventListener("input",e=>{query=e.target.value;renderList();});
 document.addEventListener("click",e=>{
-  const st=e.target.closest(".st[data-iso]"); if(st){setStatus(st.dataset.iso,st.dataset.s);return;}
+  const st=e.target.closest(".st[data-iso]"); if(st){ const iso=st.dataset.iso, was=state.status[iso]; setStatus(iso,st.dataset.s);
+    if(state.status[iso]==="done"&&was!=="done"&&!document.querySelector("#cs-tabs")) toast(`${BY_ISO[iso].name} ajouté aux pays visités`,()=>openJournalNew(iso),"Écrire le journal");
+    return; }
   const cl=e.target.closest("[data-clr]"); if(cl){ delete state.status[cl.dataset.clr]; saveState(); refreshAll(); const sh=$("#sheet-st"); if(sh) sh.innerHTML=statusBtns(cl.dataset.clr); return; }
   const td=e.target.closest("[data-addtodo]"); if(td){ if(!td.disabled) setStatus(td.dataset.addtodo,"todo",true); return; }
   const ov=e.target.closest("[data-ov]"); if(ov){openCountry(ov.dataset.ov);return;}
@@ -848,15 +855,16 @@ function swRun(sw){
     toast(`Projet « ${prev.name||"Sans titre"} » supprimé`,()=>{ projects[key]=prev; saveProject(key); renderProjects(); }); }
 }
 let toastT=null;
-function toast(msg,undo){
+function toast(msg,undo,label){
   document.querySelector(".toast")?.remove(); clearTimeout(toastT);
   const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status");
-  t.innerHTML=`<span>${esc(msg)}</span>${undo?`<button type="button">Annuler</button>`:""}`;
+  t.innerHTML=`<span>${esc(msg)}</span>${undo?`<button type="button">${esc(label||"Annuler")}</button>`:""}`;
   document.body.appendChild(t);
   if(undo) t.querySelector("button").onclick=()=>{ undo(); t.remove(); };
   toastT=setTimeout(()=>t.remove(),6000);
 }
 
+function openJournalNew(iso){ openCountry(iso,"j"); renderJournal(iso,rid()); }
 /* ---------- Ajouter un pays ---------- */
 $("#addc").onclick=()=>openPicker(fSt==="todo"?"todo":"done");
 function openPicker(mode){
@@ -865,11 +873,16 @@ function openPicker(mode){
   const draw=()=>{
     const q=norm($("#pk-q").value);
     const items=COUNTRIES.filter(c=>!q||norm(c.name).includes(q));
-    body.innerHTML=items.length?`<div class="list pick" style="margin-top:12px">${items.map(c=>{ const st=state.status[c.iso];
-      return `<button type="button" data-pk="${c.iso}"><span class="flag" aria-hidden="true">${flag(c.iso)}</span><span><b style="font-weight:600">${esc(c.name)}</b><br><span class="small muted">${CONT[c.cont]}</span></span>${st===mode?`<span class="st-l" style="color:${mode==="done"?"var(--done)":"var(--todo)"}">${mode==="done"?"✓ Fait":"✓ À faire"}</span>`:st?`<span class="st-l muted">${st==="done"?"Fait":"À faire"}</span>`:`<span class="st-l" style="color:var(--accent)">Ajouter</span>`}</button>`; }).join("")}</div>`
+    body.innerHTML=items.length?`<div class="list pick" style="margin-top:12px">${items.map(c=>{ const st=state.status[c.iso], j=jCount(c.iso);
+      const right = st===mode ? (mode==="done"?`<span style="display:flex;gap:8px;align-items:center"><span class="st-l" style="color:var(--done)">✓ Fait</span><button type="button" class="btn" data-pkj="${c.iso}" style="min-height:34px;padding:5px 10px">${j?"Journal ("+j+")":"Journal"}</button></span>`:`<span class="st-l" style="color:var(--todo)">✓ À faire</span>`)
+        : st ? `<span class="st-l muted">${st==="done"?"Fait":"À faire"}</span>` : `<span class="st-l" style="color:var(--accent)">Ajouter</span>`;
+      return `<div class="pk-row"><button type="button" data-pk="${c.iso}"><span class="flag" aria-hidden="true">${flag(c.iso)}</span><span><b style="font-weight:600">${esc(c.name)}</b><br><span class="small muted">${CONT[c.cont]}</span></span>${st===mode&&mode==="done"?"":right}</button>${st===mode&&mode==="done"?`<div class="pk-side">${right}</div>`:""}</div>`; }).join("")}</div>`
       :`<div class="empty">Aucun pays ne correspond.</div>`;
     body.querySelectorAll("[data-pk]").forEach(b=>b.onclick=()=>{ const iso=b.dataset.pk; if(state.status[iso]===mode) return;
-      setStatus(iso,mode,true); toast(`${BY_ISO[iso].name} ajouté ${mode==="done"?"aux pays visités":"à « À faire »"}`); draw(); });
+      setStatus(iso,mode,true); draw();
+      if(mode==="done") toast(`${BY_ISO[iso].name} ajouté aux pays visités`,()=>openJournalNew(iso),"Écrire le journal");
+      else toast(`${BY_ISO[iso].name} ajouté à « À faire »`); });
+    body.querySelectorAll("[data-pkj]").forEach(b=>b.onclick=()=>{ const iso=b.dataset.pkj; jCount(iso)?openCountry(iso,"j"):openJournalNew(iso); });
   };
   $("#pk-q").addEventListener("input",draw); draw();
 }
