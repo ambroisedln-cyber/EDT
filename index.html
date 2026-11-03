@@ -1046,11 +1046,11 @@ const HOL=y=>HC[y]||(HC[y]=(()=>{const o={},f=(m,d,n)=>o[y+'-'+pad(m)+'-'+pad(d)
 const vacOn=k=>S.vac.find(v=>v.a<=k&&k<=v.b);
 const datesOn=k=>S.dates.filter(x=>x.rec?x.d.slice(5)===k.slice(5):x.d===k);
 const gd=k=>{const o=[];Object.keys(S.g).forEach(s=>(S.g[s]||[]).forEach((x,i)=>{if(x.d===k)o.push({x,s,i})}));return o};
-const has=k=>{const d=S.days[k];return !!((d&&(d.t.some(x=>!x.f&&!x.cx)||d.r.length||(d.w||[]).length||d.n.trim()))||gd(k).some(o=>!o.x.f&&!o.x.cx))};
+const has=k=>{const d=S.days[k];return !!((d&&(d.t.some(x=>!x.f&&!x.cx)||d.r.length||(d.w||[]).length||d.n.trim()))||gd(k).some(o=>!o.x.f&&!o.x.cx)||rOn(k).length>0)};
 const hm=k=>{const d=S.days[k];return d&&d.r.some(x=>x.c==='Médical')};
 const TL=x=>x&&x.c==='Meeting'?'Visio':'Téléconsultation',HASMODE=c=>c==='Médical'||c==='Meeting';
 let TODAY=key(new Date());
-const dots=k=>{const s=new Set(S.days[k]?S.days[k].r.map(x=>x.c):[]);if(datesOn(k).length)s.add('Date');if((S.days[k]&&S.days[k].t.some(q=>!q.f&&!q.cx))||gd(k).some(o=>!o.x.f&&!o.x.cx))s.add('Tâche');if(OFF(k))s.add('Off');return s.size?'<i class="dts">'+[...s].map(c=>'<u style="--c:'+(C[c]||'#8e8e93')+'"></u>').join('')+'</i>':''};
+const dots=k=>{const s=new Set(S.days[k]?S.days[k].r.map(x=>x.c):[]);if(datesOn(k).length)s.add('Date');if((S.days[k]&&S.days[k].t.some(q=>!q.f&&!q.cx))||gd(k).some(o=>!o.x.f&&!o.x.cx)||rOn(k).length)s.add('Tâche');if(OFF(k))s.add('Off');return s.size?'<i class="dts">'+[...s].map(c=>'<u style="--c:'+(C[c]||'#8e8e93')+'"></u>').join('')+'</i>':''};
 let DEF={};const applyCfg=()=>{DEF=(S.cfg&&S.cfg.w)||{}};applyCfg();
 const work=k=>{if(vacOn(k))return[];const d=S.days[k];if(d&&(d.ov||(d.w||[]).length))return d.w||[];const g=DEF[parse(k).getDay()];return g?[{a:g[0],b:g[1]}]:[]};
 const OFF=k=>!vacOn(k)&&!work(k).length;
@@ -1105,7 +1105,20 @@ const remIn=(id,ra,kk)=>{const m=/^(\d{4}-\d\d-\d\d)T(\d\d:\d\d)/.exec(ra||'')||
 const remVal=(id,dk)=>{const w=document.getElementById(id);if(!w)return '';const d=w.querySelector('.rmd').value,t=w.querySelector('.rmt').value;if(!d&&!t)return '';return (d||dk||key(new Date()))+'T'+(t||'09:00')};
 const RCO=[['','Ne se répète pas'],['d','Tous les jours'],['w','Toutes les semaines'],['m','Tous les mois'],['y','Tous les ans']],RCL={d:'jour',w:'semaine',m:'mois',y:'an'},RRL={d:'DAILY',w:'WEEKLY',m:'MONTHLY',y:'YEARLY'};
 const NEXT=(b,rc)=>{const d=parse(b);let n;if(rc==='d')n=add(d,1);else if(rc==='w')n=add(d,7);else if(rc==='m'){const f=new Date(d.getFullYear(),d.getMonth()+1,1);n=new Date(f.getFullYear(),f.getMonth(),Math.min(d.getDate(),new Date(f.getFullYear(),f.getMonth()+1,0).getDate()))}else{const yy=d.getFullYear()+1;n=new Date(yy,d.getMonth(),Math.min(d.getDate(),new Date(yy,d.getMonth()+1,0).getDate()))}return key(n)};
-const spawn=(x,base,put)=>{x.f^=1;if(x.f&&x.rc&&!x.sp){x.sp=1;const td=key(new Date()),c={x:x.x,f:0,rc:x.rc};if(x.nt)c.nt=x.nt;c.d=NEXT(base<td?td:base,x.rc);put(c)}};
+// Tâches récurrentes : la tâche d'origine reste unique, ses répétitions s'affichent sur les jours suivants
+const spawn=(x,base,put)=>{x.f^=1};
+let RSER=null,RSERv=-1;
+const rSeries=()=>{if(RSER&&RSERv===render.n)return RSER;const L=[];
+  Object.keys(S.days||{}).forEach(k=>((S.days[k]||{}).t||[]).forEach((x,i)=>{if(x&&x.rc&&!x.sp&&!x.cx&&!x.am)L.push({x,o:k,ref:'d|'+k+'|'+i})}));
+  Object.keys(S.g||{}).forEach(g=>(S.g[g]||[]).forEach((x,i)=>{if(x&&x.rc&&!x.sp&&!x.cx&&x.d)L.push({x,o:x.d,ref:'g|'+g+'|'+i,g})}));
+  RSER=L;RSERv=render.n;return L};
+const rMatch=(o,k,rc)=>{if(k<=o)return false;const a=parse(o),b=parse(k);if(rc==='d')return true;if(rc==='w')return Math.round((b-a)/864e5)%7===0;
+  const dim=(y,m)=>new Date(y,m+1,0).getDate(),want=(y,m)=>Math.min(a.getDate(),dim(y,m));
+  if(rc==='m')return b.getDate()===want(b.getFullYear(),b.getMonth());if(rc==='y')return b.getMonth()===a.getMonth()&&b.getDate()===want(b.getFullYear(),b.getMonth());return false};
+const rOn=k=>{const real=new Set([...(((S.days[k]||{}).t)||[]).map(q=>q.x),...gd(k).map(o=>o.x.x)]);
+  return rSeries().filter(o=>rMatch(o.o,k,o.x.rc)&&!(o.x.ex&&o.x.ex[k])&&!real.has(o.x.x))};
+const rRef=ref=>{const p=ref.split('|');return p[0]==='d'?((S.days[p[1]]||{}).t||[])[+p[2]]:(S.g[p[1]]||[])[+p[2]]};
+const rRow=(o,k)=>{const x=o.x;return '<div class="tk"><button hidden class="swdel" data-a="vtx" data-r="'+esc(o.ref)+'" data-k="'+k+'"></button><div class="it"><button class="ck" data-a="vt" data-r="'+esc(o.ref)+'" data-k="'+k+'"></button><button class="t tt" data-a="vtopen" data-r="'+esc(o.ref)+'">'+lk(x.x)+(o.g?' <span class="tag">'+esc(gname(o.g))+'</span>':'')+' <span class="tag" style="--c:#5856d6">↻ '+RCL[x.rc]+'</span>'+(x.nt?'<span class="tnd">'+lk(x.nt)+'</span>':'')+'</button></div></div>'};
 const gname=s=>(GT.find(g=>g[0]===s)||[0,s])[1];
 const taskRow=(x,i,a,extra,src,tag,nd,min)=>{const kk=src+'|'+i,open=!min&&V.tn===kk,cls='it'+(x.f?' done':'')+(x.cx?' cx':'');
   const ck='<button class="ck" data-a="'+a+'" data-i="'+i+'" '+extra+'></button>',dl='<button class="x" title="Supprimer" data-a="'+a+'x" data-i="'+i+'" '+extra+'><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>';
@@ -1298,6 +1311,7 @@ const soonHTML=()=>{const t0=new Date(V.d.getFullYear(),V.d.getMonth(),V.d.getDa
     datesOn(k).forEach(q=>day.push({s:'00',c:'Date',lab:'Anniversaire',ti:q.n}));
     gd(k).filter(o=>!o.x.f&&!o.x.cx).forEach(o=>tk.push({k,c:'Tâche',lab:gname(o.s),ti:o.x.x}));
     ((S.days[k]&&S.days[k].t)||[]).filter(q=>!q.f&&!q.cx).forEach(q=>tk.push({k,c:'Tâche',lab:'',ti:q.x}));
+    rOn(k).forEach(o=>tk.push({k,c:'Tâche',lab:'↻ '+RCL[o.x.rc],ti:o.x.x}));
     if(v&&v.a===k)day.push({s:'00',c:'Vacances',lab:'Vacances',ti:'Départ en vacances',sub:v.l||''});
     ((S.days[k]&&S.days[k].r)||[]).forEach(q=>day.push({s:q.h||'98',c:q.c,lab:q.c,h:q.h,h2:endOf(q.h,q.du),ti:q.x,sub:q.tele?TL(q):(q.l||'')}));
     day.sort((a,b)=>a.s.localeCompare(b.s));if(day.length||tk.length)R.push({k,dl:lab,it:day,tk})}
@@ -1370,7 +1384,7 @@ function vJour(){
   extOn(k).forEach(e=>rows.push({t:e.h||'00:00',h:'<div class="ev ext" '+sty('ext:'+e.cid)+'><div class="eh"><div class="et">'+HEAD(e.h,e.h2,e.cal,e.ti,'ext:'+e.cid)+(e.l?'<div class="em2">'+esc(e.l)+'</div>':'')+'</div><span class="exro" title="Agenda importé">↗</span></div></div>'}));
   rows.sort((m,n)=>m.t.localeCompare(n.t));
   B.plan='<div class="card" id="plan"><h2 style="display:flex;justify-content:space-between;align-items:center">Planning de la journée<button class="plus" data-a="jplus">'+(V.jp?'×':'＋')+'</button></h2>'+datesOn(k).map(x=>'<div class="bdb" '+sty('Date')+'><span><b>Anniversaire</b> · '+esc(x.n)+'</span><button class="bdx" data-a="ddx" data-i="'+S.dates.indexOf(x)+'" aria-label="Supprimer"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>').join('')+wk+(V.jp?qaChips()+(V.qa?qaCard():''):'')+(rows.length?rows.map(r=>r.h).join(''):'<div class="em">Rien de prévu</div>')+'</div>';
-  B.tasks='<div class="card" id="tasks"><h2>À faire ce jour</h2>'+(d.t.length||!gd(k).length?todoList(d.t,'dt','','d'):'')+gd(k).map(o=>taskRow(o.x,o.i,'gt','data-s="'+o.s+'"',o.s,gname(o.s),1)).join('')+(V.tadd==='d'?'<div class="tform"><input type="text" id="ti" placeholder="Nouvelle tâche" autocomplete="off"><textarea id="tnn" class="nt tna" rows="1" placeholder="Note (facultatif)"></textarea><div class="trem"><span>'+BELL+'Rappel</span>'+remIn('tra','')+'</div><div class="trem"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>Répéter</span><select id="tr" class="trep">'+RCO.map(([v0,n])=>'<option value="'+v0+'">'+n+'</option>').join('')+'</select></div><div class="tfb"><button class="tfx" data-a="taddx">Annuler</button><button class="tfok" data-a="adt">Ajouter</button></div></div>':'<button class="taddb" data-a="taddo" data-s="d">＋ Ajouter</button>')+'</div>';
+  B.tasks='<div class="card" id="tasks"><h2>À faire ce jour</h2>'+(d.t.length||!(gd(k).length||rOn(k).length)?todoList(d.t,'dt','','d'):'')+gd(k).map(o=>taskRow(o.x,o.i,'gt','data-s="'+o.s+'"',o.s,gname(o.s),1)).join('')+rOn(k).map(o=>rRow(o,k)).join('')+(V.tadd==='d'?'<div class="tform"><input type="text" id="ti" placeholder="Nouvelle tâche" autocomplete="off"><textarea id="tnn" class="nt tna" rows="1" placeholder="Note (facultatif)"></textarea><div class="trem"><span>'+BELL+'Rappel</span>'+remIn('tra','')+'</div><div class="trem"><span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:3px"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>Répéter</span><select id="tr" class="trep">'+RCO.map(([v0,n])=>'<option value="'+v0+'">'+n+'</option>').join('')+'</select></div><div class="tfb"><button class="tfx" data-a="taddx">Annuler</button><button class="tfok" data-a="adt">Ajouter</button></div></div>':'<button class="taddb" data-a="taddo" data-s="d">＋ Ajouter</button>')+'</div>';
   B.notes='<div class="card"><h2>Notes</h2><textarea id="nt" placeholder="Écrire ici…">'+esc(d.n)+'</textarea></div>';
   B.otd=SH('otd')?'<div class="card" id="otd">'+otdHTML(V.d)+'</div>':'<button class="showb" data-a="showotd">Afficher « Ce jour-là »</button>';
   h+=JORD().map(q=>(q==='plan'||q==='tasks'||q==='notes')&&!SH(q)?'':(B[q]||'')).join('');
@@ -1992,7 +2006,7 @@ function vSuivi(){
   const sec=(t,a,c)=>'<div class="card" '+sty('Médical')+'><h2>'+t+' · '+a.length+'</h2>'+(a.length?(c?a.slice().reverse():a).map(row).join(''):'<div class="em">Rien ici</div>')+'</div>';
   return '<h1>Suivi médical</h1><p class="sub">Tous vos rendez-vous médicaux, avec facture et suivi</p>'+sec('À traiter',todo,1)+sec('À venir',up)+sec('Terminé',fin,1);
 }
-const DEL={nodel:'Note supprimée',ndel1:'Note supprimée',nfdel:'Dossier supprimé',gdel:'Rubrique supprimée',dtx:'Tâche supprimée',gtx:'Tâche supprimée',drx:'Rendez-vous supprimé',evx:'Rendez-vous supprimé',vlegx:'Trajet supprimé',vstx:'Destination supprimée',vtdel:'Trajet supprimé',vsdel:'Destination supprimée',cdel:'Élément supprimé',ddx:'Date supprimée',vx:'Vacances supprimées',vpx:'Élément supprimé',bagx:'Élément supprimé',wx:'Horaire supprimé',cclear:'Articles effacés'};
+const DEL={vtx:'Répétition supprimée',nodel:'Note supprimée',ndel1:'Note supprimée',nfdel:'Dossier supprimé',gdel:'Rubrique supprimée',dtx:'Tâche supprimée',gtx:'Tâche supprimée',drx:'Rendez-vous supprimé',evx:'Rendez-vous supprimé',vlegx:'Trajet supprimé',vstx:'Destination supprimée',vtdel:'Trajet supprimé',vsdel:'Destination supprimée',cdel:'Élément supprimé',ddx:'Date supprimée',vx:'Vacances supprimées',vpx:'Élément supprimé',bagx:'Élément supprimé',wx:'Horaire supprimé',cclear:'Articles effacés'};
 let UNDO=null,UT=null;
 const qdel=id=>{if(UNDO)UNDO.ids.push(id);else delAsset(id)};
 const hideToast=()=>{const e=$('#toast');if(e){e.hidden=true;e.innerHTML=''}};
@@ -2009,7 +2023,7 @@ const fh=m=>Math.floor(m/60)+' h'+(m%60?' '+pad(m%60):'');
 const wkShow=()=>{const n=new Date();if(key(V.d)!==key(n))return false;const auto=(n.getDay()===0&&n.getHours()>=17)||n.getDay()===1;return V.wk===undefined?auto:V.wk};
 const weekCard=now=>{const n=now||new Date(),start=n.getDay()===0?add(n,1):mon(n);let wm=0,ne=0,nt=0,h='';
   [0,1,2,3,4,5,6].map(i=>add(start,i)).forEach(d=>{const k=key(d),it=dayItems(k,false);wm+=work(k).reduce((s,q)=>s+tmin(q.b)-tmin(q.a),0);ne+=((S.days[k]&&S.days[k].r)||[]).length;
-    const tk=[...((S.days[k]&&S.days[k].t)||[]).filter(x=>!x.f&&!x.cx).map(x=>x.x),...gd(k).filter(o=>!o.x.f&&!o.x.cx).map(o=>o.x.x)];nt+=tk.length;
+    const tk=[...((S.days[k]&&S.days[k].t)||[]).filter(x=>!x.f&&!x.cx).map(x=>x.x),...gd(k).filter(o=>!o.x.f&&!o.x.cx).map(o=>o.x.x),...rOn(k).map(o=>o.x.x)];nt+=tk.length;
     if(!it.length&&!tk.length)return;
     h+='<div class="rd"><button class="rdh" data-a="day" data-d="'+k+'">'+JRS[d.getDay()]+' '+d.getDate()+' <span data-wx="'+k+'"></span> ›</button>'+it.map(x=>'<button class="it c" '+sty(x.c)+' data-a="day" data-d="'+k+'"><span class="t">'+esc(x.t)+'</span><span class="tag">'+(x.c==='Date'?'Anniversaire':x.c)+'</span></button>').join('')+tk.map(x=>'<button class="it c" '+sty('Tâche')+' data-a="day" data-d="'+k+'"><span class="t">'+esc(x)+'</span><span class="tag">Tâche</span></button>').join('')+'</div>'});
   const wn=isoWeek(start)[1];
@@ -2030,7 +2044,7 @@ function syncMed(){let ch=0;Object.keys(S.days).forEach(k=>{const d=S.days[k];if
   med.forEach(n=>{if(!d.t.some(q=>q.am===n)&&!(d.amx||[]).includes(n)){d.t.push({x:MEDT,nt:n,am:n,f:0});ch=1}});
   const keep=d.t.filter(q=>!q.am||q.f||med.includes(q.am));if(keep.length!==d.t.length){d.t=keep;ch=1}});
   if(ch)save()}
-function render(){{const ae=document.activeElement;if(V.tab==='notes'&&V.nid&&ae&&ae.closest&&ae.closest('.nrich,.ntitle')&&!render.force&&!(window.event&&window.event.isTrusted&&/^(click|change|submit|touchend|pointerup)$/.test(window.event.type))){V.pendR=1;return}}try{syncMed()}catch(e){}try{applyCats();applyLook()}catch(e){}try{GT=GTL();(S.gl&&S.gl.x||[]).forEach(o=>{S.g[o.k]=S.g[o.k]||[]})}catch(e){}applyCfg();if((S.lang==='en')!==(MOIS[0]==='january'))setLang();
+function render(){render.n=(render.n||0)+1;{const ae=document.activeElement;if(V.tab==='notes'&&V.nid&&ae&&ae.closest&&ae.closest('.nrich,.ntitle')&&!render.force&&!(window.event&&window.event.isTrusted&&/^(click|change|submit|touchend|pointerup)$/.test(window.event.type))){V.pendR=1;return}}try{syncMed()}catch(e){}try{applyCats();applyLook()}catch(e){}try{GT=GTL();(S.gl&&S.gl.x||[]).forEach(o=>{S.g[o.k]=S.g[o.k]||[]})}catch(e){}applyCfg();if((S.lang==='en')!==(MOIS[0]==='january'))setLang();
   flushPend();
   try{$('#dls').innerHTML=dataLists()}catch(x){}
   $('#app').innerHTML=(V.tab==='reg'?(V.rp?'<div class="topg"><button class="gback" data-a="rph">‹ Réglages</button></div>':'<div class="topg"><button class="gback" data-a="tab" data-t="'+(V.ptab||'jour')+'">‹ Retour</button></div>'):(V.tab==='notes'&&V.nid)?'':'<div class="topg"><button class="gear" data-a="tab" data-t="reg" aria-label="Réglages">'+GEAR+'</button></div>')+({jour:vJour,semaine:vSemaine,mois:vMois,annee:vAnnee,todo:vTodo,suivi:vSuivi,rech:vRech,reg:vReg,notes:vNotes})[V.tab]();
@@ -2057,6 +2071,9 @@ document.addEventListener('click',e=>{
   else if(a==='prev'||a==='next'){const n=a==='next'?1:-1,d=V.d;
     setD(V.tab==='jour'?add(d,n):V.tab==='semaine'?add(d,7*n):V.tab==='mois'?new Date(d.getFullYear(),d.getMonth()+n,1):new Date(d.getFullYear()+n,0,1))}
   else if(a==='adt'){const x=v('#ti').trim(),nt=v('#tnn').trim();if(x){V.tadd=null;const it={x,f:0};if(nt)it.nt=nt;const ra=remVal('tra',k);if(ra)it.ra=ra;const rc=v('#tr');if(rc)it.rc=rc;D(k).t.push(it)}}
+  else if(a==='vt'){const x=rRef(b.dataset.r),kk=b.dataset.k;if(x&&kk){const c={x:x.x,f:1};if(x.nt)c.nt=x.nt;const p=b.dataset.r.split('|');if(p[0]==='d')D(kk).t.push(c);else{c.d=kk;S.g[p[1]].push(c)}}}
+  else if(a==='vtx'){const x=rRef(b.dataset.r),kk=b.dataset.k;if(x&&kk){x.ex=x.ex||{};x.ex[kk]=1}}
+  else if(a==='vtopen'){const p=b.dataset.r.split('|'),x=rRef(b.dataset.r);if(x){if(p[0]==='d'){setD(parse(p[1]));V.tab='jour';V.tn='d|'+p[2]}else{if(x.d)setD(parse(x.d));V.tab='jour';V.tn=p[1]+'|'+p[2]}}}
   else if(a==='dt'){const x=D(k).t[i];if(x)spawn(x,k,c=>{const dd=c.d;delete c.d;D(dd).t.push(c)})}
   else if(a==='dtx'){V.tn=null;const dd=D(k),q=dd.t[i];if(q&&q.am)(dd.amx=dd.amx||[]).push(q.am);dd.t.splice(i,1)}
   else if(a==='adr'){const x=v('#rx').trim(),c=v('#rc');
