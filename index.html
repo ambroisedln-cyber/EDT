@@ -984,6 +984,7 @@ body.rting nav{display:none}
 .ibst b{font-size:15.5px;font-weight:600}.ibst p{margin:3px 0 0;font-size:14px;line-height:1.4;color:var(--mu)}.ibst p b{font-size:inherit;color:var(--tx)}
 .ibst code{font:600 13px ui-monospace,Menlo,monospace;background:var(--bg);padding:1px 5px;border-radius:5px;color:var(--tx)}
 .ev .enl{color:var(--mu);font-size:13px;line-height:1.35;margin-top:3px;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-style:italic}
+.rev .rn small.rnt{font-style:italic;white-space:pre-line!important;text-overflow:clip;display:-webkit-box!important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 </style>
 </head>
 <body>
@@ -1151,7 +1152,7 @@ function dayItems(k,brief){
   datesOn(k).forEach(q=>o.push({c:'Date',lab:'Anniversaire',ti:q.n}));
   const ov=x&&(x.ov||(x.w||[]).length);
   const tl=[];const WK=(brief&&!ov)?[]:work(k);if(WK.length)o.push({c:'Job',wk:1,ti:'Travail',h:WK.map(q=>q.a+' – '+q.b).join(' · ')});
-  if(x)x.r.forEach((q,ri)=>tl.push({s:q.h||'99:99',ri,c:q.c,lab:q.c,h:q.h,h2:endOf(q.h,q.du),ti:q.x,sub:[q.tele?TL(q):(q.l||''),q.who?'avec '+q.who:''].filter(Boolean).join(' · ')}));
+  if(x)x.r.forEach((q,ri)=>tl.push({s:q.h||'99:99',ri,c:q.c,lab:q.c,h:q.h,h2:endOf(q.h,q.du),ti:q.x,sub:[q.tele?TL(q):(q.l||''),q.who?'avec '+q.who:''].filter(Boolean).join(' · '),nt:(q.nt||'').trim()}));
   extOn(k).forEach(e=>tl.push({s:e.h||'00:00',c:'ext:'+e.cid,lab:e.cal,h:e.h,h2:e.h2,ti:e.ti,sub:e.l||''}));
   tl.sort((m,n)=>m.s.localeCompare(n.s)).forEach(q=>o.push(q));
   o.forEach(q=>{q.t=[q.h,q.ti,q.sub].filter(Boolean).join(' · ')});
@@ -1161,7 +1162,7 @@ const lineHTML=(x,attrs,right)=>'<button class="ln" '+sty(x.c)+' '+attrs+'><span
 const recapHTML=(days,brief)=>{let h='';days.forEach(d=>{const k=key(d),it=dayItems(k,brief);if(!it.length&&brief)return;
   const tags=it.filter(x=>x.wk||(x.ri===undefined&&!x.h)).sort((p,q)=>(q.wk?1:0)-(p.wk?1:0)),evs=it.filter(x=>!x.wk&&(x.ri!==undefined||x.h));
   const tg=tags.map(x=>x.wk?'<span class="rtag" style="--c:#007aff"><b>Travail</b> '+esc(x.h)+'</span>':'<span class="rtag" '+sty(x.c)+'>'+(x.c==='Off'?'Jour off':'<b>'+esc(x.lab||x.c)+'</b> '+esc(x.ti||''))+'</span>').join('');
-  const ev=evs.map(x=>{const op=V.evin&&V.ev&&x.ri!==undefined&&V.ev.k===k&&V.ev.i===x.ri;return op?'<div class="evinl" id="evinl">'+evCard()+'</div>':'<button class="rev" '+sty(x.c)+' data-a="'+(x.ri!==undefined?'evt':'day')+'" data-d="'+k+'"'+(x.ri!==undefined?' data-i="'+x.ri+'"':'')+'><span class="rn">'+HEAD(x.h,x.h2,x.lab||x.c,x.ti,x.c)+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+'</span></button>'}).join('');
+  const ev=evs.map(x=>{const op=V.evin&&V.ev&&x.ri!==undefined&&V.ev.k===k&&V.ev.i===x.ri;return op?'<div class="evinl" id="evinl">'+evCard()+'</div>':'<button class="rev" '+sty(x.c)+' data-a="'+(x.ri!==undefined?'evt':'day')+'" data-d="'+k+'"'+(x.ri!==undefined?' data-i="'+x.ri+'"':'')+'><span class="rn">'+HEAD(x.h,x.h2,x.lab||x.c,x.ti,x.c)+(x.sub?'<small>'+esc(x.sub)+'</small>':'')+(x.nt?'<small class="rnt">'+lk(x.nt)+'</small>':'')+'</span></button>'}).join('');
   h+='<div class="rday'+(k===TODAY?' today':'')+'"><button class="rdd" data-a="day" data-d="'+k+'"><span>'+JRS[d.getDay()]+'</span><b>'+d.getDate()+'</b></button><div class="rdb">'+(tg?'<div class="rtags">'+tg+'</div>':'')+ev+((!tg&&!ev)?'<div class="rnone">Rien de prévu</div>':'')+'</div></div>'});return h};
 const SECS=[['m','Matin'],['a','Après-midi'],['s','Soir']];
 const vitems=(v,k,p)=>(v.items||[]).map((it,j)=>[it,j]).filter(([it])=>it.d===k&&it.p===p).sort((a,b)=>(a[0].h||'99').localeCompare(b[0].h||'99'));
