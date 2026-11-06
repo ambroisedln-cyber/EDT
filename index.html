@@ -1117,8 +1117,9 @@ const rSeries=()=>{if(RSER&&RSERv===render.n)return RSER;const L=[];
 const rMatch=(o,k,rc)=>{if(k<=o)return false;const a=parse(o),b=parse(k);if(rc==='d')return true;if(rc==='w')return Math.round((b-a)/864e5)%7===0;
   const dim=(y,m)=>new Date(y,m+1,0).getDate(),want=(y,m)=>Math.min(a.getDate(),dim(y,m));
   if(rc==='m')return b.getDate()===want(b.getFullYear(),b.getMonth());if(rc==='y')return b.getMonth()===a.getMonth()&&b.getDate()===want(b.getFullYear(),b.getMonth());return false};
-const rOn=k=>{const real=new Set([...(((S.days[k]||{}).t)||[]).map(q=>q.x),...gd(k).map(o=>o.x.x)]);
-  return rSeries().filter(o=>rMatch(o.o,k,o.x.rc)&&!(o.x.ex&&o.x.ex[k])&&!real.has(o.x.x))};
+const rNm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(Boolean).map(w=>w.length>3?w.replace(/s$/,''):w).join(' ');
+const rOn=k=>{const seen=new Set([...(((S.days[k]||{}).t)||[]).map(q=>rNm(q.x)),...gd(k).map(o=>rNm(o.x.x))]);
+  return rSeries().filter(o=>{if(!rMatch(o.o,k,o.x.rc)||(o.x.ex&&o.x.ex[k]))return false;const n=rNm(o.x.x);if(seen.has(n))return false;seen.add(n);return true})};
 const rRef=ref=>{const p=ref.split('|');return p[0]==='d'?((S.days[p[1]]||{}).t||[])[+p[2]]:(S.g[p[1]]||[])[+p[2]]};
 const rRow=(o,k)=>{const x=o.x;return '<div class="tk"><button hidden class="swdel" data-a="vtx" data-r="'+esc(o.ref)+'" data-k="'+k+'"></button><div class="it"><button class="ck" data-a="vt" data-r="'+esc(o.ref)+'" data-k="'+k+'"></button><button class="t tt" data-a="vtopen" data-r="'+esc(o.ref)+'">'+lk(x.x)+(o.g?' <span class="tag">'+esc(gname(o.g))+'</span>':'')+' <span class="tag" style="--c:#5856d6">↻ '+RCL[x.rc]+'</span>'+(x.nt?'<span class="tnd">'+lk(x.nt)+'</span>':'')+'</button></div></div>'};
 const gname=s=>(GT.find(g=>g[0]===s)||[0,s])[1];
@@ -2425,18 +2426,24 @@ document.addEventListener('click',async e=>{const b=e.target.closest('[data-acc]
   if(b.dataset.acc==='cfg')openCfg();
   else if(b.dataset.acc==='del'){const en=S.lang==='en';if(!confirm(en?'Delete your account permanently? Your schedule and attachments will be erased.':'Supprimer définitivement ton compte ? Ton planning et tes pièces jointes seront effacés.'))return;if(!confirm(en?'This cannot be undone. Continue?':'Cette action est irréversible. Continuer ?'))return;
     try{const r=await sb.storage.from('files').list(UID,{limit:1000});const L=(r&&r.data)||[];if(L.length)await sb.storage.from('files').remove(L.map(f=>UID+'/'+f.name));const{error}=await sb.rpc('delete_my_account');if(error)throw error}catch(er){alert(en?'Deletion failed, please try again later.':'La suppression a échoué, réessaie plus tard.');return}
-    try{await sb.auth.signOut()}catch(er){}try{localStorage.removeItem(LSK);localStorage.removeItem('edt-auth');indexedDB.deleteDatabase('edt-files')}catch(er){}location.replace(back)}
-  else if(b.dataset.acc==='out'){if(!confirm('Se déconnecter ? Tes données restent enregistrées dans ton compte.'))return;try{await sb.auth.signOut()}catch(er){}try{localStorage.removeItem(LSK);localStorage.removeItem('edt-auth')}catch(er){}location.replace(back)}});
+    try{await sb.auth.signOut()}catch(er){}try{localStorage.removeItem(LSK);localStorage.removeItem('edt-base');localStorage.removeItem('edt-auth');indexedDB.deleteDatabase('edt-files')}catch(er){}location.replace(back)}
+  else if(b.dataset.acc==='out'){if(!confirm('Se déconnecter ? Tes données restent enregistrées dans ton compte.'))return;try{await sb.auth.signOut()}catch(er){}try{localStorage.removeItem(LSK);localStorage.removeItem('edt-base');localStorage.removeItem('edt-auth')}catch(er){}location.replace(back)}});
 
 /* --- synchronisation --- */
 let pushing=null,again=false;
-const push=async()=>{if(!UID)return;if(pushing){again=true;return}pushing=1;try{await sb.from('user_data').upsert({user_id:UID,data:S,updated_at:new Date().toISOString()})}catch(e){}pushing=null;if(again){again=false;push()}};
+// Synchro : BASE = version du serveur sur laquelle cet appareil est à jour (évite qu'un appareil resté en veille écrase des changements plus récents)
+let BASE=(()=>{try{const v=localStorage.getItem('edt-base');return v===null?null:+v}catch(e){return null}})(),PULLING=0;
+const setBase=t=>{BASE=t||0;try{localStorage.setItem('edt-base',String(BASE))}catch(e){}};
+const push=async()=>{if(!UID)return;if(pushing||PULLING){again=true;return}pushing=1;const ts=S.ts;try{const{error}=await sb.from('user_data').upsert({user_id:UID,data:S,updated_at:new Date().toISOString()});if(!error)setBase(ts)}catch(e){}pushing=null;if(again&&!PULLING){again=false;push()}};
 window.__push=push;
 const norm=()=>{S.g=Object.assign({m:[],j:[],a:[],p:[],c:[],k:[],v:[]},S.g||{});S.vac=S.vac||[];S.dates=S.dates||[];S.days=S.days||{}};
-const pull=async()=>{try{const{data,error}=await sb.from('user_data').select('data').eq('user_id',UID).maybeSingle();if(error)throw error;
-    const r=data&&data.data;
-    if(r&&(r.ts||0)>(S.ts||0)){S=r;norm();try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}mig();render();return 1}
-    if(S.ts&&(!r||(r.ts||0)<S.ts))push();return 1}catch(e){return 0}};
+const pull=async()=>{PULLING=1;try{const{data,error}=await sb.from('user_data').select('data').eq('user_id',UID).maybeSingle();if(error)throw error;
+    const r=data&&data.data,rt=(r&&r.ts)||0;
+    // Le serveur a changé depuis notre dernière synchro (autre appareil) : on prend sa version
+    const newer=BASE===null?rt>(S.ts||0):rt>BASE;
+    if(r&&newer&&rt!==(S.ts||0)){S=r;norm();try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}setBase(rt);mig();PULLING=0;render();again=false;return 1}
+    if(BASE===null&&rt&&rt===(S.ts||0))setBase(rt);
+    PULLING=0;if(S.ts&&(!r||rt<S.ts))push();else if(again){again=false;push()}return 1}catch(e){PULLING=0;if(again){again=false;push()}return 0}};
 
 /* --- fichiers joints : copie dans le compte --- */
 const _fput=fput,_fget=fget,_fdel=fdel,fp=id=>UID+'/'+id;
@@ -2458,7 +2465,7 @@ const inboxPull=async()=>{if(!UID||inboxBusy)return;inboxBusy=1;try{const{data,e
     const N=NS();data.forEach((x,i)=>{const body=x.body||'',lnk=x.url||'';const h=body?rtFromText(body):'';
       N.l.unshift({id:'n'+Date.now().toString(36)+i,f:'',ti:(x.title||(x.file_id&&!body?(/^image\//.test(x.file_type||'')?'Photo':x.file_name||'Fichier'):'')).slice(0,120),t:body,h,u:Date.now()+i,a:x.file_id?[{id:x.file_id,n:x.file_name||'Fichier',t:x.file_type||''}]:[]})});
     await sb.from('inbox').delete().in('id',data.map(x=>x.id));save();render();noteToast('📥 '+data.length+(data.length>1?' éléments ajoutés':' élément ajouté')+' à tes notes')}catch(e){}finally{inboxBusy=0}};
-window.__inbox=inboxPull;
+window.__inbox=inboxPull;window.__pull=pull;
 function shareIn(){try{const q=new URLSearchParams(location.search);if(!q.has('st')&&!q.has('sx')&&!q.has('su'))return;const ti=(q.get('st')||'').trim(),tx=[q.get('sx'),q.get('su')].filter(Boolean).join('\n').trim();history.replaceState(null,'',location.pathname);if(!ti&&!tx)return;
   const N=NS();N.l.unshift({id:'n'+Date.now().toString(36),f:'',ti:ti.slice(0,120),t:tx,h:rtFromText(tx),u:Date.now()});save();V.tab='notes';V.nid=null;render();noteToast('📥 Ajouté à tes notes')}catch(e){}}
 async function start(){shareIn();show('auth',0);render();await pull();if(!S.cfg)openCfg();extRefresh();try{purgeTrash()}catch(e){}inboxPull()}
