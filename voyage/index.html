@@ -368,6 +368,30 @@ body.dense .c-open .flag{font-size:1.3rem}
 body.dense .st,body.dense .ov,body.dense .jr{padding:4px 8px}
 body.dense .card{padding:10px 12px}
 @media (prefers-reduced-motion:reduce){.switch,.switch i{transition:none}}
+.wrap-chips{flex-wrap:wrap;overflow:visible}
+a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.blk .chip,.blk select.chip{background:var(--bg)}
+.blk .chip.maps{background:var(--accent-soft)}
+a.chip{text-decoration:none;color:inherit;display:inline-flex;align-items:center}
+.chip.maps{background:var(--accent-soft);color:var(--accent);font-weight:600}
+select.chip{appearance:none;-webkit-appearance:none;padding-right:12px;max-width:100%}
+.on-chip{display:inline-flex;align-items:center;gap:2px;background:var(--accent-soft);color:var(--accent);font-weight:600}
+.on-chip .x{padding:0 2px 0 6px;color:var(--accent)}
+.place{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.place:first-child{border-top:0}
+.place .pl-t{display:grid;gap:4px;min-width:0}
+.place .pl-t b{font-weight:600;overflow-wrap:anywhere}
+.place.on .pl-t b{color:var(--muted);text-decoration:line-through}
+.tl-map{color:var(--accent);font-weight:600;text-decoration:none}
+a.tl-i{text-decoration:none;color:inherit}
+.slots.ro>div{display:grid;grid-template-columns:5.5rem minmax(0,1fr);gap:8px;font-size:.88rem}
+.slots.ro>div span{color:var(--muted);font-size:.8rem}
+.slots.ro p{margin:0}
+.shared{position:fixed;inset:0;z-index:55;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.shared .wrap{padding-bottom:calc(32px + env(safe-area-inset-bottom,0px))}
+.sh-hero h2{font-size:1.35rem}
+.sh-box{display:grid;gap:10px}
+.sh-box .att{background:var(--bg)}
 /* Épuré */
 :root{--line:#E4E9EE}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--line:#223039}}
@@ -438,6 +462,7 @@ a.item{color:inherit;text-decoration:none}
     <p class="small" id="a-msg" role="status"></p>
     <button class="linkbtn" type="button" id="a-switch">Pas encore de compte ? Créer un compte</button>
     <button class="linkbtn" type="button" id="a-forgot">Mot de passe oublié</button>
+    <button class="linkbtn" type="button" id="a-back" hidden>← Revenir au voyage partagé</button>
     <p class="note">Le même compte fonctionne pour ton emploi du temps.</p>
   </form>
 </div>
@@ -1330,7 +1355,7 @@ function wCard(x){
   const added=inMine(x.n), ok=x.iso&&BY_ISO[x.iso];
   return `<div class="card"><div class="card-top"><h3>${ok?`<span aria-hidden="true">${flag(x.iso)}</span>`:""}${esc(x.n)}</h3><span class="tag t">${esc(x.tr)} · ${esc(x.t)}</span></div>
     <p>${esc(x.i)}</p>${x.m&&x.m.length?`<p class="when">${monthsTxt(x.m)}</p>`:""}
-    <div class="act"><button class="btn ${added?"":"pri"}" data-wadd="${esc(x.n)}" data-wnote="${esc(x.tr+" · "+x.t)}" ${added?"disabled":""}>${added?"✓ Dans ma liste":"+ Ma liste"}</button>${ok?`<button class="btn ghost" data-ov="${x.iso}">Fiche</button>`:""}</div></div>`;
+    <div class="act"><button class="btn ${added?"":"pri"}" data-wadd="${esc(x.n)}" data-wnote="${esc(x.tr+" · "+x.t)}" ${added?"disabled":""}>${added?"✓ Dans ma liste":"+ Ma liste"}</button>${ok?`<button class="btn ghost" data-ov="${x.iso}">Fiche</button>`:""}${x.tr==="Voiture"?`<a class="btn ghost" href="${esc(dirUrl(depart(),x.n,"","driving"))}" target="_blank" rel="noopener">Itinéraire</a>`:""}</div></div>`;
 }
 const monthsTxt = m => { const a=[...new Set(m)].filter(n=>n>=1&&n<=12).sort((x,y)=>x-y); return a.length===12?"Toute l'année":a.map(n=>MONTHS[n-1].toLowerCase()).join(" · "); };
 function renderProps(){
@@ -1477,13 +1502,13 @@ document.addEventListener("click",e=>{ const b=e.target.closest("[data-tab-go]")
 
 /* ---------- À venir : projets ---------- */
 const RESA_CATS = {
- transport:{n:"Trajet",pl:"Trajets",b:"Transport",types:["Vol","Train","Bus","Ferry","Voiture de location","Taxi / transfert","Covoiturage","Navette / métro","Autre trajet"]},
+ transport:{n:"Trajet",pl:"Trajets",b:"Transport",types:["Vol","Train","Bus","Ferry","Voiture de location","Voiture perso","Taxi / transfert","Covoiturage","Navette / métro","Autre trajet"]},
  logement:{n:"Hébergement",pl:"Hébergements",b:"Logement",types:["Hôtel","Auberge de jeunesse","Airbnb / appartement","Chambre d'hôte","Camping","Refuge","Chez l'habitant"]},
  activite:{n:"Activité",pl:"Activités",b:"Activités",types:["Excursion / visite guidée","Randonnée guidée","Sport d'aventure","Plongée","Location (vélo, kayak…)","Musée / site","Restaurant","Spectacle / concert","Cours / atelier","Bien-être / spa"]},
  autre:{n:"Autre",pl:"Autres",b:"Autre",types:["Assurance","eSIM / forfait","Parking","Visa / formalité","Location de matériel","Autre"]}
 };
 const RESA_FIELDS = {
- transport:[["from","Départ (lieu)","text","Paris CDG"],["to","Arrivée (lieu)","text","Podgorica"],["d1","Date de départ","date"],["t1","Heure de départ","time"],["d2","Date d'arrivée","date"],["t2","Heure d'arrivée","time"],["company","Compagnie","text","Air France"],["num","N° de vol / train / bus","text","AF1234"],["seat","Siège / voiture","text"],["ref","Référence de réservation","text"]],
+ transport:[["from","Départ (lieu)","text","Paris CDG"],["to","Arrivée (lieu)","text","Podgorica"],["via","Étapes en route (optionnel)","text","Kotor, Budva"],["d1","Date de départ","date"],["t1","Heure de départ","time"],["d2","Date d'arrivée","date"],["t2","Heure d'arrivée","time"],["company","Compagnie","text","Air France"],["num","N° de vol / train / bus","text","AF1234"],["seat","Siège / voiture","text"],["ref","Référence de réservation","text"]],
  logement:[["title","Nom","text","Hôtel Kotor Bay"],["addr","Adresse","text"],["d1","Arrivée (check-in)","date"],["t1","Heure d'arrivée","time"],["d2","Départ (check-out)","date"],["t2","Heure de départ","time"],["ref","Référence","text"]],
  activite:[["title","Nom","text","Rafting sur la Tara"],["addr","Lieu / point de rendez-vous","text"],["d1","Date","date"],["t1","Heure de début","time"],["t2","Heure de fin","time"],["company","Prestataire","text"],["ref","Référence","text"]],
  autre:[["title","Intitulé","text","Assurance voyage"],["d1","Date","date"],["d2","Jusqu'au","date"],["company","Fournisseur","text"],["ref","Référence","text"]]
@@ -1497,16 +1522,16 @@ function resaTitle(r){
   if(r.cat==="transport") return [r.from&&r.to?`${r.from} → ${r.to}`:(r.from||r.to||r.k), r.num].filter(Boolean).join(" · ");
   return r.title||r.k;
 }
-const resaExp = p => p.resa.filter(r=>r.inBudget&&+r.price>0).map(r=>({id:"r"+r.id,l:resaTitle(r),c:RESA_CATS[r.cat].b,a:+r.price,auto:true}));
+const resaExp = p => p.resa.filter(r=>r.inBudget&&+r.price>0).map(r=>({id:"r"+r.id,l:resaTitle(r),c:RESA_CATS[r.cat].b,a:+r.price,auto:true,by:r.by}));
 function newProject(o){
   const type=o.type||"general";
   const bag=[]; const addPack=src=>{ for(const cat in src) src[cat].forEach(t=>bag.push({id:rid(),t,cat,done:false})); };
   addPack(PACK.base); if(PACK[type]) addPack(PACK[type]);
-  return Object.assign({id:rid(),name:"",iso:"",from:"",to:"",type,with:"",notes:"",resa:[],days:{},
-    check:CHECK.map(t=>({id:rid(),t,done:false})), bag,
+  return Object.assign({id:rid(),name:"",iso:"",dest:"",from:"",to:"",type,with:"",notes:"",resa:[],days:{},people:["Moi"],places:[],docs:[],contacts:[],
+    check:CHECK_FULL.map(([due,cat,t])=>({id:rid(),t,cat,due,done:false})), bag,
     budget:{plan:Object.fromEntries(BUD_CATS.map(c=>[c,0])),exp:[]}, created:new Date().toISOString()}, o);
 }
-function fixProject(p){ p.resa=(p.resa||[]).map(normResa); p.days=p.days||{}; p.check=p.check||[]; p.bag=p.bag||[]; p.budget=p.budget||{plan:{},exp:[]}; p.budget.exp=p.budget.exp||[]; p.budget.plan=p.budget.plan||{}; return p; }
+function fixProject(p){ p.places=p.places||[]; p.docs=p.docs||[]; p.contacts=p.contacts||[]; p.resa=(p.resa||[]).map(normResa); p.days=p.days||{}; p.check=p.check||[]; p.bag=p.bag||[]; p.budget=p.budget||{plan:{},exp:[]}; p.budget.exp=p.budget.exp||[]; p.budget.plan=p.budget.plan||{}; return p; }
 const allExp = p => (p.budget.exp||[]).concat(resaExp(p));
 const spent = p => allExp(p).reduce((s,x)=>s+(+x.a||0),0);
 const planned = p => BUD_CATS.reduce((s,c)=>s+(+p.budget.plan[c]||0),0);
@@ -1546,6 +1571,7 @@ function openProjectForm(id, iso){
   body.innerHTML=`<form class="form" id="pf" style="padding-top:14px">
     <label>Nom du voyage<input class="inp" id="pf-name" required value="${esc(p.name)}" placeholder="Rando au Monténégro"></label>
     <label>Pays<select class="inp" id="pf-iso">${countryOptions(p.iso)}</select></label>
+    <label>Destination (ville ou région)<input class="inp" id="pf-dest" value="${esc(p.dest||"")}" placeholder="Kotor, Côte d'Azur…"></label>
     <div class="two"><label>Départ<input class="inp" type="date" id="pf-from" value="${esc(p.from)}"></label><label>Retour<input class="inp" type="date" id="pf-to" value="${esc(p.to)}"></label></div>
     <label>Type de voyage (pour la liste de bagages)<select class="inp" id="pf-type" ${id?"disabled":""}>${Object.entries(TRIP_TYPES).map(([k,v])=>`<option value="${k}" ${k===p.type?"selected":""}>${v}</option>`).join("")}</select></label>
     <label>Avec qui<input class="inp" id="pf-with" value="${esc(p.with)}" placeholder="Seul, avec Paul…"></label>
@@ -1554,7 +1580,7 @@ function openProjectForm(id, iso){
   </form>`;
   $("#pf-cancel").onclick=()=>id?openProject(id):closeSheet();
   $("#pf").onsubmit=e=>{ e.preventDefault();
-    const v={name:$("#pf-name").value.trim(),iso:$("#pf-iso").value,from:$("#pf-from").value,to:$("#pf-to").value,with:$("#pf-with").value.trim(),notes:$("#pf-notes").value.trim()};
+    const v={name:$("#pf-name").value.trim(),iso:$("#pf-iso").value,dest:$("#pf-dest").value.trim(),from:$("#pf-from").value,to:$("#pf-to").value,with:$("#pf-with").value.trim(),notes:$("#pf-notes").value.trim()};
     if(v.from&&v.to&&v.to<v.from){ const t=v.to; v.to=v.from; v.from=t; }
     let pid=id;
     if(id) Object.assign(projects[id],v); else { const np=newProject(Object.assign(v,{type:$("#pf-type").value})); projects[np.id]=np; pid=np.id; }
@@ -1564,11 +1590,11 @@ function openProjectForm(id, iso){
 }
 
 let pTab="infos", resaFilter="all";
-const P_TABS=[["infos","Infos"],["resa","Réservations"],["jours","Jour par jour"],["check","Check-list"],["bag","Bagages"],["budget","Budget"]];
+const P_TABS=[["infos","Infos"],["resa","Réservations"],["jours","Jour par jour"],["lieux","À voir"],["check","Check-list"],["bag","Bagages"],["budget","Budget"],["docs","Documents"],["contacts","Contacts"]];
 function openProject(id, tab){
   const p=projects[id]; if(!p) return; fixProject(p); if(tab) pTab=tab;
   openSheet(`<div class="sheet-title"><span class="flag">${flag(p.iso)}</span><div><h2>${esc(p.name||"Sans titre")}</h2><span class="sub">${esc(fmtRange(p.from,p.to))}${nights(p)?` · ${nights(p)} jours`:""}</span> ${countdown(p)}</div><button class="close" aria-label="Fermer">✕</button></div>
-    <div class="ptabs" id="pt">${P_TABS.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join("")}</div>`, p.name||"Projet");
+    <div class="ptabs" id="pt" style="grid-template-columns:repeat(3,1fr)">${P_TABS.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join("")}</div>`, p.name||"Projet");
   $("#pt").addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(!b)return;pTab=b.dataset.t;drawProject(id);$("#sheet-root .sheet").scrollTop=0;});
   drawProject(id);
 }
@@ -1584,13 +1610,15 @@ function attHtml(ph, alt){
   return ph.type==="pdf" ? `<a class="btn" href="${u}" target="_blank" rel="noopener" style="display:inline-block">Voir le PDF</a>`
     : `<div class="photos" style="max-width:110px"><a href="${u}" target="_blank" rel="noopener"><img src="${u}" alt="${esc(alt)}"></a></div>`;
 }
-function resaCard(r){
+function resaCard(r,o){
+  o=o||{}; const showP=o.ro?!!o.prix:true;
   const lines=[];
   if(r.cat==="transport"){
     lines.push(`<span>Départ</span><b>${esc(timeTxt(r.d1,r.t1)||"—")}</b>`);
     if(r.d2||r.t2) lines.push(`<span>Arrivée</span><b>${esc(timeTxt(r.d2||r.d1,r.t2))}</b>`);
     if(r.company) lines.push(`<span>Compagnie</span><b>${esc(r.company)}</b>`);
-    if(r.seat) lines.push(`<span>Siège</span><b>${esc(r.seat)}</b>`);
+    if(r.seat&&showP) lines.push(`<span>Siège</span><b>${esc(r.seat)}</b>`);
+    if(r.via) lines.push(`<span>Étapes</span><b>${esc(r.via)}</b>`);
   } else if(r.cat==="logement"){
     lines.push(`<span>Check-in</span><b>${esc(timeTxt(r.d1,r.t1)||"—")}</b>`);
     lines.push(`<span>Check-out</span><b>${esc(timeTxt(r.d2,r.t2)||"—")}</b>`);
@@ -1602,44 +1630,101 @@ function resaCard(r){
     if(r.d1) lines.push(`<span>Date</span><b>${esc(fmtDshort(r.d1))}${r.d2?" → "+esc(fmtDshort(r.d2)):""}</b>`);
     if(r.company) lines.push(`<span>Fournisseur</span><b>${esc(r.company)}</b>`);
   }
-  if(r.ref) lines.push(`<span>Référence</span><b class="money">${esc(r.ref)}</b>`);
-  if(+r.price>0) lines.push(`<span>Prix</span><b class="money">${eur(+r.price)}</b>`);
+  if(r.ref&&showP) lines.push(`<span>Référence</span><b class="money">${esc(r.ref)}</b>`);
+  if(+r.price>0&&showP) lines.push(`<span>Prix</span><b class="money">${eur(+r.price)}</b>`);
+  const dir=resaDir(r), ev=resaEvent(r);
   return `<div class="blk resa-card">
-    <div class="row-ctl"><span class="k">${esc(r.k)}</span><button class="btn" data-redit="${r.id}">Modifier</button></div>
+    <div class="row-ctl"><span class="k">${esc(r.k)}</span>${o.ro?"":`<button class="btn" data-redit="${r.id}">Modifier</button>`}</div>
     <b class="rt">${esc(resaTitle(r))}</b>
-    ${r.addr?`<a class="small" href="${esc(mapsLink(r.addr))}" target="_blank" rel="noopener">${esc(r.addr)} · Itinéraire</a>`:""}
+    ${r.addr?`<a class="small" href="${esc(mapsLink(r.addr))}" target="_blank" rel="noopener">${esc(r.addr)} · Voir sur la carte</a>`:""}
     <div class="facts">${lines.map(l=>`<div>${l}</div>`).join("")}</div>
     ${r.notes?`<p class="journal-text small">${esc(r.notes)}</p>`:""}
-    <div class="row-ctl" style="justify-content:flex-start">${r.url?`<a class="btn" href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener">Ouvrir le lien</a>`:""}${attHtml(r.ph,"Billet "+resaTitle(r))}</div>
+    <div class="chips wrap-chips">
+      ${dir?`<a class="chip maps" href="${esc(dir)}" target="_blank" rel="noopener">${isCar(r)?"🚗 Itinéraire Google Maps":"Itinéraire Google Maps"}</a>`:""}
+      ${ev?`<a class="chip" href="${esc(gcalUrl(ev))}" target="_blank" rel="noopener">Google Agenda</a><button class="chip" type="button" data-ics-r="${r.id}">Agenda Apple</button>`:""}
+      ${r.url?`<a class="chip" href="${esc(safeUrl(r.url))}" target="_blank" rel="noopener">Ouvrir le lien</a>`:""}
+    </div>
+    ${o.ro?"":attHtml(r.ph,"Billet "+resaTitle(r))}
   </div>`;
 }
 const sortKey = r => (r.d1||"9999")+(r.t1||"99");
+function quickLinks(p){
+  const d=destOf(p), q=encodeURIComponent(d), ci=p.from||"", co=p.to||"";
+  const L=[];
+  if(d){
+    L.push(["Hébergements","Booking",`https://www.booking.com/searchresults.fr.html?ss=${q}${ci?"&checkin="+ci:""}${co?"&checkout="+co:""}&group_adults=${people(p).length}`]);
+    L.push(["Logements","Airbnb",`https://www.airbnb.fr/s/${encodeURIComponent(d)}/homes?${ci?"checkin="+ci+"&":""}${co?"checkout="+co+"&":""}adults=${people(p).length}`]);
+    L.push(["Vols",`depuis ${depart()}`,`https://www.google.com/travel/flights?q=${encodeURIComponent("Vols "+depart()+" vers "+d+(ci?" le "+ci:"")+(co?" retour "+co:""))}&hl=fr`]);
+    L.push(["Trains","Trainline","https://www.thetrainline.com/fr"]);
+    L.push(["Location de voiture","Rentalcars","https://www.rentalcars.com/fr/"]);
+    L.push(["Météo",d,`https://www.google.com/search?q=${encodeURIComponent("météo "+d)}`]);
+    L.push(["Itinéraire depuis "+depart(),"Google Maps",dirUrl(depart(),d,"","")]);
+  }
+  if(p.iso){ L.push(["Conseils aux voyageurs","France Diplomatie","https://www.diplomatie.gouv.fr/fr/conseils-aux-voyageurs/conseils-par-pays-destination/"]);
+    L.push(["Fil d'Ariane","Signaler son voyage","https://pastel.diplomatie.gouv.fr/fildariane/"]);
+    L.push(["Guide",BY_ISO[p.iso].name,`https://fr.wikivoyage.org/wiki/${encodeURIComponent(BY_ISO[p.iso].name.replace(/ /g,"_"))}`]); }
+  L.push(["Convertisseur de devises","Google","https://www.google.com/search?q=convertisseur+devise"]);
+  return L;
+}
 function drawProject(id){
   const p=projects[id], body=$("#sheet-body"); if(!p||!body) return;
+  fixProject(p);
   [...$("#pt").children].forEach(x=>x.setAttribute("aria-pressed",x.dataset.t===pTab));
   const sync=()=>{ saveProject(id); renderProjects(); };
+  const td=ymd(today());
 
   if(pTab==="infos"){
     const pastBanner = isPast(p) ? `<div class="banner"><p>Ce voyage est terminé. Tu peux marquer ${p.iso?esc(BY_ISO[p.iso].name):"le pays"} comme fait et écrire ton journal.</p><div class="row-ctl" style="justify-content:flex-start">${p.iso?`<button class="btn pri" id="pi-done">Marquer fait et écrire le journal</button>`:""}</div></div>` : "";
-    const by=c=>p.resa.filter(r=>r.cat===c).length;
+    const next=p.check.filter(x=>!x.done).map(x=>({x,d:dueDate(p,x)})).sort((a,b)=>(a.d||"9999").localeCompare(b.d||"9999")).slice(0,4);
+    const cars=p.resa.filter(r=>isCar(r)&&r.from&&r.to).sort((a,b)=>sortKey(a).localeCompare(sortKey(b)));
+    const carUrl=cars.length?dirUrl(cars[0].from,cars[cars.length-1].to,cars.flatMap((r,i)=>[...(r.via?r.via.split(/[,;]/):[]),...(i<cars.length-1?[r.to]:[])]).map(s=>s.trim()).filter(Boolean).join(","),"driving"):"";
+    const docAlerts=(p.docs||[]).filter(d=>d.exp&&p.to&&(d.kind==="Passeport"||d.kind==="Carte d'identité"||d.kind==="Visa / ETA")&&d.exp<addDay(p.to,183));
     body.innerHTML=`<div class="ov-body">${pastBanner}
+      ${docAlerts.map(d=>`<div class="banner"><p><b>${esc(d.kind)}</b> ${d.exp<p.to?"expire avant la fin du voyage":"expire moins de 6 mois après le retour"} (${esc(fmtD(d.exp))}). Beaucoup de pays exigent 6 mois de validité.</p></div>`).join("")}
       <div class="blk"><div class="facts">
-        <div><span>Pays</span><b>${p.iso?flag(p.iso)+" "+esc(BY_ISO[p.iso].name):"—"}</b></div>
+        <div><span>Destination</span><b>${p.iso?flag(p.iso)+" ":""}${esc(destOf(p)||"—")}</b></div>
         <div><span>Dates</span><b>${esc(fmtRange(p.from,p.to))}</b></div>
         <div><span>Type</span><b>${esc(TRIP_TYPES[p.type]||"Général")}</b></div>
-        <div><span>Avec</span><b>${esc(p.with||"—")}</b></div></div>
+        <div><span>Durée</span><b>${nights(p)?nights(p)+" jours":"—"}</b></div></div>
         ${p.notes?`<p class="journal-text" style="margin-top:12px">${esc(p.notes)}</p>`:""}
-        <div class="row-ctl" style="justify-content:flex-start;margin-top:12px"><button class="btn" id="pi-edit">Modifier</button>${p.iso?`<button class="btn" id="pi-ov">Fiche du pays</button>`:""}</div></div>
-      <div class="blk"><h3>Réservations</h3><div class="facts">${Object.keys(RESA_CATS).map(c=>`<div><span>${RESA_CATS[c].pl}</span><b>${by(c)}</b></div>`).join("")}</div>
-        <div class="row-ctl" style="justify-content:flex-start;margin-top:10px"><button class="btn" data-goto="resa">Voir les réservations</button><button class="btn" data-goto="jours">Jour par jour</button></div></div>
-      <div id="pi-del"><button class="btn danger" id="pi-delb">Supprimer le projet</button></div></div>`;
+        <div class="row-ctl" style="justify-content:flex-start;margin-top:12px"><button class="btn" id="pi-edit">Modifier</button>${p.iso?`<button class="btn ghost" id="pi-ov">Fiche du pays</button>`:""}</div></div>
+
+      <div class="blk"><h3>Voyageurs</h3>
+        <div class="chips wrap-chips">${people(p).map((n,i)=>`<span class="chip on-chip">${esc(n)}${i?` <button class="x" data-pdel="${i}" aria-label="Retirer ${esc(n)}">×</button>`:""}</span>`).join("")}</div>
+        <form class="add two" id="pp-add" style="margin-top:8px"><input id="pp-n" placeholder="Ajouter un voyageur" required><button class="btn pri" type="submit">Ajouter</button></form>
+        <p class="note">Les voyageurs servent au partage des dépenses dans le budget.</p></div>
+
+      ${next.length?`<div class="blk"><h3>Prochaines tâches</h3><div class="items">${next.map(({x,d})=>`<div class="item ${x.done?"on":""}"><button class="chk soft" data-it="${x.id}" aria-pressed="false" aria-label="Cocher ${esc(x.t)}"></button><span class="t">${esc(x.t)}${d?` <span class="small ${d<td?"danger-t":"muted"}">· ${d<td?"en retard":"avant le "+esc(fmtDshort(d))}</span>`:""}</span><span></span></div>`).join("")}</div><button class="linkbtn" data-goto="check">Toute la check-list</button></div>`:""}
+
+      <div class="blk"><h3>Partager</h3><div id="pi-share" class="sh-box"></div></div>
+
+      <div class="blk"><h3>Ajouter à mon agenda</h3>
+        ${p.from?`${tog2("cal-resa","Inclure les réservations",true)}${tog2("cal-rem","Inclure les rappels de préparation",false)}
+        <div class="row-ctl" style="justify-content:flex-start"><button class="btn pri" id="cal-apple">Agenda Apple</button><button class="btn" id="cal-google">Google Agenda</button></div>
+        <div id="cal-glist"></div>`:`<p class="small muted">Ajoute les dates du voyage pour l'envoyer dans ton agenda.</p>`}</div>
+
+      ${carUrl?`<div class="blk"><h3>Road trip</h3><p class="small muted">${cars.length} trajet${cars.length>1?"s":""} en voiture : ${esc(cars[0].from)} → ${esc(cars[cars.length-1].to)}</p><a class="btn pri" href="${esc(carUrl)}" target="_blank" rel="noopener" style="justify-self:start">🚗 Itinéraire complet sur Google Maps</a></div>`:""}
+
+      <div class="blk"><h3>Préparer</h3><div class="items">${quickLinks(p).map(([a,b,u])=>`<a class="item" style="grid-template-columns:1fr auto;color:inherit;text-decoration:none" href="${esc(u)}" target="_blank" rel="noopener"><span class="t"><b style="font-weight:600">${esc(a)}</b> <span class="small muted">· ${esc(b)}</span></span><span class="muted">↗</span></a>`).join("")}</div></div>
+
+      <div class="row-ctl" style="justify-content:flex-start"><button class="btn" id="pi-dup">Dupliquer le voyage</button><span id="pi-del"><button class="btn danger" id="pi-delb">Supprimer le projet</button></span></div></div>`;
     $("#pi-edit").onclick=()=>openProjectForm(id);
     const ov=$("#pi-ov"); if(ov) ov.onclick=()=>openCountry(p.iso);
-    const dn=$("#pi-done"); if(dn) dn.onclick=()=>{ setStatus(p.iso,"done",true); const J=journals[p.iso]||{entries:[]}; const eid=rid(); J.entries.push({id:eid,from:p.from,to:p.to,with:p.with,rating:0,text:"",photos:[]}); journals[p.iso]=J; saveJournal(p.iso); openCountry(p.iso,"j"); renderJournal(p.iso,eid); };
+    const dn=$("#pi-done"); if(dn) dn.onclick=()=>{ setStatus(p.iso,"done",true); const J=journals[p.iso]||{entries:[]}; const eid=rid(); J.entries.push({id:eid,from:p.from,to:p.to,with:p.with||people(p).slice(1).join(", "),rating:0,text:"",photos:[]}); journals[p.iso]=J; saveJournal(p.iso); openCountry(p.iso,"j"); renderJournal(p.iso,eid); };
     body.querySelectorAll("[data-goto]").forEach(b=>b.onclick=()=>{ pTab=b.dataset.goto; drawProject(id); });
-    $("#pi-delb").onclick=()=>{ $("#pi-del").innerHTML=`<div class="confirm"><span>Supprimer « ${esc(p.name)} » ?</span><button class="btn danger" id="pd-y">Supprimer</button><button class="btn" id="pd-n">Annuler</button></div>`;
-      $("#pd-y").onclick=()=>{ delete projects[id]; saveProject(id); renderProjects(); closeSheet(); };
+    body.querySelectorAll("[data-it]").forEach(b=>b.onclick=()=>{ const x=p.check.find(i=>i.id===b.dataset.it); x.done=true; sync(); drawProject(id); });
+    $("#pp-add").onsubmit=e=>{ e.preventDefault(); const n=$("#pp-n").value.trim(); if(!n) return; p.people=people(p).concat([n]); sync(); drawProject(id); };
+    body.querySelectorAll("[data-pdel]").forEach(b=>b.onclick=()=>{ const a=people(p).slice(); a.splice(+b.dataset.pdel,1); p.people=a; sync(); drawProject(id); });
+    const calOpts=()=>({resa:$("#cal-resa")?.getAttribute("aria-checked")==="true",rem:$("#cal-rem")?.getAttribute("aria-checked")==="true"});
+    body.querySelectorAll(".switch[data-sw2]").forEach(b=>b.onclick=()=>b.setAttribute("aria-checked",b.getAttribute("aria-checked")!=="true"));
+    const ca=$("#cal-apple"); if(ca) ca.onclick=()=>openIcs(projEvents(p,calOpts()),p.name);
+    const cg=$("#cal-google"); if(cg) cg.onclick=()=>{ const evs=projEvents(p,calOpts());
+      $("#cal-glist").innerHTML=`<p class="small muted" style="margin:10px 0 6px">Google Agenda ajoute un événement à la fois : touche chacun pour l'ajouter.</p><div class="items">${evs.map(e=>`<a class="item" style="grid-template-columns:1fr auto;color:inherit;text-decoration:none" href="${esc(gcalUrl(e))}" target="_blank" rel="noopener"><span class="t">${esc(e.title)}<br><span class="small muted">${esc(fmtDshort(e.d1))}${e.t1?" · "+esc(e.t1):""}</span></span><span class="muted">+</span></a>`).join("")}</div>`; };
+    $("#pi-dup").onclick=()=>{ const nid=copyProject(p,false); openProject(nid,"infos"); toast("Voyage dupliqué"); };
+    $("#pi-delb").onclick=()=>{ $("#pi-del").innerHTML=`<span class="confirm"><span>Supprimer « ${esc(p.name)} » ?</span><button class="btn danger" id="pd-y">Supprimer</button><button class="btn" id="pd-n">Annuler</button></span>`;
+      $("#pd-y").onclick=()=>{ delete projects[id]; saveProject(id); if(window.SHARE_OK&&uid) sb.from("voyage_shares").delete().eq("project_id",id).then(()=>{},()=>{}); renderProjects(); closeSheet(); };
       $("#pd-n").onclick=()=>drawProject(id); };
+    drawShare(id);
   }
 
   else if(pTab==="resa"){
@@ -1648,70 +1733,160 @@ function drawProject(id){
     body.innerHTML=`<div class="ov-body">
       <div class="grid4">${Object.keys(RESA_CATS).map(c=>`<button class="btn pri" data-radd="${c}">+ ${RESA_CATS[c].n}</button>`).join("")}</div>
       <div style="display:grid;gap:6px;min-width:0"><div class="chips" id="rf">${[["all","Tout"]].concat(Object.keys(RESA_CATS).map(c=>[c,RESA_CATS[c].pl])).map(([k,n])=>`<button class="chip" data-rf="${k}" aria-pressed="${resaFilter===k}">${n} ${k==="all"?p.resa.length:p.resa.filter(r=>r.cat===k).length}</button>`).join("")}</div>${tot?`<span class="muted small">Total des réservations : <b class="money">${eur(tot)}</b></span>`:""}</div>
-      ${list.length?list.map(resaCard).join(""):`<div class="empty box">${p.resa.length?"Rien dans cette catégorie.":"Ajoute tes trajets, hébergements, activités et autres réservations. Elles apparaîtront dans le jour par jour et, si tu veux, dans le budget."}</div>`}
+      ${list.length?list.map(r=>resaCard(r)).join(""):`<div class="empty box">${p.resa.length?"Rien dans cette catégorie.":"Ajoute tes trajets, hébergements, activités et autres réservations. Elles apparaîtront dans le jour par jour, dans ton agenda et, si tu veux, dans le budget."}</div>`}
     </div>`;
     body.querySelectorAll("[data-radd]").forEach(b=>b.onclick=()=>resaForm(id,{cat:b.dataset.radd}));
     body.querySelectorAll("[data-rf]").forEach(b=>b.onclick=()=>{ resaFilter=b.dataset.rf; drawProject(id); });
     body.querySelectorAll("[data-redit]").forEach(b=>b.onclick=()=>resaForm(id,p.resa.find(r=>r.id===b.dataset.redit)));
+    body.querySelectorAll("[data-ics-r]").forEach(b=>b.onclick=()=>{ const r=p.resa.find(x=>x.id===b.dataset.icsR); const e=r&&resaEvent(r); if(e) openIcs([e],resaTitle(r)); });
   }
 
   else if(pTab==="jours"){ drawDays(id); }
 
-  else if(pTab==="check"||pTab==="bag"){
-    const arr=pTab==="check"?p.check:p.bag, done=arr.filter(x=>x.done).length;
-    const cats=pTab==="bag"?[...new Set(arr.map(x=>x.cat||"Autre"))]:[null];
+  else if(pTab==="lieux"){
+    const pl=p.places, days=tripDays(p).filter(ds=>(!p.from||ds>=p.from)&&(!p.to||ds<=p.to));
+    const cats=PLACE_CATS.filter(c=>pl.some(x=>x.cat===c));
     body.innerHTML=`<div class="ov-body">
-      <div class="row-ctl"><span class="muted small">${done}/${arr.length} ${pTab==="check"?"faits":"dans la valise"}</span>${pTab==="check"&&sample&&p.iso?`<button class="btn" id="pc-ai">Points spécifiques à ${esc(BY_ISO[p.iso].name)}</button>`:""}${pTab==="bag"&&done?`<button class="btn" id="pb-reset">Tout décocher</button>`:""}</div>
-      <div id="pc-aimsg"></div>
-      <div class="blk"><div class="items">${cats.map(cat=>`${cat?`<div class="cat-h">${esc(cat)}</div>`:""}${arr.filter(x=>!cat||(x.cat||"Autre")===cat).map(x=>`<div class="item ${x.done?"on":""}"><button class="chk soft" data-it="${x.id}" aria-pressed="${!!x.done}" aria-label="Cocher ${esc(x.t)}">${x.done?"✓":""}</button><span class="t">${esc(x.t)}</span><button class="x" data-itx="${x.id}" aria-label="Retirer ${esc(x.t)}">×</button></div>`).join("")}`).join("")}</div></div>
-      <form class="add ${pTab==="bag"?"":"two"}" id="pc-add">${pTab==="bag"?`<select id="pc-cat">${[...new Set(cats.concat(["Autre"]))].map(c=>`<option>${esc(c)}</option>`).join("")}</select>`:""}<input id="pc-t" placeholder="${pTab==="check"?"Ajouter une tâche":"Ajouter un objet"}" required><button class="btn pri" type="submit">Ajouter</button></form>
+      <form class="blk form" id="pl-add"><h3>Ajouter un lieu</h3>
+        <label>Nom<input class="inp" id="pl-n" required placeholder="Bouches de Kotor, café, sommet…"></label>
+        <div class="two"><label>Catégorie<select class="inp" id="pl-c">${PLACE_CATS.map(c=>`<option>${c}</option>`).join("")}</select></label><label>Ville ou adresse<input class="inp" id="pl-a" placeholder="${esc(destOf(p)||"Optionnel")}"></label></div>
+        <label>Lien (optionnel)<input class="inp" id="pl-u" placeholder="https://…"></label>
+        <button class="btn pri" type="submit" style="justify-self:start">Ajouter</button></form>
+      ${pl.length?cats.map(c=>`<div class="blk"><div class="cat-h" style="margin:0 0 4px">${esc(c)} · ${pl.filter(x=>x.cat===c).length}</div><div class="items">${pl.filter(x=>x.cat===c).map(x=>`<div class="place ${x.done?"on":""}">
+          <button class="chk soft" data-plk="${x.id}" aria-pressed="${!!x.done}" aria-label="Fait : ${esc(x.name)}">${x.done?"✓":""}</button>
+          <div class="pl-t"><b>${esc(x.name)}</b>${x.addr?`<span class="small muted">${esc(x.addr)}</span>`:""}
+            <div class="chips wrap-chips"><a class="chip maps" href="${esc(mapsLink(x.name+(x.addr?", "+x.addr:destOf(p)?", "+destOf(p):"")))}" target="_blank" rel="noopener">Google Maps</a>${x.url?`<a class="chip" href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener">Lien</a>`:""}
+            ${days.length?`<select class="chip" data-plday="${x.id}" aria-label="Jour prévu"><option value="">Pas de jour</option>${days.map((ds,i)=>`<option value="${ds}" ${x.day===ds?"selected":""}>Jour ${i+1} · ${esc(fmtDshort(ds))}</option>`).join("")}</select>`:""}</div></div>
+          <button class="x" data-plx="${x.id}" aria-label="Supprimer ${esc(x.name)}">×</button></div>`).join("")}</div></div>`).join("")
+        :`<div class="empty box">Note les lieux à ne pas rater : sites, restaurants, cafés, randos, plages… Tu peux les placer sur un jour pour qu'ils apparaissent dans le jour par jour.</div>`}
+    </div>`;
+    $("#pl-add").onsubmit=e=>{ e.preventDefault(); p.places.push({id:rid(),name:$("#pl-n").value.trim(),cat:$("#pl-c").value,addr:$("#pl-a").value.trim(),url:$("#pl-u").value.trim(),done:false,day:""}); sync(); drawProject(id); };
+    body.querySelectorAll("[data-plk]").forEach(b=>b.onclick=()=>{ const x=p.places.find(i=>i.id===b.dataset.plk); x.done=!x.done; sync(); drawProject(id); });
+    body.querySelectorAll("[data-plx]").forEach(b=>b.onclick=()=>{ p.places=p.places.filter(i=>i.id!==b.dataset.plx); sync(); drawProject(id); });
+    body.querySelectorAll("[data-plday]").forEach(s=>s.onchange=()=>{ const x=p.places.find(i=>i.id===s.dataset.plday); x.day=s.value; sync(); toast(s.value?"Prévu le "+dayTitle(s.value).toLowerCase():"Retiré du programme"); });
+  }
+
+  else if(pTab==="check"){
+    const arr=p.check, done=arr.filter(x=>x.done).length;
+    const have=new Set(arr.map(x=>norm(x.t))), missing=CHECK_FULL.filter(c=>!have.has(norm(c[2])));
+    const late=arr.filter(x=>!x.done&&dueDate(p,x)&&dueDate(p,x)<td).length;
+    body.innerHTML=`<div class="ov-body">
+      <div class="blk"><div class="bud-big"><div><span class="muted small">Préparation</span><br><b class="money">${done}/${arr.length}</b></div>${late?`<span class="tag no">${late} en retard</span>`:p.from?`<span class="small muted">Départ ${esc(fmtDshort(p.from))}</span>`:""}</div>
+        <div class="bar"><i style="width:${arr.length?done/arr.length*100:0}%"></i></div>
+        ${p.from?"":`<p class="note">Ajoute la date de départ pour voir les échéances de chaque tâche.</p>`}</div>
+      ${missing.length?`<button class="btn ghost" id="pc-full" style="justify-self:start">+ Compléter avec la check-list type (${missing.length} tâches)</button>`:""}
+      ${sample&&p.iso?`<button class="btn ghost" id="pc-ai" style="justify-self:start">Points spécifiques à ${esc(BY_ISO[p.iso].name)}</button><div id="pc-aimsg"></div>`:""}
+      ${DUE_ORDER.map(g=>{ const its=arr.filter(x=>(x.due||"none")===g); if(!its.length) return ""; const dd=g!=="none"&&p.from?addDay(p.from,-DUE[g]):"";
+        return `<div class="blk"><div class="cat-h" style="margin:0 0 4px">${DUE_L[g]}${dd?` · ${esc(fmtDshort(dd))}`:""}</div><div class="items">${its.map(x=>{ const lt=!x.done&&dd&&dd<td;
+          return `<div class="item ${x.done?"on":""}"><button class="chk soft" data-it="${x.id}" aria-pressed="${!!x.done}" aria-label="Cocher ${esc(x.t)}">${x.done?"✓":""}</button><span class="t">${esc(x.t)}${x.cat?` <span class="small muted">· ${esc(x.cat)}</span>`:""}${lt?` <span class="tag no">En retard</span>`:""}</span><button class="x" data-itx="${x.id}" aria-label="Retirer ${esc(x.t)}">×</button></div>`; }).join("")}</div></div>`; }).join("")}
+      <form class="add" id="pc-add"><input id="pc-t" placeholder="Ajouter une tâche" required><select id="pc-due">${DUE_ORDER.map(g=>`<option value="${g}">${DUE_L[g]}</option>`).join("")}</select><button class="btn pri" type="submit">Ajouter</button></form>
     </div>`;
     body.querySelectorAll("[data-it]").forEach(b=>b.onclick=()=>{ const x=arr.find(i=>i.id===b.dataset.it); x.done=!x.done; sync(); drawProject(id); });
     body.querySelectorAll("[data-itx]").forEach(b=>b.onclick=()=>{ const i=arr.findIndex(x=>x.id===b.dataset.itx); arr.splice(i,1); sync(); drawProject(id); });
-    $("#pc-add").onsubmit=e=>{ e.preventDefault(); const t=$("#pc-t").value.trim(); if(!t) return; arr.push({id:rid(),t,cat:pTab==="bag"?$("#pc-cat").value:undefined,done:false}); sync(); drawProject(id); };
-    const rs=$("#pb-reset"); if(rs) rs.onclick=()=>{ arr.forEach(x=>x.done=false); sync(); drawProject(id); };
+    $("#pc-add").onsubmit=e=>{ e.preventDefault(); const t=$("#pc-t").value.trim(); if(!t) return; const g=$("#pc-due").value; arr.push({id:rid(),t,due:g==="none"?"":g,done:false}); sync(); drawProject(id); };
+    const fl=$("#pc-full"); if(fl) fl.onclick=()=>{ missing.forEach(([g,c,t])=>arr.push({id:rid(),t,cat:c,due:g,done:false})); sync(); drawProject(id); toast(missing.length+" tâches ajoutées"); };
     const ai=$("#pc-ai"); if(ai) ai.onclick=async()=>{
       ai.disabled=true; $("#pc-aimsg").innerHTML=`<div class="loading"><span class="spin"></span>Claude cherche les formalités et points à prévoir…</div>`;
       try{
-        const arr2=await sample.json(`Voyageur français de 25 ans, au départ de ${depart()}, voyage « ${p.name} » en ${BY_ISO[p.iso].name}${p.from?` du ${p.from} au ${p.to||p.from}`:""}, type ${TRIP_TYPES[p.type]}. ${p.notes?"Notes : "+p.notes+".":""}
-Donne 5 à 8 points de check-list SPÉCIFIQUES à ce pays et ce voyage (visa/ETA, vaccins ou traitements, monnaie et paiement, réservations à anticiper, permis ou guides obligatoires, règles locales). Pas de généralités. Chaque point en une ligne courte et actionnable.
-Réponds UNIQUEMENT en JSON : ["point 1","point 2"]`,{modelTier:"default"});
-        if(!Array.isArray(arr2)) throw 0;
-        const have=new Set(p.check.map(x=>norm(x.t)));
-        arr2.map(String).filter(t=>t&&!have.has(norm(t))).forEach(t=>p.check.push({id:rid(),t,done:false}));
-        sync(); drawProject(id);
+        const arr2=await sample.json(`Voyageur français, au départ de ${depart()}, voyage « ${p.name} » en ${BY_ISO[p.iso].name}${p.from?` du ${p.from} au ${p.to||p.from}`:""}, type ${TRIP_TYPES[p.type]}. Donne 5 à 8 points de check-list SPÉCIFIQUES à ce pays (visa/ETA, vaccins, monnaie, réservations à anticiper, règles locales). Réponds UNIQUEMENT en JSON : ["point 1","point 2"]`,{modelTier:"default"});
+        if(!Array.isArray(arr2)) throw 0; const h=new Set(arr.map(x=>norm(x.t)));
+        arr2.map(String).filter(t=>t&&!h.has(norm(t))).forEach(t=>arr.push({id:rid(),t,cat:"Pays",due:"j14",done:false})); sync(); drawProject(id);
       }catch(e){ $("#pc-aimsg").innerHTML=`<p class="err">${aiErr(e,"Pas de points ajoutés, réessaie.")}</p>`; ai.disabled=false; }
     };
   }
 
+  else if(pTab==="bag"){
+    const arr=p.bag, done=arr.filter(x=>x.done).length;
+    const cats=[...new Set(arr.map(x=>x.cat||"Autre"))];
+    body.innerHTML=`<div class="ov-body">
+      <div class="blk"><div class="bud-big"><div><span class="muted small">Dans la valise</span><br><b class="money">${done}/${arr.length}</b></div>${done?`<button class="btn" id="pb-reset">Tout décocher</button>`:""}</div><div class="bar"><i style="width:${arr.length?done/arr.length*100:0}%"></i></div></div>
+      <div><span class="small muted">Ajouter une liste type</span><div class="chips wrap-chips" style="margin-top:6px">${Object.keys(PACK).filter(k=>k!=="base").map(k=>`<button class="chip" data-tpl="${k}">+ ${esc(TRIP_TYPES[k]||k)}</button>`).join("")}${arr.length?"":`<button class="chip" data-tpl="base">+ Essentiels</button>`}</div></div>
+      ${cats.length?`<div class="blk"><div class="items">${cats.map(cat=>`<div class="cat-h">${esc(cat)} · ${arr.filter(x=>(x.cat||"Autre")===cat&&x.done).length}/${arr.filter(x=>(x.cat||"Autre")===cat).length}</div>${arr.filter(x=>(x.cat||"Autre")===cat).map(x=>`<div class="item ${x.done?"on":""}"><button class="chk soft" data-it="${x.id}" aria-pressed="${!!x.done}" aria-label="Cocher ${esc(x.t)}">${x.done?"✓":""}</button><span class="t">${esc(x.t)}</span><button class="x" data-itx="${x.id}" aria-label="Retirer ${esc(x.t)}">×</button></div>`).join("")}`).join("")}</div></div>`:`<div class="empty box">Ta liste de bagages est vide. Ajoute une liste type ci-dessus ou tes propres objets.</div>`}
+      <form class="add" id="pc-add"><select id="pc-cat">${[...new Set(cats.concat(["Vêtements","Toilette & santé","Tech","Documents","Sport","Autre"]))].map(c=>`<option>${esc(c)}</option>`).join("")}</select><input id="pc-t" placeholder="Ajouter un objet" required><button class="btn pri" type="submit">Ajouter</button></form>
+    </div>`;
+    body.querySelectorAll("[data-it]").forEach(b=>b.onclick=()=>{ const x=arr.find(i=>i.id===b.dataset.it); x.done=!x.done; sync(); drawProject(id); });
+    body.querySelectorAll("[data-itx]").forEach(b=>b.onclick=()=>{ const i=arr.findIndex(x=>x.id===b.dataset.itx); arr.splice(i,1); sync(); drawProject(id); });
+    $("#pc-add").onsubmit=e=>{ e.preventDefault(); const t=$("#pc-t").value.trim(); if(!t) return; arr.push({id:rid(),t,cat:$("#pc-cat").value,done:false}); sync(); drawProject(id); };
+    const rs=$("#pb-reset"); if(rs) rs.onclick=()=>{ arr.forEach(x=>x.done=false); sync(); drawProject(id); };
+    body.querySelectorAll("[data-tpl]").forEach(b=>b.onclick=()=>{ const src=PACK[b.dataset.tpl], h=new Set(arr.map(x=>norm(x.t))); let n=0; for(const c in src) src[c].forEach(t=>{ if(!h.has(norm(t))){ arr.push({id:rid(),t,cat:c,done:false}); n++; } }); sync(); drawProject(id); toast(n?n+" objets ajoutés":"Tout était déjà dans la liste"); });
+  }
+
+  else if(pTab==="docs"){
+    const ds=p.docs;
+    body.innerHTML=`<div class="ov-body">
+      ${ds.length?`<div class="blk"><div class="items">${ds.map(d=>{ const warn=d.exp&&p.to&&(d.kind==="Passeport"||d.kind==="Carte d'identité"||d.kind==="Visa / ETA")&&d.exp<addDay(p.to,183); const expd=d.exp&&d.exp<td;
+        return `<div class="item" style="grid-template-columns:minmax(0,1fr) auto;align-items:start"><span class="t"><span class="tag t">${esc(d.kind)}</span> <b>${esc(d.name||"")}</b>
+          ${d.exp?`<br><span class="small ${expd||warn?"danger-t":"muted"}">Expire le ${esc(fmtD(d.exp))}${expd?" · expiré":warn?" · moins de 6 mois après le retour":""}</span>`:""}
+          ${d.note?`<br><span class="small muted">${esc(d.note)}</span>`:""}
+          <span class="chips wrap-chips" style="margin-top:6px">${d.file?`<a class="chip" href="${esc(photoUrl(d.file))}" target="_blank" rel="noopener">Ouvrir le fichier</a>`:""}${d.url?`<a class="chip" href="${esc(safeUrl(d.url))}" target="_blank" rel="noopener">Ouvrir le lien</a>`:""}</span></span>
+          <button class="x" data-dcx="${d.id}" aria-label="Supprimer">×</button></div>`; }).join("")}</div></div>`
+        :`<div class="empty box">Garde ici tes papiers de voyage : passeport, visa, assurance, permis, billets… avec leur date d'expiration, un fichier ou un lien. L'appli te prévient si un passeport expire trop tôt.</div>`}
+      <form class="blk form" id="dc-add"><h3>Ajouter un document</h3>
+        <div class="two"><label>Type<select class="inp" id="dc-k">${DOC_KINDS.map(k=>`<option>${esc(k)}</option>`).join("")}</select></label><label>Expire le<input class="inp" type="date" id="dc-exp"></label></div>
+        <label>Intitulé (optionnel)<input class="inp" id="dc-n" placeholder="Assurance de la carte bancaire, ESTA…"></label>
+        <label>Lien (optionnel)<input class="inp" id="dc-u" placeholder="https://…"></label>
+        <label>Note (optionnel)<input class="inp" id="dc-note" placeholder="Numéro d'assistance, où il est rangé…"></label>
+        ${assets?`<div><label class="btn ghost">+ Joindre un fichier<input type="file" id="dc-f" accept="image/*,.pdf,.doc,.docx" hidden></label> <span class="small muted" id="dc-fs"></span></div>`:""}
+        <button class="btn pri" type="submit" style="justify-self:start">Ajouter</button></form>
+    </div>`;
+    let file=null;
+    const f=$("#dc-f"); if(f) f.onchange=async()=>{ const fl=f.files[0]; f.value=""; if(!fl) return; $("#dc-fs").textContent="Envoi…";
+      try{ const img=fl.type.startsWith("image/"); const blob=img?await compress(fl):fl; const up=await assets.upload(blob,{contentType:img?"image/jpeg":(fl.type||"application/pdf"),name:fl.name}); file={id:up.id,url:up.url,path:up.path,name:fl.name}; $("#dc-fs").textContent=fl.name; }
+      catch(e){ $("#dc-fs").textContent="Envoi impossible, réessaie."; } };
+    $("#dc-add").onsubmit=e=>{ e.preventDefault(); p.docs.push({id:rid(),kind:$("#dc-k").value,name:$("#dc-n").value.trim(),exp:$("#dc-exp").value,url:$("#dc-u").value.trim(),note:$("#dc-note").value.trim(),file}); sync(); drawProject(id); };
+    body.querySelectorAll("[data-dcx]").forEach(b=>b.onclick=()=>{ p.docs=p.docs.filter(d=>d.id!==b.dataset.dcx); sync(); drawProject(id); });
+  }
+
+  else if(pTab==="contacts"){
+    const cs=p.contacts;
+    body.innerHTML=`<div class="ov-body">
+      <div class="blk"><h3>Numéros utiles</h3><div class="items">
+        ${contactRow({name:"Urgences (Europe)",role:"Urgences",phone:"112"},true)}
+        ${contactRow({name:"Cellule de crise du Quai d'Orsay",role:"Urgences",phone:"+33 1 53 59 11 00"},true)}
+        <a class="item" style="grid-template-columns:1fr auto;color:inherit;text-decoration:none" href="https://www.diplomatie.gouv.fr/fr/le-ministere-et-son-reseau/annuaires-et-adresses-du-ministere-de-l-europe-et-des-affaires-etrangeres-meae/ambassades-et-consulats-francais-a-l-etranger/" target="_blank" rel="noopener"><span class="t"><b style="font-weight:600">Ambassades et consulats de France</b><br><span class="small muted">Trouver celui de ta destination</span></span><span class="muted">↗</span></a>
+      </div></div>
+      ${cs.length?`<div class="blk"><h3>Mes contacts</h3><div class="items">${cs.map(c=>contactRow(c)).join("")}</div></div>`:""}
+      <form class="blk form" id="ct-add"><h3>Ajouter un contact</h3>
+        <div class="two"><label>Nom<input class="inp" id="ct-n" required placeholder="Hôtel Kotor Bay"></label><label>Rôle<select class="inp" id="ct-r">${CONTACT_ROLES.map(r=>`<option>${esc(r)}</option>`).join("")}</select></label></div>
+        <div class="two"><label>Téléphone<input class="inp" id="ct-p" type="tel" inputmode="tel" placeholder="+382…"></label><label>E-mail<input class="inp" id="ct-e" type="email" inputmode="email"></label></div>
+        <label>Adresse<input class="inp" id="ct-a"></label>
+        <label>Note<input class="inp" id="ct-note" placeholder="Numéro de contrat, horaires…"></label>
+        <button class="btn pri" type="submit" style="justify-self:start">Ajouter</button></form>
+    </div>`;
+    $("#ct-add").onsubmit=e=>{ e.preventDefault(); p.contacts.push({id:rid(),name:$("#ct-n").value.trim(),role:$("#ct-r").value,phone:$("#ct-p").value.trim(),email:$("#ct-e").value.trim(),addr:$("#ct-a").value.trim(),note:$("#ct-note").value.trim()}); sync(); drawProject(id); };
+    body.querySelectorAll("[data-cx]").forEach(b=>b.onclick=()=>{ p.contacts=p.contacts.filter(c=>c.id!==b.dataset.cx); sync(); drawProject(id); });
+  }
+
   else {
-    const pl=planned(p), sp=spent(p), exps=allExp(p), byCat=c=>exps.filter(x=>x.c===c).reduce((s,x)=>s+(+x.a||0),0);
+    const ppl=people(p), pl=planned(p), sp=spent(p), exps=allExp(p), byCat=c=>exps.filter(x=>x.c===c).reduce((s,x)=>s+(+x.a||0),0);
+    let split="";
+    if(ppl.length>1&&sp>0){
+      const paid=Object.fromEntries(ppl.map(n=>[n,0])); exps.forEach(x=>{ const who=ppl.includes(x.by)?x.by:ppl[0]; paid[who]+=(+x.a||0); });
+      const share=sp/ppl.length, bal=ppl.map(n=>({n,v:Math.round((paid[n]-share)*100)/100}));
+      const deb=bal.filter(b=>b.v<-0.009).map(b=>({...b})), cre=bal.filter(b=>b.v>0.009).map(b=>({...b})), moves=[];
+      while(deb.length&&cre.length){ const d=deb[0], c=cre[0], m=Math.min(-d.v,c.v); moves.push(`${esc(d.n)} doit ${eur(m)} à ${esc(c.n)}`); d.v+=m; c.v-=m; if(d.v>-0.009) deb.shift(); if(c.v<0.009) cre.shift(); }
+      split=`<div class="blk"><h3>Qui doit quoi</h3><p class="small muted">${eur(share)} par personne</p><div class="items">${bal.map(b=>`<div class="item" style="grid-template-columns:1fr auto"><span class="t">${esc(b.n)} <span class="small muted">· a payé ${eur(paid[b.n])}</span></span><b class="money ${b.v<0?"danger-t":""}">${b.v>=0?"+":""}${eur(b.v)}</b></div>`).join("")}</div>${moves.length?`<div class="items" style="margin-top:8px">${moves.map(m=>`<div class="item" style="grid-template-columns:1fr"><span class="t">${m}</span></div>`).join("")}</div>`:`<p class="note">Tout le monde est à l'équilibre.</p>`}</div>`;
+    }
     body.innerHTML=`<div class="ov-body">
       <div class="blk"><div class="bud-big"><div><span class="muted small">Dépensé</span><br><b class="money">${eur(sp)}</b></div><div style="text-align:right"><span class="muted small">Prévu</span><br><b class="money" style="font-size:1.2rem">${pl?eur(pl):"—"}</b></div></div>
         <div class="bar ${pl&&sp>pl?"over":""}"><i style="width:${pl?Math.min(100,sp/pl*100):0}%"></i></div>
-        <p class="note">${pl?(sp>pl?`Dépassement de ${eur(sp-pl)}`:`Reste ${eur(pl-sp)}`):"Fixe un budget par poste ci-dessous."}${nights(p)&&pl?` · ${eur(pl/nights(p))} par jour prévu`:""}</p></div>
+        <p class="note">${pl?(sp>pl?`Dépassement de ${eur(sp-pl)}`:`Reste ${eur(pl-sp)}`):"Fixe un budget par poste ci-dessous."}${nights(p)&&pl?` · ${eur(pl/nights(p))} par jour prévu`:""}${ppl.length>1&&pl?` · ${eur(pl/ppl.length)} par personne`:""}</p></div>
+      ${split}
       <div class="blk"><h3>Budget prévu par poste</h3>
-        ${BUD_CATS.map(c=>{const pc=+p.budget.plan[c]||0,s=byCat(c);return `<div class="bud-row"><div><b style="font-weight:600">${c}</b><div class="small muted">Dépensé ${eur(s)}</div><div class="bar ${pc&&s>pc?"over":""}" style="margin-top:4px"><i style="width:${pc?Math.min(100,s/pc*100):0}%"></i></div></div><input type="number" inputmode="decimal" min="0" step="10" data-plan="${c}" value="${pc||""}" placeholder="0 €" aria-label="Budget ${c}"></div>`;}).join("")}
-        ${sample&&p.iso?`<button class="btn" id="pb-ai" style="margin-top:8px">Estimer avec Claude</button><div id="pb-aimsg"></div>`:""}</div>
+        ${BUD_CATS.map(c=>{const pc=+p.budget.plan[c]||0,s=byCat(c);return `<div class="bud-row"><div><b style="font-weight:600">${c}</b><div class="small muted">Dépensé ${eur(s)}</div><div class="bar ${pc&&s>pc?"over":""}" style="margin-top:4px"><i style="width:${pc?Math.min(100,s/pc*100):0}%"></i></div></div><input type="number" inputmode="decimal" min="0" step="10" data-plan="${c}" value="${pc||""}" placeholder="0" aria-label="Budget ${c}"></div>`;}).join("")}</div>
       <div class="blk"><h3>Dépenses</h3>
-        <div class="items">${exps.length?exps.slice().reverse().map(x=>`<div class="item"><span class="tag">${esc(x.c)}</span><span class="t">${esc(x.l)}${x.auto?` <span class="small muted">· réservation</span>`:""}</span><span style="display:flex;align-items:center;gap:4px"><b class="money">${eur(+x.a||0)}</b>${x.auto?`<span style="width:30px"></span>`:`<button class="x" data-exdel="${x.id}" aria-label="Supprimer">×</button>`}</span></div>`).join(""):`<p class="muted small">Aucune dépense notée. Les réservations avec un prix s'ajoutent ici automatiquement.</p>`}</div>
-        <form class="add four" id="pe-add" style="margin-top:10px"><input id="pe-l" placeholder="Libellé (ex. dîner)" required><select id="pe-c">${BUD_CATS.map(c=>`<option>${c}</option>`).join("")}</select><input id="pe-a" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Montant €" required><button class="btn pri" type="submit">Ajouter</button></form></div>
+        <div class="items">${exps.length?exps.slice().reverse().map(x=>`<div class="item"><span class="tag">${esc(x.c)}</span><span class="t">${esc(x.l)}${x.auto?` <span class="small muted">· réservation</span>`:""}${ppl.length>1?` <span class="small muted">· ${esc(ppl.includes(x.by)?x.by:ppl[0])}</span>`:""}</span><span style="display:flex;align-items:center;gap:4px"><b class="money">${eur(+x.a||0)}</b>${x.auto?`<span style="width:30px"></span>`:`<button class="x" data-exdel="${x.id}" aria-label="Supprimer">×</button>`}</span></div>`).join(""):`<p class="muted small">Aucune dépense notée. Les réservations avec un prix s'ajoutent ici automatiquement.</p>`}</div>
+        <form class="form" id="pe-add" style="margin-top:10px"><input class="inp" id="pe-l" placeholder="Libellé (ex. dîner)" required>
+          <div class="two"><select class="inp" id="pe-c">${BUD_CATS.map(c=>`<option>${c}</option>`).join("")}</select><input class="inp" id="pe-a" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Montant" required></div>
+          ${ppl.length>1?`<label>Payé par<select class="inp" id="pe-by">${ppl.map(n=>`<option>${esc(n)}</option>`).join("")}</select></label>`:""}
+          <button class="btn pri" type="submit" style="justify-self:start">Ajouter la dépense</button></form></div>
     </div>`;
     body.querySelectorAll("[data-plan]").forEach(inp=>inp.onchange=()=>{ p.budget.plan[inp.dataset.plan]=Math.max(0,+inp.value||0); sync(); drawProject(id); });
-    $("#pe-add").onsubmit=e=>{ e.preventDefault(); p.budget.exp.push({id:rid(),l:$("#pe-l").value.trim(),c:$("#pe-c").value,a:Math.round((+$("#pe-a").value||0)*100)/100}); sync(); drawProject(id); };
+    $("#pe-add").onsubmit=e=>{ e.preventDefault(); p.budget.exp.push({id:rid(),l:$("#pe-l").value.trim(),c:$("#pe-c").value,a:Math.round((+$("#pe-a").value||0)*100)/100,by:$("#pe-by")?$("#pe-by").value:ppl[0]}); sync(); drawProject(id); };
     body.querySelectorAll("[data-exdel]").forEach(b=>b.onclick=()=>{ p.budget.exp=p.budget.exp.filter(x=>x.id!==b.dataset.exdel); sync(); drawProject(id); });
-    const ai=$("#pb-ai"); if(ai) ai.onclick=async()=>{
-      ai.disabled=true; $("#pb-aimsg").innerHTML=`<div class="loading"><span class="spin"></span>Claude estime le budget…</div>`;
-      try{
-        const r=await sample.json(`Estime un budget réaliste en euros pour UNE personne, voyage « ${p.name} » en ${BY_ISO[p.iso].name} au départ de ${depart()}, ${nights(p)?nights(p)+" jours":"durée non précisée (prends 7 jours)"}${p.from?", départ le "+p.from:""}, type ${TRIP_TYPES[p.type]}, style routard confort (hébergements simples mais corrects). ${p.notes?"Notes : "+p.notes:""}
-Réponds UNIQUEMENT en JSON : {"Transport":nombre,"Logement":nombre,"Nourriture":nombre,"Activités":nombre,"Autre":nombre,"commentaire":"1 phrase"}`,{modelTier:"default"});
-        BUD_CATS.forEach(c=>{ if(typeof r[c]==="number"&&r[c]>=0) p.budget.plan[c]=Math.round(r[c]); });
-        sync(); drawProject(id);
-        if(r.commentaire) $("#pb-aimsg").innerHTML=`<p class="note">${esc(r.commentaire)} Estimation à ajuster.</p>`;
-      }catch(e){ $("#pb-aimsg").innerHTML=`<p class="err">${aiErr(e,"Estimation impossible, réessaie.")}</p>`; ai.disabled=false; }
-    };
   }
 }
+function tog2(id,label,on){ return `<label class="set-row"><span><b>${label}</b></span><button type="button" class="switch" role="switch" aria-checked="${on}" id="${id}" data-sw2 aria-label="${label}"><i></i></button></label>`; }
 
 /* Formulaire de réservation */
 function resaForm(pid, r0, backTab){
@@ -1734,6 +1909,7 @@ function resaForm(pid, r0, backTab){
     ${pairs.join("")}
     <div class="two"><label>Prix (€)<input class="inp" id="rf-price" type="number" inputmode="decimal" min="0" step="0.01" value="${esc(r.price||"")}"></label>
       <label style="align-self:end;display:flex;gap:8px;align-items:center;min-height:44px;color:var(--ink)"><input type="checkbox" id="rf-bud" ${r.inBudget?"checked":""} style="width:20px;height:20px"> Dans le budget</label></div>
+    ${people(p).length>1?`<label>Payé par<select class="inp" id="rf-by">${people(p).map(n=>`<option ${n===r.by?"selected":""}>${esc(n)}</option>`).join("")}</select></label>`:""}
     <label>Lien<input class="inp" id="rf-url" value="${esc(r.url||"")}" placeholder="https://…"></label>
     <label>Notes<textarea class="inp" id="rf-notes" rows="2">${esc(r.notes||"")}</textarea></label>
     <div>${assets?`<label class="btn" style="display:inline-block">${att?"Remplacer la pièce jointe":"Joindre un billet (photo ou PDF)"}<input type="file" id="rf-file" accept="image/*,application/pdf" hidden></label> <span class="small muted" id="rf-fs"></span><div id="rf-att" style="margin-top:6px">${attHtml(att,"Pièce jointe")}</div>`:""}</div>
@@ -1753,7 +1929,7 @@ function resaForm(pid, r0, backTab){
     $("#rf-y").onclick=()=>{ p.resa=p.resa.filter(x=>x.id!==r.id); saveProject(pid); renderProjects(); back(); };
     $("#rf-n").onclick=()=>resaForm(pid,r0,backTab); };
   $("#rform").onsubmit=e=>{ e.preventDefault();
-    const o=Object.assign({id:r.id,cat:r.cat,k:$("#rf-k").value},collect(),{price:$("#rf-price").value?Math.round(+$("#rf-price").value*100)/100:"",inBudget:$("#rf-bud").checked,url:$("#rf-url").value.trim(),notes:$("#rf-notes").value.trim(),ph:att});
+    const o=Object.assign({id:r.id,cat:r.cat,k:$("#rf-k").value},collect(),{price:$("#rf-price").value?Math.round(+$("#rf-price").value*100)/100:"",inBudget:$("#rf-bud").checked,by:$("#rf-by")?$("#rf-by").value:(r.by||""),url:$("#rf-url").value.trim(),notes:$("#rf-notes").value.trim(),ph:att});
     if(o.d1&&o.d2&&o.d2<o.d1){ const t=o.d2; o.d2=o.d1; o.d1=t; }
     if(r.cat==="transport"&&o.d1&&!o.d2&&o.t2) o.d2=o.d1;
     const i=p.resa.findIndex(x=>x.id===o.id); if(i>=0) p.resa[i]=o; else p.resa.push(o);
@@ -1785,6 +1961,7 @@ function dayEvents(p,ds){
       if(r.d1===ds) ev.push({t:"",lbl:r.k,txt:r.title||r.k,r});
     }
   });
+  (p.places||[]).forEach(x=>{ if(x.day===ds) ev.push({t:"",lbl:x.cat,txt:x.name,pl:x}); });
   ev.sort((a,b)=>(a.t||"99:99").localeCompare(b.t||"99:99"));
   return {ev,nightsAt};
 }
@@ -1798,13 +1975,13 @@ function drawDays(id){
     ${days.map((ds,i)=>{ const {ev,nightsAt}=dayEvents(p,ds); const pl=p.days[ds]||{}; const inTrip=(!p.from||ds>=p.from)&&(!p.to||ds<=p.to);
       return `<div class="blk day ${inTrip?"":"off"}">
         <div class="day-h"><div><span class="mono muted">JOUR ${i+1}</span><h3>${esc(dayTitle(ds))}</h3></div><button class="btn" data-dadd="${ds}">+ Ajouter</button></div>
-        ${ev.length?`<div class="tl">${ev.map(e=>`<button class="tl-i" data-dres="${e.r.id}"><span class="mono">${esc(e.t||"—")}</span><span class="k">${esc(e.lbl)}</span><span class="tl-t">${esc(e.txt)}</span></button>`).join("")}</div>`:""}
+        ${ev.length?`<div class="tl">${ev.map(e=>e.r?`<button class="tl-i" data-dres="${e.r.id}"><span class="mono">${esc(e.t||"—")}</span><span class="k">${esc(e.lbl)}</span><span class="tl-t">${esc(e.txt)}${resaDir(e.r)?` · <a href="${esc(resaDir(e.r))}" target="_blank" rel="noopener" class="tl-map">Itinéraire</a>`:""}</span></button>`:`<a class="tl-i" href="${esc(mapsLink(e.pl.name+(e.pl.addr?", "+e.pl.addr:destOf(p)?", "+destOf(p):"")))}" target="_blank" rel="noopener"><span class="mono">—</span><span class="k">${esc(e.lbl)}</span><span class="tl-t">${esc(e.txt)}</span></a>`).join("")}</div>`:""}
         <div class="slots">${SLOTS.map(([k,n])=>`<label><span>${n}</span><textarea class="inp" rows="1" data-day="${ds}" data-slot="${k}" placeholder="Libre">${esc(pl[k]||"")}</textarea></label>`).join("")}</div>
         ${nightsAt.length?`<p class="night">Nuit : ${nightsAt.map(r=>esc(r.title||r.k)).join(", ")}</p>`:(inTrip&&ds!==p.to?`<p class="night warn">Pas d'hébergement noté pour cette nuit</p>`:"")}
       </div>`; }).join("")}
   </div>`;
   body.querySelectorAll("[data-dadd]").forEach(b=>b.onclick=()=>pickAdd(id,b));
-  body.querySelectorAll("[data-dres]").forEach(b=>b.onclick=()=>resaForm(id,p.resa.find(r=>r.id===b.dataset.dres),"jours"));
+  body.querySelectorAll("[data-dres]").forEach(b=>b.onclick=e=>{ if(e.target.closest(".tl-map")) return; resaForm(id,p.resa.find(r=>r.id===b.dataset.dres),"jours"); });
   body.querySelectorAll("textarea[data-day]").forEach(t=>{
     const fit=()=>{ t.style.height="auto"; t.style.height=t.scrollHeight+"px"; }; fit();
     t.addEventListener("input",()=>{ fit(); const d=t.dataset.day; p.days[d]=p.days[d]||{}; p.days[d][t.dataset.slot]=t.value; saveProject(id); });
@@ -1833,6 +2010,200 @@ function pickAdd(id,btn){
   const host=btn.closest(".day"); const old=host.querySelector(".add-row"); if(old){ old.remove(); return; }
   host.querySelector(".day-h").after(wrap);
   wrap.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>resaForm(id,{cat:b.dataset.c,d1:ds},"jours"));
+}
+
+/* ---------- Prépa : constantes ---------- */
+const CAR_TYPES=["Voiture de location","Voiture perso","Taxi / transfert","Covoiturage"];
+const isCar = r => r.cat==="transport" && CAR_TYPES.includes(r.k);
+function dirUrl(from,to,via,mode){
+  let u="https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(from)+"&destination="+encodeURIComponent(to);
+  const w=String(via||"").split(/[,;\n]/).map(x=>x.trim()).filter(Boolean);
+  if(w.length) u+="&waypoints="+encodeURIComponent(w.join("|"));
+  if(mode) u+="&travelmode="+mode;
+  return u;
+}
+const resaDir = r => r.cat==="transport"&&r.from&&r.to&&r.k!=="Vol" ? dirUrl(r.from,r.to,r.via,isCar(r)?"driving":"transit") : "";
+const DUE={j30:30,j14:14,j7:7,j3:3,j1:1,j0:0};
+const DUE_ORDER=["j30","j14","j7","j3","j1","j0","none"];
+const DUE_L={j30:"Un mois avant",j14:"Deux semaines avant",j7:"Une semaine avant",j3:"Trois jours avant",j1:"La veille",j0:"Le jour du départ",none:"Sans échéance"};
+const CHECK_FULL=[
+ ["j30","Papiers","Passeport ou carte d'identité valide 6 mois après le retour"],
+ ["j30","Papiers","Visa ou autorisation d'entrée (ETA, ESTA…)"],
+ ["j30","Papiers","Assurance voyage et assistance"],
+ ["j30","Papiers","Inscription sur Fil d'Ariane"],
+ ["j30","Papiers","Poser les congés"],
+ ["j30","Réservations","Réserver les vols ou les trains"],
+ ["j30","Réservations","Réserver les hébergements"],
+ ["j30","Santé","Vérifier les vaccins recommandés"],
+ ["j14","Réservations","Réserver les activités incontournables"],
+ ["j14","Réservations","Louer la voiture ou réserver les transferts"],
+ ["j14","Argent","Prévenir la banque et vérifier les plafonds de carte"],
+ ["j14","Argent","Commander des devises si besoin"],
+ ["j14","Maison","Organiser la garde des animaux et des plantes"],
+ ["j14","Santé","Renouveler les traitements en cours"],
+ ["j7","Tech","Acheter une eSIM ou un forfait international"],
+ ["j7","Tech","Télécharger les cartes hors ligne"],
+ ["j7","Papiers","Copier les documents dans le cloud"],
+ ["j7","Santé","Préparer la trousse à pharmacie"],
+ ["j7","Réservations","Vérifier la franchise bagages"],
+ ["j3","Réservations","Faire le check-in en ligne"],
+ ["j3","Réservations","Télécharger billets et cartes d'embarquement"],
+ ["j3","Tech","Télécharger musique, films et podcasts"],
+ ["j3","Maison","Faire une lessive"],
+ ["j1","Bagages","Faire la valise"],
+ ["j1","Tech","Charger téléphone, batterie et montre"],
+ ["j1","Maison","Vider le frigo et sortir les poubelles"],
+ ["j1","Tech","Activer la réponse automatique des mails"],
+ ["j1","Réservations","Vérifier l'horaire et le trajet jusqu'à la gare ou l'aéroport"],
+ ["j0","Maison","Couper l'eau et le chauffage, fermer les fenêtres"],
+ ["j0","Papiers","Prendre passeport, carte bancaire et billets"],
+ ["j0","Maison","Fermer à clé"]
+];
+const PLACE_CATS=["À voir","Restaurant","Café / bar","Activité","Rando / nature","Plage","Shopping","Autre"];
+const DOC_KINDS=["Passeport","Carte d'identité","Visa / ETA","Assurance voyage","Permis de conduire","Permis international","Carnet de vaccination","Billet","Réservation","Autre"];
+const CONTACT_ROLES=["Hébergement","Urgences","Assurance / assistance","Ambassade / consulat","Guide / agence","Location de voiture","Transport","Ami sur place","Autre"];
+const addDay=(s,n)=>{ const d=parseD(s); d.setDate(d.getDate()+n); return ymd(d); };
+const dueDate=(p,x)=>p.from&&x.due&&DUE[x.due]!=null?addDay(p.from,-DUE[x.due]):"";
+const people = p => (p.people&&p.people.length)?p.people:["Moi"];
+const destOf = p => p.dest || (p.iso&&BY_ISO[p.iso]?BY_ISO[p.iso].name:"");
+
+/* ---------- Dates : le retour s'ouvre sur le mois du départ ---------- */
+const DATE_PAIRS={"pf-from":"pf-to","j-from":"j-to","rf-d1":"rf-d2"};
+document.addEventListener("change",e=>{ const t=e.target, toId=DATE_PAIRS[t.id]; if(!toId||!t.value) return; const to=document.getElementById(toId); if(!to) return; to.min=t.value; if(!to.value||to.value<t.value) to.value=t.value; });
+document.addEventListener("focusin",e=>{ const t=e.target; for(const k in DATE_PAIRS){ if(DATE_PAIRS[k]!==t.id) continue; const f=document.getElementById(k); if(f&&f.value){ t.min=f.value; if(!t.value) t.value=f.value; } } });
+
+/* ---------- Agenda (Google / Apple) ---------- */
+const pad2=n=>String(n).padStart(2,"0");
+const dcomp=s=>s.replace(/-/g,"");
+function evDates(e){
+  if(e.t1){
+    const s=dcomp(e.d1)+"T"+e.t1.replace(":","")+"00"; let end="";
+    if(e.t2){ end=dcomp(e.d2||e.d1)+"T"+e.t2.replace(":","")+"00"; if(end<=s) end=""; }
+    if(!end){ const d=parseD(e.d1), [h,m]=e.t1.split(":").map(Number); d.setHours(h+1,m||0); end=dcomp(ymd(d))+"T"+pad2(d.getHours())+pad2(d.getMinutes())+"00"; }
+    return {timed:true,s,end};
+  }
+  const last=e.d2&&e.d2>=e.d1?e.d2:e.d1;
+  return {timed:false,s:dcomp(e.d1),end:dcomp(e.excl&&e.d2>e.d1?e.d2:addDay(last,1))};
+}
+function gcalUrl(e){ const d=evDates(e);
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(e.title)+"&dates="+d.s+"/"+d.end+(e.desc?"&details="+encodeURIComponent(e.desc):"")+(e.loc?"&location="+encodeURIComponent(e.loc):""); }
+const icsEsc=s=>String(s||"").replace(/\\/g,"\\\\").replace(/;/g,"\\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n");
+function icsText(evs,name){
+  const now=new Date(), st=now.getUTCFullYear()+pad2(now.getUTCMonth()+1)+pad2(now.getUTCDate())+"T"+pad2(now.getUTCHours())+pad2(now.getUTCMinutes())+"00Z";
+  const L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Carnet de route//FR","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:"+icsEsc(name)];
+  evs.forEach(e=>{ const d=evDates(e);
+    L.push("BEGIN:VEVENT","UID:"+rid()+rid()+"@carnet-de-route","DTSTAMP:"+st,
+      d.timed?"DTSTART:"+d.s:"DTSTART;VALUE=DATE:"+d.s, d.timed?"DTEND:"+d.end:"DTEND;VALUE=DATE:"+d.end,
+      "SUMMARY:"+icsEsc(e.title));
+    if(e.loc) L.push("LOCATION:"+icsEsc(e.loc)); if(e.desc) L.push("DESCRIPTION:"+icsEsc(e.desc));
+    if(e.alarm) L.push("BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsEsc(e.title),"TRIGGER:-PT9H","END:VALARM");
+    L.push("END:VEVENT"); });
+  L.push("END:VCALENDAR"); return L.join("\r\n");
+}
+function openIcs(evs,name){
+  if(!evs.length){ toast("Rien à ajouter : indique d'abord des dates."); return; }
+  const ics=icsText(evs,name), fname=(name||"voyage").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^\w-]+/g,"-").slice(0,50);
+  if(window.ICS_API){
+    const f=document.createElement("form"); f.method="POST"; f.action=window.ICS_API; f.style.display="none"; if(navigator.standalone||matchMedia("(display-mode: standalone)").matches) f.target="_blank";
+    [["ics",ics],["n",fname]].forEach(([k,v])=>{ const i=document.createElement("input"); i.type="hidden"; i.name=k; i.value=v; f.appendChild(i); });
+    document.body.appendChild(f); f.submit(); setTimeout(()=>f.remove(),2000); return;
+  }
+  try{ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([ics],{type:"text/calendar"})); a.download=fname+".ics"; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500); }catch(e){ toast("L'export agenda n'est pas disponible ici."); }
+}
+function resaEvent(r){
+  if(!r.d1) return null; const t=resaTitle(r);
+  const desc=a=>a.filter(Boolean).join("\n");
+  if(r.cat==="logement") return {title:"🏨 "+(r.title||r.k),d1:r.d1,d2:r.d2||r.d1,excl:true,loc:r.addr||"",desc:desc([r.ref&&"Réf. "+r.ref,r.t1&&"Arrivée "+r.t1,r.t2&&"Départ "+r.t2,r.url])};
+  if(r.cat==="transport") return {title:(r.k==="Vol"?"✈️ ":/Train/.test(r.k)?"🚆 ":isCar(r)?"🚗 ":r.k==="Ferry"?"⛴️ ":"🚌 ")+t,d1:r.d1,t1:r.t1,d2:r.d2||r.d1,t2:r.t2,loc:r.from||"",alarm:true,desc:desc([r.company,r.ref&&"Réf. "+r.ref,r.seat&&"Siège "+r.seat,resaDir(r)&&"Itinéraire : "+resaDir(r),r.url])};
+  if(r.cat==="activite") return {title:"⭐ "+t,d1:r.d1,t1:r.t1,d2:r.d1,t2:r.t2,loc:r.addr||"",desc:desc([r.company,r.ref&&"Réf. "+r.ref,r.url])};
+  return {title:t,d1:r.d1,d2:r.d2||r.d1,desc:desc([r.company,r.ref&&"Réf. "+r.ref])};
+}
+function projEvents(p,o){
+  const ev=[];
+  if(p.from) ev.push({title:"🧳 "+(p.name||"Voyage"),d1:p.from,d2:p.to||p.from,loc:destOf(p),desc:(p.notes||"")+"\nPréparé avec Carnet de route"});
+  if(o.resa) p.resa.forEach(r=>{ const e=resaEvent(r); if(e) ev.push(e); });
+  if(o.rem&&p.from) p.check.forEach(x=>{ const d=dueDate(p,x); if(!x.done&&d) ev.push({title:"À préparer : "+x.t,d1:d,desc:p.name}); });
+  return ev;
+}
+
+/* ---------- Partage ---------- */
+function tripText(p){
+  const L=[`${p.name||"Voyage"}${destOf(p)?" · "+destOf(p):""}`, fmtRange(p.from,p.to)+(nights(p)?` (${nights(p)} jours)`:"")];
+  if(people(p).length>1) L.push("Avec "+people(p).slice(1).join(", "));
+  tripDays(p).forEach((ds,i)=>{ const {ev,nightsAt}=dayEvents(p,ds), pl=p.days[ds]||{};
+    const lines=ev.map(e=>`• ${e.t?e.t+" ":""}${e.lbl} : ${e.txt}`).concat(["m","a","s"].filter(k=>pl[k]).map(k=>`• ${{m:"Matin",a:"Après-midi",s:"Soir"}[k]} : ${pl[k]}`));
+    if(lines.length||nightsAt.length) L.push("", `Jour ${i+1} — ${dayTitle(ds)}`, ...lines, ...(nightsAt.length?["• Nuit : "+nightsAt.map(r=>r.title||r.k).join(", ")]:[])); });
+  const pls=(p.places||[]); if(pls.length){ L.push("","À voir :"); pls.forEach(x=>L.push(`• ${x.name}${x.addr?" ("+x.addr+")":""}`)); }
+  return L.join("\n");
+}
+async function shareText(p){
+  const text=tripText(p);
+  try{ if(navigator.share){ await navigator.share({title:p.name||"Voyage",text}); return; } }catch(e){ if(e&&e.name==="AbortError") return; }
+  try{ await navigator.clipboard.writeText(text); toast("Programme copié"); }catch(e){ toast("Copie impossible ici"); }
+}
+async function drawShare(id){
+  const box=$("#pi-share"); if(!box) return; const p=projects[id];
+  if(!window.SHARE_OK||!uid){ box.innerHTML=`<button class="btn" id="sh-text">Envoyer le programme en texte</button>`; $("#sh-text").onclick=()=>shareText(p); return; }
+  box.innerHTML=`<div class="loading"><span class="spin"></span>…</div>`;
+  let sh=null; try{ const r=await sb.from("voyage_shares").select("id,opts").eq("project_id",id).maybeSingle(); sh=r.data; }catch(e){}
+  if(!$("#pi-share")) return;
+  if(!sh){
+    box.innerHTML=`<p class="small muted">Crée un lien pour montrer ce voyage à tes amis : programme jour par jour, réservations, lieux, check-list et bagages, en lecture seule. Ils peuvent le copier dans leurs projets.</p>
+      <div class="row-ctl" style="justify-content:flex-start"><button class="btn pri" id="sh-new">Créer un lien de partage</button><button class="btn" id="sh-text">Envoyer en texte</button></div>`;
+    $("#sh-text").onclick=()=>shareText(p);
+    $("#sh-new").onclick=async()=>{ $("#sh-new").disabled=true; const r=await sb.from("voyage_shares").insert({project_id:id,opts:{prix:false}}).select("id,opts").single(); if(r.error){ toast("Le lien n'a pas pu être créé"); $("#sh-new").disabled=false; return; } drawShare(id); };
+    return;
+  }
+  const link=location.origin+location.pathname+"?v="+sh.id, prix=!!(sh.opts&&sh.opts.prix);
+  box.innerHTML=`<div class="att" style="grid-template-columns:minmax(0,1fr) auto"><span class="att-t" style="user-select:all">${esc(link)}</span><button class="btn" id="sh-copy">Copier</button></div>
+    <div class="row-ctl" style="justify-content:flex-start"><button class="btn pri" id="sh-send">Envoyer le lien</button><button class="btn" id="sh-text">Envoyer en texte</button></div>
+    <label class="set-row"><span><b>Montrer prix, références et contacts</b><span class="small muted">Sinon, ton budget et tes numéros de réservation restent privés</span></span><button type="button" class="switch" role="switch" aria-checked="${prix}" id="sh-prix" aria-label="Montrer prix, références et contacts"><i></i></button></label>
+    <button class="linkbtn danger-t" id="sh-stop">Arrêter le partage</button>`;
+  $("#sh-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText(link); toast("Lien copié"); }catch(e){ toast("Sélectionne le lien pour le copier"); } };
+  $("#sh-send").onclick=async()=>{ try{ if(navigator.share){ await navigator.share({title:p.name||"Voyage",text:"Mon voyage « "+(p.name||"")+" » sur Carnet de route",url:link}); return; } }catch(e){ if(e&&e.name==="AbortError") return; } try{ await navigator.clipboard.writeText(link); toast("Lien copié"); }catch(e){} };
+  $("#sh-text").onclick=()=>shareText(p);
+  $("#sh-prix").onclick=async()=>{ await sb.from("voyage_shares").update({opts:{prix:!prix}}).eq("id",sh.id); drawShare(id); };
+  $("#sh-stop").onclick=async()=>{ await sb.from("voyage_shares").delete().eq("id",sh.id); toast("Le lien ne fonctionne plus"); drawShare(id); };
+}
+function copyProject(src,keepName){
+  const np=fixProject(JSON.parse(JSON.stringify(src)));
+  np.id=rid(); np.created=new Date().toISOString(); if(!keepName) np.name=(np.name||"Voyage")+" (copie)";
+  np.resa.forEach(r=>{ r.ph=null; }); np.docs=[]; np.check.forEach(x=>x.done=false); np.bag.forEach(x=>x.done=false);
+  projects[np.id]=np; saveProject(np.id); renderProjects(); return np.id;
+}
+function renderShared(host,data,sid){
+  const p=fixProject(data.project||{}), prix=!!(data.opts&&data.opts.prix);
+  const days=tripDays(p);
+  host.innerHTML=`<div class="wrap">
+    <header class="top"><h1>Carnet de route</h1><span class="tag t">Voyage partagé</span></header>
+    <div class="blk sh-hero"><div class="proj-h"><span class="flag" aria-hidden="true">${flag(p.iso)}</span><div><h2>${esc(p.name||"Voyage")}</h2><span class="muted small">${esc(destOf(p))}${destOf(p)?" · ":""}${esc(fmtRange(p.from,p.to))}${nights(p)?` · ${nights(p)} jours`:""}</span></div>${countdown(p)}</div>
+      ${people(p).length>1?`<p class="small muted" style="margin-top:8px">Voyageurs : ${people(p).map(esc).join(", ")}</p>`:""}
+      ${p.notes?`<p class="journal-text" style="margin-top:8px">${esc(p.notes)}</p>`:""}
+      <div class="row-ctl" style="justify-content:flex-start;margin-top:12px"><button class="btn pri" id="sv-copy">Copier dans mes projets</button><button class="btn" id="sv-apple">Agenda Apple</button>${p.from?`<a class="btn" href="${esc(gcalUrl(projEvents(p,{})[0]))}" target="_blank" rel="noopener">Google Agenda</a>`:""}</div></div>
+    ${days.length?`<div class="sec-h"><h2>Jour par jour</h2></div>${days.map((ds,i)=>{ const {ev,nightsAt}=dayEvents(p,ds), pl=p.days[ds]||{};
+      const slots=["m","a","s"].filter(k=>pl[k]);
+      if(!ev.length&&!slots.length&&!nightsAt.length) return "";
+      return `<div class="blk day"><div class="day-h"><div><span class="mono muted">JOUR ${i+1}</span><h3>${esc(dayTitle(ds))}</h3></div></div>
+        ${ev.length?`<div class="tl">${ev.map(e=>{ const u=e.r?resaDir(e.r):e.pl?mapsLink(e.pl.name+(e.pl.addr?", "+e.pl.addr:destOf(p)?", "+destOf(p):"")):""; return `${u?`<a class="tl-i" href="${esc(u)}" target="_blank" rel="noopener">`:`<div class="tl-i">`}<span class="mono">${esc(e.t||"—")}</span><span class="k">${esc(e.lbl)}</span><span class="tl-t">${esc(e.txt)}</span>${u?"</a>":"</div>"}`; }).join("")}</div>`:""}
+        ${slots.length?`<div class="slots ro">${slots.map(k=>`<div><span>${{m:"Matin",a:"Après-midi",s:"Soir"}[k]}</span><p>${esc(pl[k])}</p></div>`).join("")}</div>`:""}
+        ${nightsAt.length?`<p class="night">Nuit : ${nightsAt.map(r=>esc(r.title||r.k)).join(", ")}</p>`:""}</div>`; }).join("")}`:""}
+    ${p.resa.length?`<div class="sec-h"><h2>Réservations</h2></div>${p.resa.slice().sort((a,b)=>sortKey(a).localeCompare(sortKey(b))).map(r=>resaCard(r,{ro:true,prix})).join("")}`:""}
+    ${(p.places||[]).length?`<div class="sec-h"><h2>À voir et à faire</h2></div><div class="blk"><div class="items">${p.places.map(x=>`<a class="item" style="grid-template-columns:auto 1fr auto;color:inherit;text-decoration:none" href="${esc(mapsLink(x.name+(x.addr?", "+x.addr:destOf(p)?", "+destOf(p):"")))}" target="_blank" rel="noopener"><span class="tag">${esc(x.cat)}</span><span class="t">${esc(x.name)}${x.addr?`<br><span class="small muted">${esc(x.addr)}</span>`:""}</span><span class="muted">↗</span></a>`).join("")}</div></div>`:""}
+    ${prix&&(p.contacts||[]).length?`<div class="sec-h"><h2>Contacts</h2></div><div class="blk"><div class="items">${p.contacts.map(c=>contactRow(c,true)).join("")}</div></div>`:""}
+    <p class="note" style="margin-top:24px">Partagé avec Carnet de route. <a href="./">Créer mon carnet</a></p>
+  </div>`;
+  $("#sv-apple").onclick=()=>openIcs(projEvents(p,{resa:true}),p.name);
+  $("#sv-copy").onclick=()=>{
+    if(uid){ const nid=copyProject(p,true); host.remove(); history.replaceState(null,"",location.pathname+"#avenir"); show("avenir"); openProject(nid,"infos"); toast("Voyage copié dans tes projets"); return; }
+    try{ sessionStorage.setItem("voyage-pending-copy",sid); }catch(e){}
+    authUI("in","Connecte-toi ou crée un compte pour copier ce voyage dans tes projets.");
+  };
+}
+function contactRow(c,ro){
+  const tel=String(c.phone||"").replace(/[^\d+]/g,"");
+  return `<div class="item" style="grid-template-columns:minmax(0,1fr) auto;align-items:start"><span class="t"><b>${esc(c.name)}</b> <span class="tag">${esc(c.role)}</span>
+    ${c.phone?`<br><a href="tel:${esc(tel)}" class="small" style="user-select:all">${esc(c.phone)}</a>`:""}${c.email?`<br><a href="mailto:${esc(c.email)}" class="small" style="user-select:all">${esc(c.email)}</a>`:""}${c.addr?`<br><a class="small" href="${esc(mapsLink(c.addr))}" target="_blank" rel="noopener">${esc(c.addr)}</a>`:""}${c.note?`<br><span class="small muted">${esc(c.note)}</span>`:""}</span>
+    ${c.id&&!ro?`<button class="x" data-cx="${c.id}" aria-label="Supprimer ${esc(c.name)}">×</button>`:""}</div>`;
 }
 
 /* ---------- Onglets ---------- */
@@ -1874,6 +2245,18 @@ async function loadRemote(){
     setSync("Synchronisé");
   }catch(e){ setSync("Hors ligne"); }
   renderAll();
+  let pc=null; try{ pc=sessionStorage.getItem("voyage-pending-copy"); }catch(e){}
+  if(pc&&online){ try{ sessionStorage.removeItem("voyage-pending-copy"); }catch(e){}
+    try{ const {data}=await sb.rpc("get_voyage_share",{sid:pc}); if(data&&data.project){ const nid=copyProject(data.project,true); document.getElementById("shared")?.remove(); history.replaceState(null,"",location.pathname+"#avenir"); show("avenir"); openProject(nid,"infos"); toast("Voyage copié dans tes projets"); } }catch(e){} }
+}
+window.SHARE_OK=true; window.ICS_API="api/ics";
+const SHARE_ID=(()=>{ const v=new URLSearchParams(location.search).get("v"); return /^[0-9a-f-]{36}$/i.test(v||"")?v:null; })();
+async function showShared(sid){
+  const host=document.createElement("div"); host.className="shared"; host.id="shared"; document.body.appendChild(host);
+  host.innerHTML=`<div class="wrap"><div class="loading"><span class="spin"></span>Chargement du voyage…</div></div>`;
+  let data=null; try{ const r=await sb.rpc("get_voyage_share",{sid}); data=r.data; }catch(e){}
+  if(!data||!data.project){ host.innerHTML=`<div class="wrap"><header class="top"><h1>Carnet de route</h1></header><div class="empty box">Ce lien de partage n'existe plus ou a été désactivé.</div><p><a class="btn pri" href="./">Ouvrir Carnet de route</a></p></div>`; return; }
+  renderShared(host,data,sid);
 }
 /* Connexion */
 let aMode="in";
@@ -1887,7 +2270,9 @@ function authUI(mode,msg){
   $("#a-pass").previousElementSibling.textContent=mode==="newpass"?"Nouveau mot de passe":"Mot de passe";
   $("#auth-sub").textContent=mode==="up"?"Crée ton compte avec ton e-mail. Tes données ne sont visibles que par toi.":mode==="reset"?"Indique ton e-mail : tu recevras un lien pour choisir un nouveau mot de passe.":mode==="newpass"?"Choisis ton nouveau mot de passe.":"Connecte-toi pour retrouver tes pays, tes week-ends et tes projets sur tous tes appareils.";
   $("#a-msg").textContent=msg||""; $("#a-msg").style.color="";
+  $("#a-back").hidden=!document.getElementById("shared");
 }
+$("#a-back").onclick=()=>{ $("#auth").hidden=true; };
 $("#a-switch").onclick=()=>authUI(aMode==="in"?"up":"in");
 $("#a-forgot").onclick=()=>authUI("reset");
 const back=location.origin+location.pathname;
@@ -1924,9 +2309,9 @@ let started=false;
 sb.auth.onAuthStateChange((ev,session)=>{
   if(ev==="PASSWORD_RECOVERY"){ authUI("newpass"); return; }
   if(session&&session.user&&!started){ started=true; useUser(session.user); loadRemote(); }
-  if(ev==="SIGNED_OUT"){ started=false; uid=null; online=false; authUI("in"); }
+  if(ev==="SIGNED_OUT"){ started=false; uid=null; online=false; if(!document.getElementById("shared")) authUI("in"); }
 });
-(async()=>{ await loadFiches(); const {data}=await sb.auth.getSession(); if(!data.session) authUI("in"); else if(!started){ started=true; useUser(data.session.user); loadRemote(); } })();
+(async()=>{ if(SHARE_ID) showShared(SHARE_ID); await loadFiches(); const {data}=await sb.auth.getSession(); if(!data.session){ if(!SHARE_ID) authUI("in"); } else if(!started){ started=true; useUser(data.session.user); loadRemote(); } })();
 </script>
 </body>
 </html>
