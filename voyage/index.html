@@ -204,7 +204,7 @@ textarea.inp{resize:vertical;min-height:80px}
 .route:first-of-type{border-top:0;padding-top:0;margin-top:0}
 .route b{font-family:var(--f-display)}
 .steps{font-size:.88rem;color:var(--muted);margin-top:2px}
-.fp-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.fp-src{margin:14px 0 4px;font-size:.85rem;color:var(--muted)}.fp-src summary{cursor:pointer}.fp-src ul{margin:6px 0 0 18px}
+.docview{position:fixed;inset:0;z-index:200;background:var(--bg);display:grid;grid-template-rows:auto 1fr;padding:calc(env(safe-area-inset-top) + 8px) 8px 8px}.docview .close{justify-self:end}.docview img,.docview iframe{width:100%;height:100%;object-fit:contain;border:0;background:#fff;border-radius:10px}html.is-off #sync{color:var(--accent)}.fp-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.fp-src{margin:14px 0 4px;font-size:.85rem;color:var(--muted)}.fp-src summary{cursor:pointer}.fp-src ul{margin:6px 0 0 18px}
 .facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .facts div span{display:block;font-size:.72rem;color:var(--muted)}
 .facts div b{font-weight:600;font-size:.9rem}
@@ -289,8 +289,9 @@ input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;displa
 .hint{font-size:.75rem;color:var(--muted);margin:8px 2px 0}
 .toast{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));margin:0 auto;width:fit-content;justify-content:space-between;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 12px 10px 16px;display:flex;gap:14px;align-items:center;font-size:.9rem;box-shadow:0 6px 24px rgba(0,0,0,.18);max-width:440px}
 .toast button{border:0;background:none;color:var(--accent-soft);font-weight:700;padding:6px}
-.ptabs{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.ptabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
 .ptabs button{border:0;background:none;border-radius:8px;padding:8px 4px;font-size:.8rem;color:var(--muted);white-space:nowrap}
+.dep-amt{display:grid;grid-template-columns:1fr 96px;gap:8px}.dep-amt #dep-a{font-size:1.5rem;font-weight:600}.dep-day{margin-top:10px}.dep-day:first-of-type{margin-top:0}
 .ptabs button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .grid4 .btn{padding-inline:6px}
@@ -298,7 +299,8 @@ input[type=date],input[type=time]{-webkit-appearance:none;appearance:none;displa
   .sheet-bg{align-items:stretch}
   .sheet{max-height:none;height:100%;border-radius:0}
   .sheet-head{padding-top:calc(12px + env(safe-area-inset-top,0px))}
-  .ptabs{grid-template-columns:repeat(3,1fr)}
+  .ptabs{grid-template-columns:repeat(5,1fr)}
+  .ptabs button{font-size:.76rem;padding:8px 2px}
   .grid4{grid-template-columns:repeat(2,1fr)}
   .sheet-title h2{font-size:1.25rem}
   .sheet-title .flag{font-size:1.9rem}
@@ -808,7 +810,8 @@ let journals = lsGet(LS+"-j",{});   // ISO -> {entries:[]}
 let projects = lsGet(LS+"-p",{});   // id -> projet
 const ovCache = lsGet(LS+"-ov",{});
 const sample=null;
-const sb=supabase.createClient("https://rbofulzwbhrnlgbjqasn.supabase.co","sb_publishable_xxOalgbQ9LqsXMYpST_Xaw_HEemlkQt",{auth:{storageKey:"voyage-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const SB_URL="https://rbofulzwbhrnlgbjqasn.supabase.co", SB_KEY="sb_publishable_xxOalgbQ9LqsXMYpST_Xaw_HEemlkQt";
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{storageKey:"voyage-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let uid=null, online=false;
 const assets={ async upload(blob,opts){ const nm=(opts&&opts.name)||""; const ext=(nm.match(/\.([a-z0-9]{1,5})$/i)||[])[1]||((opts&&opts.contentType==="application/pdf")?"pdf":"jpg"); const path=uid+"/"+Date.now()+"-"+rid()+"."+ext;
   const {error}=await sb.storage.from("voyage").upload(path,blob,{contentType:(opts&&opts.contentType)||blob.type||"image/jpeg",upsert:false}); if(error) throw error; return {id:path,url:"",path}; } };
@@ -820,11 +823,27 @@ const rid = () => Math.random().toString(36).slice(2,10);
 const norm = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 const setSync = t => { const e=$("#sync"); e.textContent = t; e.hidden = /^(Synchronisé|Chargement…|Enregistrement…)$/.test(t); };
 const timers = {};
-function remote(key, fn){
-  if (!online || !uid) return;
-  clearTimeout(timers[key]); setSync("Enregistrement…");
-  timers[key] = setTimeout(async()=>{ try { const r=await fn(); if(r&&r.error) throw r.error; setSync("Synchronisé"); } catch(e){ setSync("Non synchronisé"); } }, 600);
+/* Hors ligne : chaque modif est gardée sur l'appareil et envoyée dès que le réseau revient */
+const OFF_TXT="Hors ligne · enregistré sur l'appareil";
+const dirtyGet = () => lsGet(LS+"-dirty",{});
+function markDirty(k,on){ const d=dirtyGet(); if(on) d[k]=1; else delete d[k]; lsSet(LS+"-dirty",d); }
+function pushKey(k){
+  if(k==="travel") return sb.from("voyage_state").upsert({user_id:uid,data:{status:state.status,weekends:state.weekends,seasons:state.seasons,depart:state.depart,weCity:state.weCity,settings:state.settings||{}},updated_at:now()});
+  if(k[0]==="p"){ const id=k.slice(1); return projects[id] ? sb.from("voyage_projects").upsert({user_id:uid,id,data:projects[id],updated_at:now()}) : sb.from("voyage_projects").delete().eq("user_id",uid).eq("id",id); }
+  if(k[0]==="j"){ const iso=k.slice(1); return journals[iso]&&journals[iso].entries.length ? sb.from("voyage_journal").upsert({user_id:uid,iso,data:journals[iso],updated_at:now()}) : sb.from("voyage_journal").delete().eq("user_id",uid).eq("iso",iso); }
+  return Promise.resolve({});
 }
+async function flushDirty(){ for(const k of Object.keys(dirtyGet())){ const r=await pushKey(k); if(r&&r.error) throw r.error; markDirty(k,false); } }
+function goOffline(){ online=false; document.documentElement.classList.add("is-off"); setSync(OFF_TXT); clearTimeout(goOffline.t); goOffline.t=setTimeout(()=>{ if(uid&&!online&&navigator.onLine!==false) loadRemote(true); },30000); }
+function remote(key){
+  if (!uid) return;
+  markDirty(key,true);
+  if (!online){ setSync(OFF_TXT); return; }
+  clearTimeout(timers[key]); setSync("Enregistrement…");
+  timers[key] = setTimeout(async()=>{ try { const r=await pushKey(key); if(r&&r.error) throw r.error; markDirty(key,false); setSync("Synchronisé"); } catch(e){ goOffline(); } }, 600);
+}
+window.addEventListener("online",()=>{ if(uid&&!online) loadRemote(true); });
+window.addEventListener("offline",()=>{ if(uid) goOffline(); });
 const now = () => new Date().toISOString();
 function saveState(){ lsSet(LS,state); remote("travel",()=>sb.from("voyage_state").upsert({user_id:uid,data:{status:state.status,weekends:state.weekends,seasons:state.seasons,depart:state.depart,weCity:state.weCity,settings:state.settings||{}},updated_at:now()})); }
 function saveJournal(iso){ lsSet(LS+"-j",journals); remote("j"+iso,()=> journals[iso]&&journals[iso].entries.length ? sb.from("voyage_journal").upsert({user_id:uid,iso,data:journals[iso],updated_at:now()}) : sb.from("voyage_journal").delete().eq("user_id",uid).eq("iso",iso)); }
@@ -1263,12 +1282,25 @@ async function hydrate(){
   if(hydrating||!uid) return; const els=[...document.querySelectorAll('[src^="about:blank#sp="],[href^="about:blank#sp="]')]; if(!els.length) return;
   hydrating=true;
   const paths=[...new Set(els.map(e=>decodeURIComponent((e.getAttribute("src")||e.getAttribute("href")).slice(BLANK.length))))];
-  try{ const {data}=await sb.storage.from("voyage").createSignedUrls(paths,86400);
-    (data||[]).forEach(d=>{ if(d.signedUrl) SIGNED[d.path]={url:d.signedUrl,exp:Date.now()+80000e3}; });
-    els.forEach(e=>{ const a=e.hasAttribute("src")?"src":"href"; const p=decodeURIComponent(e.getAttribute(a).slice(BLANK.length)); if(SIGNED[p]) e.setAttribute(a,SIGNED[p].url); });
-  }catch(e){}
+  let data=null; try{ if(online) ({data}=await sb.storage.from("voyage").createSignedUrls(paths,86400)); }catch(e){}
+  (data||[]).forEach(d=>{ if(d.signedUrl) SIGNED[d.path]={url:d.signedUrl,exp:Date.now()+80000e3}; });
+  els.forEach(e=>{ const a=e.hasAttribute("src")?"src":"href"; const p=decodeURIComponent(e.getAttribute(a).slice(BLANK.length)); e.setAttribute(a,SIGNED[p]?SIGNED[p].url:"_doc/"+encodeURIComponent(p)); });
   hydrating=false; if(document.querySelector('[src^="about:blank#sp="],[href^="about:blank#sp="]')&&els.some(e=>e.isConnected&&(e.getAttribute("src")||e.getAttribute("href")||"").startsWith(BLANK))) return; 
 }
+/* Garde sur l'appareil les billets et documents des voyages à venir */
+async function keepDocs(){
+  if(!navigator.serviceWorker||!navigator.serviceWorker.controller||!uid) return;
+  const td=ymd(today()), paths=new Set();
+  const walk=o=>{ if(!o||typeof o!=="object") return; if(Array.isArray(o)){ o.forEach(walk); return; } if(typeof o.path==="string"&&o.path.startsWith(uid+"/")) paths.add(o.path); Object.values(o).forEach(walk); };
+  Object.values(projects).filter(p=>!p.to||p.to>=td).forEach(walk);
+  const list=[...paths].slice(0,120); if(!list.length) return;
+  try{ const {data}=await sb.storage.from("voyage").createSignedUrls(list,3600); const items=(data||[]).filter(d=>d.signedUrl).map(d=>({path:d.path,url:d.signedUrl}));
+    if(items.length) navigator.serviceWorker.controller.postMessage({type:"cache-docs",items}); }catch(e){}
+}
+document.addEventListener("click",e=>{ const a=e.target.closest('a[href^="_doc/"]'); if(!a) return; e.preventDefault();
+  const u=a.getAttribute("href"), img=a.querySelector("img"), v=document.createElement("div"); v.className="docview";
+  v.innerHTML=`<button class="close" aria-label="Fermer">✕</button>${img?`<img src="${u}" alt="">`:`<iframe src="${u}" title="Document"></iframe>`}`;
+  v.querySelector(".close").onclick=()=>v.remove(); document.body.appendChild(v); },true);
 new MutationObserver(()=>{ clearTimeout(hydrate.t); hydrate.t=setTimeout(hydrate,30); }).observe(document.documentElement,{subtree:true,childList:true});
 const starsRO = n => n && S().stars ? `<span class="stars-ro" aria-label="${n} sur 5">${"★".repeat(n)}${"☆".repeat(5-n)}</span>` : "";
 function renderJournal(iso, editId){
@@ -1608,11 +1640,11 @@ function openProjectForm(id, iso){
 }
 
 let pTab="infos", resaFilter="all";
-const P_TABS=[["infos","Infos"],["resa","Réservations"],["jours","Jour par jour"],["lieux","À voir"],["check","Check-list"],["bag","Bagages"],["budget","Budget"],["docs","Documents"],["contacts","Contacts"]];
+const P_TABS=[["infos","Infos"],["resa","Résas"],["jours","Jours"],["lieux","À voir"],["check","Check-list"],["bag","Bagages"],["budget","Budget"],["dep","Dépenses"],["docs","Docs"],["contacts","Contacts"]];
 function openProject(id, tab){
   const p=projects[id]; if(!p) return; fixProject(p); if(tab) pTab=tab;
   openSheet(`<div class="sheet-title"><span class="flag">${flag(p.iso)}</span><div><h2>${esc(p.name||"Sans titre")}</h2><span class="sub">${esc(fmtRange(p.from,p.to))}${nights(p)?` · ${nights(p)} jours`:""}</span> ${countdown(p)}</div><button class="close" aria-label="Fermer">✕</button></div>
-    <div class="ptabs" id="pt" style="grid-template-columns:repeat(3,1fr)">${P_TABS.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join("")}</div>`, p.name||"Projet");
+    <div class="ptabs" id="pt">${P_TABS.map(([k,n])=>`<button data-t="${k}">${n}</button>`).join("")}</div>`, p.name||"Projet");
   $("#pt").addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(!b)return;pTab=b.dataset.t;drawProject(id);$("#sheet-root .sheet").scrollTop=0;});
   drawProject(id);
 }
@@ -1697,7 +1729,9 @@ function drawProject(id){
     const cars=p.resa.filter(r=>isCar(r)&&r.from&&r.to).sort((a,b)=>sortKey(a).localeCompare(sortKey(b)));
     const carUrl=cars.length?dirUrl(cars[0].from,cars[cars.length-1].to,cars.flatMap((r,i)=>[...(r.via?r.via.split(/[,;]/):[]),...(i<cars.length-1?[r.to]:[])]).map(s=>s.trim()).filter(Boolean).join(","),"driving"):"";
     const docAlerts=(p.docs||[]).filter(d=>d.exp&&p.to&&(d.kind==="Passeport"||d.kind==="Carte d'identité"||d.kind==="Visa / ETA")&&d.exp<addDay(p.to,183));
+    const onTrip=p.from&&p.to&&td>=p.from&&td<=p.to;
     body.innerHTML=`<div class="ov-body">${pastBanner}
+      ${onTrip?`<div class="blk dep-quick"><div class="row-ctl"><span><b>Tu es en voyage</b><br><span class="small muted">Dépensé sur place : ${eur(p.budget.exp.reduce((s,x)=>s+(+x.a||0),0))}</span></span><button class="btn pri" id="qi-dep">+ Dépense</button></div></div>`:""}
       ${docAlerts.map(d=>`<div class="banner"><p><b>${esc(d.kind)}</b> ${d.exp<p.to?"expire avant la fin du voyage":"expire moins de 6 mois après le retour"} (${esc(fmtD(d.exp))}). Beaucoup de pays exigent 6 mois de validité.</p></div>`).join("")}
       <div class="blk"><div class="facts">
         <div><span>Destination</span><b>${p.iso?flag(p.iso)+" ":""}${esc(destOf(p)||"—")}</b></div>
@@ -1726,6 +1760,7 @@ function drawProject(id){
       <div class="blk"><h3>Préparer</h3><div class="items">${quickLinks(p).map(([a,b,u])=>`<a class="item" style="grid-template-columns:1fr auto;color:inherit;text-decoration:none" href="${esc(u)}" target="_blank" rel="noopener"><span class="t"><b style="font-weight:600">${esc(a)}</b> <span class="small muted">· ${esc(b)}</span></span><span class="muted">↗</span></a>`).join("")}</div></div>
 
       <div class="row-ctl" style="justify-content:flex-start"><button class="btn" id="pi-dup">Dupliquer le voyage</button><span id="pi-del"><button class="btn danger" id="pi-delb">Supprimer le projet</button></span></div></div>`;
+    { const q=$("#qi-dep"); if(q) q.onclick=()=>{ pTab="dep"; drawProject(id); $("#sheet-root .sheet").scrollTop=0; }; }
     $("#pi-edit").onclick=()=>openProjectForm(id);
     const ov=$("#pi-ov"); if(ov) ov.onclick=()=>openCountry(p.iso);
     const dn=$("#pi-done"); if(dn) dn.onclick=()=>{ setStatus(p.iso,"done",true); const J=journals[p.iso]||{entries:[]}; const eid=rid(); J.entries.push({id:eid,from:p.from,to:p.to,with:p.with||people(p).slice(1).join(", "),rating:0,text:"",photos:[]}); journals[p.iso]=J; saveJournal(p.iso); openCountry(p.iso,"j"); renderJournal(p.iso,eid); };
@@ -1875,16 +1910,10 @@ function drawProject(id){
     body.querySelectorAll("[data-cx]").forEach(b=>b.onclick=()=>{ p.contacts=p.contacts.filter(c=>c.id!==b.dataset.cx); sync(); drawProject(id); });
   }
 
+  else if(pTab==="dep"){ drawDep(p,id,body,sync); }
   else {
     const ppl=people(p), pl=planned(p), sp=spent(p), exps=allExp(p), byCat=c=>exps.filter(x=>x.c===c).reduce((s,x)=>s+(+x.a||0),0);
-    let split="";
-    if(ppl.length>1&&sp>0){
-      const paid=Object.fromEntries(ppl.map(n=>[n,0])); exps.forEach(x=>{ const who=ppl.includes(x.by)?x.by:ppl[0]; paid[who]+=(+x.a||0); });
-      const share=sp/ppl.length, bal=ppl.map(n=>({n,v:Math.round((paid[n]-share)*100)/100}));
-      const deb=bal.filter(b=>b.v<-0.009).map(b=>({...b})), cre=bal.filter(b=>b.v>0.009).map(b=>({...b})), moves=[];
-      while(deb.length&&cre.length){ const d=deb[0], c=cre[0], m=Math.min(-d.v,c.v); moves.push(`${esc(d.n)} doit ${eur(m)} à ${esc(c.n)}`); d.v+=m; c.v-=m; if(d.v>-0.009) deb.shift(); if(c.v<0.009) cre.shift(); }
-      split=`<div class="blk"><h3>Qui doit quoi</h3><p class="small muted">${eur(share)} par personne</p><div class="items">${bal.map(b=>`<div class="item" style="grid-template-columns:1fr auto"><span class="t">${esc(b.n)} <span class="small muted">· a payé ${eur(paid[b.n])}</span></span><b class="money ${b.v<0?"danger-t":""}">${b.v>=0?"+":""}${eur(b.v)}</b></div>`).join("")}</div>${moves.length?`<div class="items" style="margin-top:8px">${moves.map(m=>`<div class="item" style="grid-template-columns:1fr"><span class="t">${m}</span></div>`).join("")}</div>`:`<p class="note">Tout le monde est à l'équilibre.</p>`}</div>`;
-    }
+    const split=balanceHtml(p);
     body.innerHTML=`<div class="ov-body">
       <div class="blk"><div class="bud-big"><div><span class="muted small">Dépensé</span><br><b class="money">${eur(sp)}</b></div><div style="text-align:right"><span class="muted small">Prévu</span><br><b class="money" style="font-size:1.2rem">${pl?eur(pl):"—"}</b></div></div>
         <div class="bar ${pl&&sp>pl?"over":""}"><i style="width:${pl?Math.min(100,sp/pl*100):0}%"></i></div>
@@ -1893,15 +1922,13 @@ function drawProject(id){
       <div class="blk"><h3>Budget prévu par poste</h3>
         ${BUD_CATS.map(c=>{const pc=+p.budget.plan[c]||0,s=byCat(c);return `<div class="bud-row"><div><b style="font-weight:600">${c}</b><div class="small muted">Dépensé ${eur(s)}</div><div class="bar ${pc&&s>pc?"over":""}" style="margin-top:4px"><i style="width:${pc?Math.min(100,s/pc*100):0}%"></i></div></div><input type="number" inputmode="decimal" min="0" step="10" data-plan="${c}" value="${pc||""}" placeholder="0" aria-label="Budget ${c}"></div>`;}).join("")}</div>
       <div class="blk"><h3>Dépenses</h3>
-        <div class="items">${exps.length?exps.slice().reverse().map(x=>`<div class="item"><span class="tag">${esc(x.c)}</span><span class="t">${esc(x.l)}${x.auto?` <span class="small muted">· réservation</span>`:""}${ppl.length>1?` <span class="small muted">· ${esc(ppl.includes(x.by)?x.by:ppl[0])}</span>`:""}</span><span style="display:flex;align-items:center;gap:4px"><b class="money">${eur(+x.a||0)}</b>${x.auto?`<span style="width:30px"></span>`:`<button class="x" data-exdel="${x.id}" aria-label="Supprimer">×</button>`}</span></div>`).join(""):`<p class="muted small">Aucune dépense notée. Les réservations avec un prix s'ajoutent ici automatiquement.</p>`}</div>
-        <form class="form" id="pe-add" style="margin-top:10px"><input class="inp" id="pe-l" placeholder="Libellé (ex. dîner)" required>
-          <div class="two"><select class="inp" id="pe-c">${BUD_CATS.map(c=>`<option>${c}</option>`).join("")}</select><input class="inp" id="pe-a" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Montant" required></div>
-          ${ppl.length>1?`<label>Payé par<select class="inp" id="pe-by">${ppl.map(n=>`<option>${esc(n)}</option>`).join("")}</select></label>`:""}
-          <button class="btn pri" type="submit" style="justify-self:start">Ajouter la dépense</button></form></div>
+        <div class="items">${exps.filter(x=>x.auto).map(x=>`<div class="item"><span class="tag">${esc(x.c)}</span><span class="t">${esc(x.l)} <span class="small muted">· réservation</span></span><b class="money">${eur(+x.a||0)}</b></div>`).join("")}
+          <div class="item"><span class="tag">Sur place</span><span class="t">${p.budget.exp.length} dépense${p.budget.exp.length>1?"s":""} notée${p.budget.exp.length>1?"s":""}</span><b class="money">${eur(p.budget.exp.reduce((s,x)=>s+(+x.a||0),0))}</b></div></div>
+        <button class="btn pri" id="go-dep" style="margin-top:10px">Noter une dépense</button></div>
     </div>`;
     body.querySelectorAll("[data-plan]").forEach(inp=>inp.onchange=()=>{ p.budget.plan[inp.dataset.plan]=Math.max(0,+inp.value||0); sync(); drawProject(id); });
-    $("#pe-add").onsubmit=e=>{ e.preventDefault(); p.budget.exp.push({id:rid(),l:$("#pe-l").value.trim(),c:$("#pe-c").value,a:Math.round((+$("#pe-a").value||0)*100)/100,by:$("#pe-by")?$("#pe-by").value:ppl[0]}); sync(); drawProject(id); };
-    body.querySelectorAll("[data-exdel]").forEach(b=>b.onclick=()=>{ p.budget.exp=p.budget.exp.filter(x=>x.id!==b.dataset.exdel); sync(); drawProject(id); });
+    $("#go-dep").onclick=()=>{ pTab="dep"; drawProject(id); $("#sheet-root .sheet").scrollTop=0; };
+    const rc=$("#dep-recap"); if(rc) rc.onclick=async()=>{ const t=recapText(p); try{ if(navigator.share){ await navigator.share({text:t}); return; } }catch(e){ return; } try{ await navigator.clipboard.writeText(t); toast("Récap copié"); }catch(e){} };
   }
 }
 function tog2(id,label,on){ return `<label class="set-row"><span><b>${label}</b></span><button type="button" class="switch" role="switch" aria-checked="${on}" id="${id}" data-sw2 aria-label="${label}"><i></i></button></label>`; }
@@ -2224,6 +2251,137 @@ function contactRow(c,ro){
     ${c.id&&!ro?`<button class="x" data-cx="${c.id}" aria-label="Supprimer ${esc(c.name)}">×</button>`:""}</div>`;
 }
 
+/* ---------- Dépenses sur place ---------- */
+const HOME = () => S().currency || "EUR";
+const RATES_KEY = "voyage-rates";
+let RATES = (()=>{ try{ return JSON.parse(localStorage.getItem(RATES_KEY))||null; }catch(e){ return null; } })();
+async function loadRates(force){
+  if(!force && RATES && Date.now()-RATES.at < 6*3600e3) return RATES;
+  try{
+    const r=await fetch(window.RATES_API||"api/rates",{cache:"no-store"}); if(!r.ok) throw 0;
+    const j=await r.json(); if(!j||!j.rates||!j.rates.EUR) throw 0;
+    RATES={date:j.date,rates:j.rates,at:Date.now()}; try{ localStorage.setItem(RATES_KEY,JSON.stringify(RATES)); }catch(e){}
+  }catch(e){}
+  return RATES;
+}
+const MON_L=["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+const ratesDate = () => { if(!RATES||!RATES.date) return ""; const [y,m,d]=RATES.date.split("-").map(Number); return d+" "+MON_L[m-1]+" "+y; };
+/* Taux : combien vaut 1 unité de `cur` dans la devise d'affichage. Priorité au taux saisi pour ce voyage, sinon BCE. */
+function rateOf(p,cur){
+  const h=HOME(); if(cur===h) return {v:1,src:""};
+  if(p.rates&&+p.rates[cur]>0) return {v:+p.rates[cur],src:"perso"};
+  const R=RATES&&RATES.rates; if(R&&R[cur]&&R[h]) return {v:R[h]/R[cur],src:"bce"};
+  return null;
+}
+function curCode(s){ const m=String(s||"").match(/\(([A-Z]{3})\)/); return m?m[1]:null; }
+function tripCurrencies(p){
+  const isos=[p.iso].concat((p.isos||[])).filter(Boolean), out=[];
+  const fp=(typeof FP!=="undefined"&&FP)||{};
+  isos.forEach(i=>((fp[i]&&fp[i].monnaie)||[]).forEach(m=>{ const c=curCode(m); if(c&&!out.includes(c)) out.push(c); }));
+  (p.budget.exp||[]).forEach(x=>{ if(x.cur&&!out.includes(x.cur)) out.push(x.cur); });
+  if(!out.includes(HOME())) out.push(HOME());
+  return out;
+}
+const ALL_CUR = ["EUR","USD","GBP","CHF","JPY","CAD","AUD","NZD","CNY","HKD","SGD","KRW","THB","IDR","MYR","PHP","INR","TRY","SEK","NOK","DKK","ISK","PLN","CZK","HUF","RON","BGN","ZAR","BRL","MXN","ILS","MAD","TND","EGP","AED","VND","ARS","CLP","COP","PEN","GEL","ALL","RSD","MKD","BAM","UAH","KZT","LKR","NPR","TWD"];
+function fmtCur(n,c){
+  const v=(Math.round(n*100)/100).toLocaleString("fr-FR",{maximumFractionDigits:2});
+  if(c===HOME()) return eur(n);
+  const sym={EUR:"€",USD:"$",GBP:"£",JPY:"¥",CHF:"CHF"}[c];
+  return sym==="$"||sym==="£"?sym+v:v+" "+(sym||c);
+}
+/* Part de chaque voyageur : chaque dépense est répartie entre les personnes « pour » (tout le monde par défaut). */
+function balances(p){
+  const ppl=people(p), paid={}, owe={};
+  ppl.forEach(n=>{ paid[n]=0; owe[n]=0; });
+  allExp(p).forEach(x=>{
+    const a=+x.a||0; if(!a) return;
+    const who=ppl.includes(x.by)?x.by:ppl[0];
+    const fr=(Array.isArray(x.for)&&x.for.filter(n=>ppl.includes(n)).length)?x.for.filter(n=>ppl.includes(n)):ppl;
+    paid[who]+=a; fr.forEach(n=>owe[n]+=a/fr.length);
+  });
+  const bal=ppl.map(n=>({n,paid:paid[n],owe:owe[n],v:Math.round((paid[n]-owe[n])*100)/100}));
+  const deb=bal.filter(b=>b.v<-0.009).map(b=>({...b})), cre=bal.filter(b=>b.v>0.009).map(b=>({...b})), moves=[];
+  while(deb.length&&cre.length){ const d=deb[0], c=cre[0], m=Math.round(Math.min(-d.v,c.v)*100)/100; moves.push({from:d.n,to:c.n,m}); d.v+=m; c.v-=m; if(d.v>-0.009) deb.shift(); if(c.v<0.009) cre.shift(); }
+  return {bal,moves};
+}
+function balanceHtml(p){
+  const ppl=people(p); if(ppl.length<2||!spent(p)) return "";
+  const {bal,moves}=balances(p);
+  return `<div class="blk"><h3>Qui doit quoi</h3><div class="items">${bal.map(b=>`<div class="item" style="grid-template-columns:1fr auto"><span class="t">${esc(b.n)} <span class="small muted">· a payé ${eur(b.paid)} · sa part ${eur(b.owe)}</span></span><b class="money ${b.v<0?"danger-t":""}">${b.v>=0?"+":""}${eur(b.v)}</b></div>`).join("")}</div>
+    ${moves.length?`<div class="items" style="margin-top:8px">${moves.map(m=>`<div class="item" style="grid-template-columns:1fr"><span class="t">${esc(m.from)} doit <b class="money">${eur(m.m)}</b> à ${esc(m.to)}</span></div>`).join("")}</div>
+      <button class="btn" id="dep-recap" style="margin-top:10px">Envoyer le récap</button>`:`<p class="note">Tout le monde est à l'équilibre.</p>`}</div>`;
+}
+function recapText(p){
+  const {bal,moves}=balances(p);
+  return [`Dépenses — ${p.name||destOf(p)}`,`Total : ${eur(spent(p))}`,""]
+    .concat(bal.map(b=>`${b.n} : a payé ${eur(b.paid)}, sa part ${eur(b.owe)}`),[""],moves.map(m=>`${m.from} doit ${eur(m.m)} à ${m.to}`)).join("\n");
+}
+let depDraft={cur:null,c:"Nourriture",for:null,by:null};
+function drawDep(p,id,body,sync){
+  const ppl=people(p), curs=tripCurrencies(p), td=ymd(today());
+  if(!depDraft.cur||!curs.concat(ALL_CUR).includes(depDraft.cur)) depDraft.cur=curs[0];
+  if(!depDraft.by||!ppl.includes(depDraft.by)) depDraft.by=ppl[0];
+  if(!depDraft.for) depDraft.for=ppl.slice();
+  depDraft.for=depDraft.for.filter(n=>ppl.includes(n)); if(!depDraft.for.length) depDraft.for=ppl.slice();
+  const inTrip=p.from&&p.to&&td>=p.from&&td<=p.to, defDay=inTrip||!p.from?td:p.from;
+  const own=(p.budget.exp||[]).filter(x=>!x.auto);
+  const total=own.reduce((s,x)=>s+(+x.a||0),0);
+  const byDay={}; own.forEach(x=>{ const d=x.d||""; (byDay[d]=byDay[d]||[]).push(x); });
+  const days=Object.keys(byDay).sort().reverse();
+  const todayT=(byDay[td]||[]).reduce((s,x)=>s+(+x.a||0),0);
+  const nDays=days.filter(Boolean).length;
+  const mine=ppl.length>1?balances(p).bal[0]:null;
+  const opts=[...new Set(curs.concat(ALL_CUR))];
+  body.innerHTML=`<div class="ov-body">
+    <div class="blk"><div class="bud-big"><div><span class="muted small">Dépensé sur place</span><br><b class="money">${eur(total)}</b></div><div style="text-align:right"><span class="muted small">Aujourd'hui</span><br><b class="money" style="font-size:1.2rem">${eur(todayT)}</b></div></div>
+      <p class="note">${own.length} dépense${own.length>1?"s":""}${nDays>1?` · ${eur(total/nDays)} par jour en moyenne`:""}${mine?` · ta part ${eur(mine.owe)}`:""}</p></div>
+    <form class="blk form" id="dep-add"><h3>Nouvelle dépense</h3>
+      <div class="dep-amt"><input class="inp" id="dep-a" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0" required aria-label="Montant">
+        <select class="inp" id="dep-cur" aria-label="Devise">${opts.map(c=>`<option ${c===depDraft.cur?"selected":""}>${c}</option>`).join("")}</select></div>
+      <p class="small muted" id="dep-conv"></p>
+      <div id="dep-rate"></div>
+      <input class="inp" id="dep-l" placeholder="Libellé (ex. dîner, taxi, musée)">
+      <div class="chips wrap-chips" id="dep-cat">${BUD_CATS.map(c=>`<button type="button" class="chip ${c===depDraft.c?"on-chip":""}" data-c="${c}">${c}</button>`).join("")}</div>
+      ${ppl.length>1?`<label>Payé par<select class="inp" id="dep-by">${ppl.map(n=>`<option ${n===depDraft.by?"selected":""}>${esc(n)}</option>`).join("")}</select></label>
+      <div><span class="small muted">Pour</span><div class="chips wrap-chips" id="dep-for">${ppl.map(n=>`<button type="button" class="chip ${depDraft.for.includes(n)?"on-chip":""}" data-n="${esc(n)}">${esc(n)}</button>`).join("")}</div></div>`:""}
+      <label>Date<input class="inp" id="dep-d" type="date" value="${defDay}"></label>
+      <button class="btn pri" type="submit" style="justify-self:start">Ajouter</button></form>
+    ${balanceHtml(p)}
+    <div class="blk"><h3>Historique</h3>${days.length?days.map(d=>{ const L=byDay[d], t=L.reduce((s,x)=>s+(+x.a||0),0);
+      return `<div class="dep-day"><div class="row-ctl"><b>${d?esc(dayTitle(d)):"Sans date"}</b><b class="money">${eur(t)}</b></div><div class="items">${L.slice().reverse().map(x=>`<div class="item"><span class="tag">${esc(x.c)}</span><span class="t">${esc(x.l||x.c)}${ppl.length>1?`<br><span class="small muted">payé par ${esc(ppl.includes(x.by)?x.by:ppl[0])}${Array.isArray(x.for)&&x.for.length&&x.for.length<ppl.length?" · pour "+x.for.map(esc).join(", "):""}</span>`:""}</span><span style="display:flex;align-items:center;gap:4px;text-align:right"><span><b class="money">${eur(+x.a||0)}</b>${x.cur&&x.cur!==HOME()?`<br><span class="small muted">${esc(fmtCur(+x.amt||0,x.cur))}</span>`:""}</span><button class="x" data-depdel="${x.id}" aria-label="Supprimer">×</button></span></div>`).join("")}</div></div>`; }).join("")
+      :`<p class="muted small">Note ici chaque dépense au fil du voyage, dans la monnaie locale : elle est convertie automatiquement et le partage entre voyageurs se calcule tout seul. Ça marche aussi sans réseau.</p>`}
+      ${RATES&&RATES.date?`<p class="note">Taux de change : Banque centrale européenne, ${esc(ratesDate())}.</p>`:""}</div>
+  </div>`;
+  const conv=()=>{
+    const cur=$("#dep-cur").value, a=+$("#dep-a").value||0, r=rateOf(p,cur), box=$("#dep-rate");
+    depDraft.cur=cur;
+    if(cur===HOME()){ $("#dep-conv").textContent=""; box.innerHTML=""; return; }
+    if(r){ $("#dep-conv").textContent=(a?"= "+eur(a*r.v)+" · ":"")+"1 "+cur+" = "+(r.v<0.01?r.v.toPrecision(3).replace(".",","):eur(r.v))+(r.src==="bce"?" (BCE, "+ratesDate()+")":" (ton taux)");
+      box.innerHTML=`<button type="button" class="btn" id="dep-rset" style="font-size:.8rem;padding:4px 10px">Utiliser mon propre taux</button>`; }
+    else { $("#dep-conv").textContent="Pas de taux officiel disponible pour "+cur+(RATES?"":" (hors ligne)")+" : indique-le une fois pour ce voyage."; box.innerHTML=""; }
+    const bs=$("#dep-rset"); if(bs) bs.onclick=()=>rateForm(cur);
+    if(!r) rateForm(cur);
+  };
+  const rateForm=cur=>{ const r=rateOf(p,cur); $("#dep-rate").innerHTML=`<div class="two"><label>1 ${cur} =<input class="inp" id="dep-rv" type="number" inputmode="decimal" min="0" step="any" value="${r&&r.src==="perso"?r.v:""}" placeholder="taux en ${HOME()}"></label><button type="button" class="btn" id="dep-rok" style="align-self:end">Enregistrer</button></div>${p.rates&&p.rates[cur]?`<button type="button" class="btn" id="dep-rdel" style="font-size:.8rem;margin-top:6px">Revenir au taux BCE</button>`:""}`;
+    $("#dep-rok").onclick=()=>{ const v=+$("#dep-rv").value; if(!(v>0)) return; p.rates=p.rates||{}; p.rates[cur]=v; saveProject(id); conv(); };
+    const d=$("#dep-rdel"); if(d) d.onclick=()=>{ delete p.rates[cur]; saveProject(id); conv(); }; };
+  $("#dep-a").oninput=conv; $("#dep-cur").onchange=conv; conv();
+  $("#dep-cat").onclick=e=>{ const b=e.target.closest("[data-c]"); if(!b) return; depDraft.c=b.dataset.c; $("#dep-cat").querySelectorAll(".chip").forEach(x=>x.classList.toggle("on-chip",x===b)); };
+  const f=$("#dep-for"); if(f) f.onclick=e=>{ const b=e.target.closest("[data-n]"); if(!b) return; const n=b.dataset.n; depDraft.for=depDraft.for.includes(n)?depDraft.for.filter(x=>x!==n):depDraft.for.concat([n]); if(!depDraft.for.length) depDraft.for=[n]; f.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on-chip",depDraft.for.includes(x.dataset.n))); };
+  const by=$("#dep-by"); if(by) by.onchange=()=>depDraft.by=by.value;
+  $("#dep-add").onsubmit=e=>{ e.preventDefault();
+    const amt=Math.round((+$("#dep-a").value||0)*100)/100, cur=$("#dep-cur").value, r=rateOf(p,cur);
+    if(!(amt>0)) return; if(!r){ toast("Indique d'abord le taux de change"); return; }
+    p.budget.exp.push({id:rid(),l:$("#dep-l").value.trim(),c:depDraft.c,a:Math.round(amt*r.v*100)/100,amt,cur,d:$("#dep-d").value||td,by:by?by.value:ppl[0],for:ppl.length>1&&depDraft.for.length<ppl.length?depDraft.for.slice():undefined});
+    sync(); drawProject(id); toast("Dépense ajoutée");
+  };
+  body.querySelectorAll("[data-depdel]").forEach(b=>b.onclick=()=>{ const x=p.budget.exp.find(e=>e.id===b.dataset.depdel); p.budget.exp=p.budget.exp.filter(e=>e.id!==b.dataset.depdel); sync(); drawProject(id);
+    toast("Dépense supprimée",()=>{ p.budget.exp.push(x); sync(); drawProject(id); }); });
+  const rc=$("#dep-recap"); if(rc) rc.onclick=async()=>{ const t=recapText(p); try{ if(navigator.share){ await navigator.share({text:t}); return; } }catch(e){ return; } try{ await navigator.clipboard.writeText(t); toast("Récap copié"); }catch(e){} };
+  const before=RATES&&RATES.at;
+  if(!RATES||Date.now()-RATES.at>6*3600e3) loadRates().then(R=>{ if(R&&R.at!==before&&pTab==="dep"&&projects[id]&&$("#dep-add")&&!$("#dep-a").value) drawProject(id); });
+}
+
 /* ---------- Onglets ---------- */
 const VIEWS=["pays","weekends","envies","avenir"];
 function show(v){
@@ -2243,30 +2401,36 @@ async function loadFiches(){
   try{ const r=await fetch("fiches-pays.json"); if(r.ok){ const j=await r.json(); FP=j.pays||{}; FP_V=j.v||""; } }catch(e){}
 }
 function useUser(u){
+  lsSet("voyage-last-user",{id:u.id,email:u.email||""});
   uid=u.id; LS="carnet-route-v1-"+uid;
   state=Object.assign({status:{},weekends:[],seasons:{},depart:"Paris",weCity:{},settings:{}},lsGet(LS,{})); state.depart="Paris";
   journals=lsGet(LS+"-j",{}); projects=lsGet(LS+"-p",{}); Object.values(projects).forEach(fixProject);
   $("#acct").textContent=(u.email||"?")[0].toUpperCase(); $("#acct").dataset.mail=u.email||"";
   $("#auth").hidden=true; applySettings(true); renderAll(); show(location.hash.slice(1)||S().start);
 }
-async function loadRemote(){
-  setSync("Chargement…");
+async function loadRemote(quiet){
+  if(!quiet) setSync("Chargement…");
   try{
+    if(navigator.onLine===false) throw 0;
+    const ses=await Promise.race([sb.auth.getSession(),new Promise(ok=>setTimeout(()=>ok(null),6000))]);
+    if(!ses) throw 0;
+    if(!ses.data||!ses.data.session){ if(await reachable()){ online=false; authUI("in","Ta session a expiré : reconnecte-toi. Tes modifs hors ligne seront envoyées ensuite."); return; } throw 0; }
+    await flushDirty();
     const [st,pr,jo]=await Promise.all([sb.from("voyage_state").select("data").eq("user_id",uid).maybeSingle(),sb.from("voyage_projects").select("id,data").eq("user_id",uid),sb.from("voyage_journal").select("iso,data").eq("user_id",uid)]);
     if(st.error||pr.error||jo.error) throw (st.error||pr.error||jo.error);
-    online=true;
+    online=true; document.documentElement.classList.remove("is-off");
     if(st.data&&st.data.data){ const x=st.data.data; state.status=x.status||{}; state.weekends=Array.isArray(x.weekends)?x.weekends:[]; state.seasons=x.seasons||{}; state.weCity=x.weCity||{}; state.settings=x.settings||{}; lsSet(LS,state); applySettings(true); if(!location.hash) show(S().start); }
     else { state.status={}; state.weekends=[]; state.seasons={}; state.settings={}; lsSet(LS,state); applySettings(true); }
     if(pr.data.length){ projects={}; pr.data.forEach(r=>{ if(r.data) projects[r.id]=fixProject(Object.assign(r.data,{id:r.id})); }); lsSet(LS+"-p",projects); } else { projects={}; lsSet(LS+"-p",projects); }
     if(jo.data.length){ journals={}; jo.data.forEach(r=>{ journals[r.iso]=r.data; }); lsSet(LS+"-j",journals); } else { journals={}; lsSet(LS+"-j",journals); }
-    setSync("Synchronisé");
-  }catch(e){ setSync("Hors ligne"); }
+    setSync("Synchronisé"); keepDocs(); loadRates(true);
+  }catch(e){ goOffline(); }
   renderAll();
   let pc=null; try{ pc=sessionStorage.getItem("voyage-pending-copy"); }catch(e){}
   if(pc&&online){ try{ sessionStorage.removeItem("voyage-pending-copy"); }catch(e){}
     try{ const {data}=await sb.rpc("get_voyage_share",{sid:pc}); if(data&&data.project){ const nid=copyProject(data.project,true); document.getElementById("shared")?.remove(); history.replaceState(null,"",location.pathname+"#avenir"); show("avenir"); openProject(nid,"infos"); toast("Voyage copié dans tes projets"); } }catch(e){} }
 }
-window.SHARE_OK=true; window.ICS_API="api/ics";
+window.SHARE_OK=true; window.ICS_API="api/ics"; window.RATES_API="api/rates";
 const SHARE_ID=(()=>{ const v=new URLSearchParams(location.search).get("v"); return /^[0-9a-f-]{36}$/i.test(v||"")?v:null; })();
 async function showShared(sid){
   const host=document.createElement("div"); host.className="shared"; host.id="shared"; document.body.appendChild(host);
@@ -2326,9 +2490,17 @@ let started=false;
 sb.auth.onAuthStateChange((ev,session)=>{
   if(ev==="PASSWORD_RECOVERY"){ authUI("newpass"); return; }
   if(session&&session.user&&!started){ started=true; useUser(session.user); loadRemote(); }
+  else if(ev==="SIGNED_IN"&&session&&session.user&&started&&!online){ $("#auth").hidden=true; if(session.user.id!==uid) useUser(session.user); loadRemote(); }
   if(ev==="SIGNED_OUT"){ started=false; uid=null; online=false; if(!document.getElementById("shared")) authUI("in"); }
 });
-(async()=>{ if(SHARE_ID) showShared(SHARE_ID); await loadFiches(); const {data}=await sb.auth.getSession(); if(!data.session){ if(!SHARE_ID) authUI("in"); } else if(!started){ started=true; useUser(data.session.user); loadRemote(); } })();
+async function reachable(){ if(navigator.onLine===false) return false; try{ const c=new AbortController(); setTimeout(()=>c.abort(),4000); await fetch(SB_URL+"/auth/v1/health",{signal:c.signal,headers:{apikey:SB_KEY}}); return true; }catch(e){ return false; } }
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+(async()=>{ if(SHARE_ID) showShared(SHARE_ID); await loadFiches();
+  let session=null; try{ const r=await Promise.race([sb.auth.getSession(),new Promise(ok=>setTimeout(()=>ok(null),5000))]); session=r&&r.data&&r.data.session; }catch(e){}
+  if(session){ if(!started){ started=true; useUser(session.user); loadRemote(); } return; }
+  const last=lsGet("voyage-last-user",null);
+  if(last&&last.id&&!(await reachable())){ if(!started){ started=true; useUser(last); goOffline(); } return; }
+  if(!SHARE_ID&&!started) authUI("in"); })();
 </script>
 </body>
 </html>
