@@ -986,6 +986,7 @@ body.rting nav{display:none}
 .ev .enl{color:var(--mu);font-size:13px;line-height:1.35;margin-top:3px;font-style:italic;overflow-wrap:anywhere}
 .rev .rn small.rnt{font-style:italic;white-space:normal!important;text-overflow:clip;display:block!important;overflow:visible;overflow-wrap:anywhere;margin-top:3px}
 .evsi{flex:none;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center}.evsi svg{color:inherit!important}
+.evsp{margin:-4px 2px 6px;font-size:13.5px;color:var(--mu);line-height:1.4}.evst{display:flex;flex-direction:column;gap:2px}.evst small{font-size:13px;color:var(--mu)}
 </style>
 </head>
 <body>
@@ -1657,9 +1658,11 @@ function shareEv(k,i){const x=S.days[k]&&S.days[k].r[+i];if(!x)return;const o=ca
   const ic=p=>'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';
   const at='data-d="'+k+'" data-i="'+i+'"',ok=o&&/^\d{4}-\d\d-\d\d$/.test(o.d||'');
   sh.querySelector('.nshp').innerHTML='<div class="nshh"><b>Partager « '+esc(String(x.x||'Rendez-vous').slice(0,32))+' »</b><button class="nshx" data-nsx aria-label="Fermer"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>'
-    +(ok?'<button class="nmr" data-a="evcal" data-k="g" '+at+'><span class="evsi" style="background:#e8f0fe;color:#1a73e8">'+ic('<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>')+'</span>Ajouter à Google Agenda</button>'
-    +'<button class="nmr" data-a="evcal" data-k="a" '+at+'><span class="evsi" style="background:#ffe9e7;color:#ff3b30">'+ic('<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M9 14.5l2 2 4-4"/>')+'</span>Ajouter à Agenda Apple</button>':'')
-    +'<button class="nmr" data-a="evmsg" '+at+'><span class="evsi" style="background:#e5f8ea;color:#34c759">'+ic('<path d="M4 5h16a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 17H9l-5 4V6.5A1.5 1.5 0 0 1 5.5 5z"/>')+'</span>Envoyer les infos par message</button>'
+    +'<p class="evsp">La personne reçoit un message et peut ajouter l’événement à son agenda en un geste.</p>'
+    +(ok?'<button class="nmr" data-a="evsend" data-k="all" '+at+'><span class="evsi" style="background:#e5f8ea;color:#34c759">'+ic('<path d="M4 5h16a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 20 17H9l-5 4V6.5A1.5 1.5 0 0 1 5.5 5z"/>')+'</span><span class="evst">Infos + ajout à l’agenda<small>Google Agenda et iPhone</small></span></button>'
+    +'<button class="nmr" data-a="evsend" data-k="g" '+at+'><span class="evsi" style="background:#e8f0fe;color:#1a73e8">'+ic('<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>')+'</span><span class="evst">Invitation Google Agenda<small>Pour une personne sur Android ou Gmail</small></span></button>'
+    +'<button class="nmr" data-a="evsend" data-k="a" '+at+'><span class="evsi" style="background:#ffe9e7;color:#ff3b30">'+ic('<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M9 14.5l2 2 4-4"/>')+'</span><span class="evst">Invitation Agenda Apple<small>Pour une personne sur iPhone</small></span></button>':'')
+    +'<button class="nmr" data-a="evsend" data-k="txt" '+at+'><span class="evsi" style="background:color-mix(in srgb,#ff9500 14%,transparent);color:#ff9500">'+ic('<path d="M5 6h14M5 11h14M5 16h9"/>')+'</span><span class="evst">Juste les infos<small>Date, heure, lieu, itinéraire</small></span></button>'
     +'<button class="nmr" data-a="evlink" '+at+'><span class="evsi" style="background:color-mix(in srgb,var(--tx) 8%,transparent);color:var(--mu)">'+ic('<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>')+'</span>Lien vers la fiche (appli)</button>';
   requestAnimationFrame(()=>sh.classList.add('on'))}
 function evText(k,i){const x=S.days[k]&&S.days[k].r[+i];if(!x)return '';
@@ -2220,8 +2223,9 @@ document.addEventListener('click',e=>{
   else if(a==='lang'){S.lang=b.dataset.s;save();setLang();render();return}
   else if(a==='evtog'){if(e.target.closest('a,input,label,textarea'))return;V.eo=V.eo||{};const q=b.dataset.k;V.eo[q]=!V.eo[q]}
   else if(a==='evshare'){shareEv(b.dataset.d,b.dataset.i);return}
-  else if(a==='evcal'){const o=calObj('r|'+b.dataset.d+'|'+b.dataset.i);if(o){const u=b.dataset.k==='g'?gcalUrl(o):icsUrl(o);if(b.dataset.k==='g')window.open(u,'_blank','noopener');else location.href=u}return}
-  else if(a==='evmsg'){shareTxt(evText(b.dataset.d,b.dataset.i));return}
+  else if(a==='evsend'){const k0=b.dataset.k,base=evText(b.dataset.d,b.dataset.i),o=calObj('r|'+b.dataset.d+'|'+b.dataset.i);if(o)o.n='';
+    let tx=base;if(o&&k0!=='txt'){const L=[];if(k0==='all'||k0==='g')L.push((k0==='all'?'📅 Google Agenda : ':'📅 Ajoute-le à ton Google Agenda : ')+gcalUrl(o));if(k0==='all'||k0==='a')L.push((k0==='all'?'🍎 iPhone : ':'🍎 Ajoute-le à ton agenda iPhone : ')+icsUrl(o));tx+='\n\n'+L.join('\n')}
+    shareTxt(tx);return}
   else if(a==='evlink'){const x=S.days[b.dataset.d]&&S.days[b.dataset.d].r[+b.dataset.i];if(x)shareLink('rdv',x,rdvShareData(b.dataset.d,x),x.x,x.x);return}
   else if(a==='trip'){doTrip(b.dataset.k,i,b);return}
   else if(a==='hmopen'){V.hm2=b.dataset.k;V.hm=b.dataset.k}
