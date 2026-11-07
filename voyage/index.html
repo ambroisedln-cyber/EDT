@@ -204,6 +204,7 @@ textarea.inp{resize:vertical;min-height:80px}
 .route:first-of-type{border-top:0;padding-top:0;margin-top:0}
 .route b{font-family:var(--f-display)}
 .steps{font-size:.88rem;color:var(--muted);margin-top:2px}
+.fp-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.fp-src{margin:14px 0 4px;font-size:.85rem;color:var(--muted)}.fp-src summary{cursor:pointer}.fp-src ul{margin:6px 0 0 18px}
 .facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .facts div span{display:block;font-size:.72rem;color:var(--muted)}
 .facts div b{font-weight:600;font-size:.9rem}
@@ -1141,7 +1142,6 @@ function csTab(t){
 }
 async function loadOverview(iso, refresh){
   const box=$("#sheet-body"); if(!box) return;
-  if(!refresh && ovCache[iso]){ renderOverview(iso,ovCache[iso]); return; }
   if(!sample){ renderBasic(iso); return; }
   box.innerHTML=`<div class="loading"><span class="spin"></span>Claude prépare la fiche ${esc(BY_ISO[iso].name)}…</div>`;
   try{
@@ -1171,19 +1171,37 @@ Réponds UNIQUEMENT en JSON valide, en français, avec exactement cette forme :
   updDl();
   return data;
 }
+let FP={}, FP_V="";
+const FP_SRC=[["Capitale, voisins, accès à la mer","mledoze/countries (données ISO)"],["Langues, monnaies","Unicode CLDR"],["Indicatif","Google libphonenumber"],["Heure","Base IANA des fuseaux horaires"],["Population","Banque mondiale"],["Patrimoine mondial","UNESCO (whc.unesco.org)"],["Sécurité, entrée, santé","France Diplomatie (lien direct)"]];
 function renderBasic(iso){
-  const c=BY_ISO[iso], s=seasonOf(iso), q=encodeURIComponent(c.name);
+  const c=BY_ISO[iso], f=FP[iso]||{}, q=encodeURIComponent(c.name);
+  const row=(k,v)=>v?`<div><span>${k}</span><b>${esc(v)}</b></div>`:"";
+  const facts=[row("Capitale",f.capitale),row(f.langues&&f.langues.length>1?"Langues officielles":"Langue officielle",(f.langues||[]).join(", ")),
+    row("Monnaie",(f.monnaie||[]).join(" · ")),row("Indicatif",f.indicatif),
+    row("Population",f.population?f.population.t+" hab. ("+f.population.y+")":""),
+    row("Heure locale",f.heure&&f.heure.fuseau),row("Décalage avec Paris",f.heure&&f.heure.decalage)].join("");
+  const u=f.unesco||[], nU=u.length, MAX=6;
+  const uRow=x=>`<a class="item" style="grid-template-columns:1fr auto" href="${esc(x.u)}" target="_blank" rel="noopener"><span class="t">${esc(x.n)}<br><span class="small muted">${esc(x.c)} · inscrit en ${esc(x.y)}${x.d?' · <b style="color:var(--bad,#c0392b)">en péril</b>':""}</span></span><span class="muted">↗</span></a>`;
+  const link=(h,t,d)=>`<a class="item" style="grid-template-columns:1fr auto" href="${h}" target="_blank" rel="noopener"><span class="t"><b>${t}</b><br><span class="small muted">${d}</span></span><span class="muted">↗</span></a>`;
+  const tags=[...(f.europe||[]),f.enclave?"Sans accès à la mer":""].filter(Boolean);
   $("#sheet-body").innerHTML=`<div class="ov-body">
-    <div class="blk"><p>${esc(c.name)} · ${CONT[c.cont]}</p><p class="note">Pas encore de fiche détaillée pour ce pays. Voici les meilleures sources pour préparer le voyage.</p></div>
-    ${s?`<div class="blk"><h3>Bonne saison</h3><div class="months">${MONTHS.map((m,i)=>`<span class="${s.b.includes(i+1)?"g":s.o.includes(i+1)?"m":""}">${m.slice(0,1)}</span>`).join("")}</div></div>`:""}
-    <div class="blk"><h3>Se renseigner</h3><div class="items">
-      <a class="item" style="grid-template-columns:1fr auto" href="https://fr.wikivoyage.org/wiki/${encodeURIComponent(c.name.replace(/ /g,"_"))}" target="_blank" rel="noopener"><span class="t"><b>Wikivoyage</b><br><span class="small muted">Guide complet : régions, itinéraires, à voir, saisons</span></span><span class="muted">↗</span></a>
-      <a class="item" style="grid-template-columns:1fr auto" href="https://www.diplomatie.gouv.fr/fr/conseils-aux-voyageurs/conseils-par-pays-destination/" target="_blank" rel="noopener"><span class="t"><b>France Diplomatie</b><br><span class="small muted">Sécurité, visa et formalités pour les Français</span></span><span class="muted">↗</span></a>
-      <a class="item" style="grid-template-columns:1fr auto" href="https://www.google.com/travel/flights?q=${encodeURIComponent("Vols "+depart()+" "+c.name)}&hl=fr" target="_blank" rel="noopener"><span class="t"><b>Vols depuis ${esc(depart())}</b><br><span class="small muted">Google Vols</span></span><span class="muted">↗</span></a>
-      <a class="item" style="grid-template-columns:1fr auto" href="https://www.alltrails.com/fr/search?q=${q}" target="_blank" rel="noopener"><span class="t"><b>Randonnées</b><br><span class="small muted">AllTrails</span></span><span class="muted">↗</span></a>
+    ${facts?`<div class="blk"><h3>L'essentiel</h3><div class="facts">${facts}</div>
+      ${tags.length?`<div class="fp-tags">${tags.map(t=>`<span class="tag">${esc(t)}</span>`).join("")}</div>`:""}
+      ${f.heure&&f.heure.n>1?`<p class="note">Le pays compte plusieurs fuseaux : vérifie l'heure de ta région d'arrivée.</p>`:""}</div>`:""}
+    <div class="blk"><h3>Avant de partir</h3><div class="items">
+      ${f.diplo?link(f.diplo,"Sécurité, entrée et santé","France Diplomatie : visa, passeport, vaccins, zones déconseillées. Toujours à jour."):link("https://www.diplomatie.gouv.fr/fr/conseils-aux-voyageurs/conseils-par-pays-destination/","Conseils aux voyageurs","France Diplomatie : choisis le pays dans la liste")}
+      ${link("https://pastel.diplomatie.gouv.fr/fildariane/dyn/public/login.html","Fil d'Ariane","S'inscrire pour être prévenu en cas de crise sur place")}
+      ${link("https://www.google.com/travel/flights?q="+encodeURIComponent("Vols "+depart()+" "+c.name)+"&hl=fr","Vols depuis "+esc(depart()),"Google Vols")}
+      ${link("https://fr.wikivoyage.org/w/index.php?search="+q,"Wikivoyage","Guide collaboratif : régions, itinéraires, à voir")}
     </div></div>
-    <div class="row-ctl"><button class="btn pri" id="ov-proj">Créer un projet de voyage</button></div></div>`;
+    ${f.voisins&&f.voisins.length?`<div class="blk"><h3>Pays frontaliers</h3><div class="fp-tags">${f.voisins.map(v=>{const n=COUNTRIES.find(x=>x.name===v);return n?`<button class="chip" data-fp="${n.iso}">${esc(v)}</button>`:`<span class="chip">${esc(v)}</span>`;}).join("")}</div></div>`:""}
+    ${nU?`<div class="blk"><h3>Patrimoine mondial UNESCO <span class="tag t">${nU}</span></h3><div class="items" id="fp-u">${u.slice(0,MAX).map(uRow).join("")}</div>${nU>MAX?`<button class="btn" id="fp-more" style="margin-top:8px">Voir les ${nU} sites</button>`:""}</div>`:""}
+    <div class="row-ctl"><button class="btn pri" id="ov-proj">Créer un projet de voyage</button></div>
+    <details class="fp-src"><summary>Sources de la fiche</summary><ul>${FP_SRC.map(([a,b])=>`<li>${a} : ${b}</li>`).join("")}</ul><p class="note">Données vérifiées le 7 nov. 2026. Une information absente n'a pas pu être confirmée par ces sources. Les formalités changent : vérifie toujours France Diplomatie avant de partir.</p></details>
+  </div>`;
   $("#ov-proj").onclick=()=>openProjectForm(null,iso);
+  const m=$("#fp-more"); if(m) m.onclick=()=>{ $("#fp-u").innerHTML=u.map(uRow).join(""); m.remove(); };
+  $("#sheet-body").querySelectorAll("[data-fp]").forEach(b=>b.onclick=()=>openCountry(b.dataset.fp));
 }
 const aiErr = (e,def) => e&&e.code==="rate_limited" ? "Trop de demandes d'un coup. Réessaie dans une minute." : e&&e.code==="not_granted" ? "L'accès à Claude n'a pas été autorisé pour cette appli." : def;
 const li = a => (Array.isArray(a)?a:[]).map(x=>`<li>${esc(x)}</li>`).join("");
@@ -2222,8 +2240,7 @@ window.addEventListener("hashchange",()=>{ closeSheet(); show(location.hash.slic
 function renderAll(){ renderStats(); renderList(); paintMap(); renderMine(); renderProps(); renderProjects(); if(!$("#v-envies").hidden){ eMode==="cal"?renderCal():renderSugg(); } }
 setVB();
 async function loadFiches(){
-  try{ const r=await fetch("fiches.json",{cache:"no-cache"}); if(r.ok){ const j=await r.json(); for(const k in j) ovCache[k]=j[k]; } }catch(e){}
-  try{ const {data}=await sb.from("voyage_fiches").select("iso,data"); (data||[]).forEach(x=>{ ovCache[x.iso]=x.data; }); }catch(e){}
+  try{ const r=await fetch("fiches-pays.json"); if(r.ok){ const j=await r.json(); FP=j.pays||{}; FP_V=j.v||""; } }catch(e){}
 }
 function useUser(u){
   uid=u.id; LS="carnet-route-v1-"+uid;
