@@ -443,6 +443,57 @@ a.tl-i{text-decoration:none;color:inherit}
 .add.four{grid-template-columns:2fr 1fr 1fr auto}
 @media (max-width:520px){.add.four{grid-template-columns:1fr 1fr}}
 .linkbtn{border:0;background:none;color:var(--accent);font-weight:600;padding:6px 0}
+
+/* ===== Hiérarchie visuelle v2 =====
+   1 titre d'écran (grand) · 2 titres de section · 3 libellés de carte (petites capitales) · 4 texte.
+   Chiffres dans la police du texte (alignés), plus de police machine à écrire. */
+:root{--f-mono:var(--f-body)}
+.mono{font-family:var(--f-body);letter-spacing:0;font-size:.82em;font-weight:600;font-variant-numeric:tabular-nums}
+.money,.pass-side b,.tag{font-variant-numeric:tabular-nums}
+.top{align-items:flex-end;margin:4px 0 18px}
+.top-t{display:grid;gap:0;min-width:0}
+.eyebrow{font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.top h1{font-size:2.1rem;font-weight:800;line-height:1.1;letter-spacing:-.02em}
+.top-r{align-self:center}
+.sec-h{margin:30px 0 12px;align-items:center}
+.sec-h:first-child{margin-top:4px}
+.sec-h h2{font-size:1.15rem;font-weight:700;letter-spacing:-.005em}
+.sec-h h2[style]{font-size:1.05rem!important}
+.blk h3,.pass-label{font-family:var(--f-body);font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.blk>h3{margin-bottom:10px}
+.blk,.card,.list,.pass,.map-card{border-color:transparent;box-shadow:0 1px 2px rgba(19,33,46,.05)}
+.blk+.blk{margin-top:12px}
+.ov-body{gap:12px}
+/* Pays : filtres */
+.controls{gap:10px;margin:22px 0 12px}
+.seg-full{display:grid;grid-template-columns:repeat(4,1fr);width:100%;padding:3px;border-radius:12px;background:var(--surface)}
+.seg-full button{border-radius:9px;padding:8px 4px;font-weight:500}
+.seg-full button[aria-pressed="true"]{background:var(--accent);color:#fff;font-weight:600}
+.chips-sm .chip{padding:5px 11px;font-size:.8rem;color:var(--muted)}
+.chips-sm .chip[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:transparent;font-weight:600}
+.list-count{justify-self:end;margin-top:-4px}
+/* Pays : lignes */
+.c-name b{font-size:.98rem}
+.c-act{gap:2px}
+.st{background:none;border:1px solid var(--line);color:var(--muted);font-size:.74rem;padding:4px 9px;border-radius:999px}
+.c-act .st+.st{margin-left:3px}
+.st.done[aria-pressed="true"],.st.todo[aria-pressed="true"]{font-weight:600}
+.jr{border-radius:999px;padding:6px 11px;font-size:.76rem}
+.ov{display:inline-flex;align-items:center;gap:1px;background:none;color:var(--accent);padding:6px 2px 6px 8px;font-size:.8rem}
+.letter{font-size:.7rem;font-weight:600;font-family:var(--f-body)}
+/* Boutons et pastilles */
+.btn{font-weight:600}
+.tag{font-family:var(--f-body);letter-spacing:0}
+/* Feuilles (fiche, projet, réglages) */
+.sheet-title h2{font-size:1.5rem;font-weight:800;letter-spacing:-.015em}
+.sheet-title .sub{font-size:.85rem}
+.facts span{font-size:.75rem}
+.facts b{font-size:.98rem;font-weight:600}
+.settings .blk{gap:14px}
+.set-field>span{font-weight:600;font-size:.9rem}
+/* Partager l'appli */
+.share-app textarea{min-height:190px;font-size:.88rem;line-height:1.45}
+.share-app .row-ctl{justify-content:flex-start}
 .auth{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));overflow-y:auto}
 .auth-box{width:100%;max-width:380px;display:grid;gap:14px}
 .auth-box h1{font-size:2rem;font-weight:800}
@@ -472,7 +523,7 @@ a.item{color:inherit;text-decoration:none}
 
 <div class="wrap">
   <header class="top">
-    <h1>Carnet de route</h1>
+    <div class="top-t"><span class="eyebrow">Carnet de route</span><h1 id="v-title">Pays</h1></div>
     <span class="top-r"><span class="sync" id="sync">Hors ligne</span><button class="acct" id="acct" aria-label="Mon compte">·</button><button class="acct gear" id="gear" aria-label="Réglages"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></span>
   </header>
 
@@ -508,16 +559,14 @@ a.item{color:inherit;text-decoration:none}
     </div>
     <div class="controls">
       <input class="search" id="q" type="search" placeholder="Rechercher un pays…" autocomplete="off">
-      <div class="chips" id="f-cont" role="group" aria-label="Continent"></div>
-      <div class="row-ctl">
-        <div class="seg" id="f-st" role="group" aria-label="Statut">
-          <button data-v="all" aria-pressed="true">Tous</button>
-          <button data-v="done" aria-pressed="false">Faits</button>
-          <button data-v="todo" aria-pressed="false">À faire</button>
-          <button data-v="journal" aria-pressed="false">Journal</button>
-        </div>
-        <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="muted small" id="count"></span></span>
+      <div class="seg seg-full" id="f-st" role="group" aria-label="Statut">
+        <button data-v="all" aria-pressed="true">Tous</button>
+        <button data-v="done" aria-pressed="false">Faits</button>
+        <button data-v="todo" aria-pressed="false">À faire</button>
+        <button data-v="journal" aria-pressed="false">Journal</button>
       </div>
+      <div class="chips chips-sm" id="f-cont" role="group" aria-label="Continent"></div>
+      <span class="muted small list-count" id="count"></span>
     </div>
     <button class="addc" id="addc" hidden>+ Ajouter un pays</button>
     <div class="list" id="list"></div>
@@ -571,7 +620,7 @@ a.item{color:inherit;text-decoration:none}
 
   <!-- À VENIR -->
   <section id="v-avenir" hidden>
-    <div class="sec-h"><h2>Projets de voyage</h2><button class="btn pri" id="p-new">Nouveau projet</button></div>
+    <div class="sec-h"><h2>Mes projets</h2><button class="btn pri" id="p-new">Nouveau projet</button></div>
     <div class="my" id="p-list"></div>
     <div id="p-past"></div>
   </section>
@@ -956,7 +1005,7 @@ function renderList(){
     if(set.letters&&!q&&(byCont||fSt==="all")&&G!==last){ html+=`<div class="letter">${G}</div>`; last=G; }
     const j=jCount(c.iso);
     const has=!!state.status[c.iso];
-    const row=`<div class="c-row"><button class="c-open" data-ov="${c.iso}" aria-label="Fiche ${esc(c.name)}"><span class="flag" aria-hidden="true">${flag(c.iso)}</span><span class="c-name"><b>${esc(c.name)}</b>${j?`<span>${j} souvenir${j>1?"s":""}</span>`:""}</span></button><div class="c-act">${statusBtns(c.iso,true)}<button class="ov" data-ov="${c.iso}">Fiche</button></div></div>`;
+    const row=`<div class="c-row"><button class="c-open" data-ov="${c.iso}" aria-label="Fiche ${esc(c.name)}"><span class="flag" aria-hidden="true">${flag(c.iso)}</span><span class="c-name"><b>${esc(c.name)}</b>${j?`<span>${j} souvenir${j>1?"s":""}</span>`:""}</span></button><div class="c-act">${statusBtns(c.iso,true)}<button class="ov" data-ov="${c.iso}">Fiche<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div></div>`;
     html+=has?`<div class="sw" data-sw="c:${c.iso}"><div class="sw-act"><button type="button" aria-label="Retirer ${esc(c.name)}">Retirer</button></div><div class="sw-fg">${row}</div></div>`:`<div class="sw">${row}</div>`;
   });
   $("#list").innerHTML=html;
@@ -1014,10 +1063,28 @@ function seg(k,opts){ const v=S()[k]; return `<div class="ptabs" style="grid-tem
 function tog(k,label,sub){ const v=!!S()[k]; return `<label class="set-row"><span><b>${label}</b>${sub?`<span class="small muted">${sub}</span>`:""}</span><button type="button" class="switch" role="switch" aria-checked="${v}" data-tog="${k}" aria-label="${label}"><i></i></button></label>`; }
 function swatches(k,map){ const v=S()[k]; return `<div class="swatches">${Object.entries(map).map(([key,val])=>`<button type="button" class="sw-c" data-set="${k}" data-val="${key}" aria-pressed="${v===key}" aria-label="${val[2]}" title="${val[2]}" style="--c1:${val[0]};--c2:${val[1]}"><i></i><span>${val[2]}</span></button>`).join("")}</div>`; }
 function openSettings(){ openSheet(`<div class="sheet-title"><div><h2>Réglages</h2><span class="sub">Personnalise ton carnet</span></div><button class="close" aria-label="Fermer">✕</button></div>`,"Réglages"); drawSettings(); }
+const APP_URL=()=>"https://carnet-de-route-on-addb.vercel.app/";
+const SHARE_APP_MSG=()=>`Je te partage Carnet de route, l'appli que j'utilise pour mes voyages.
+
+• Une carte du monde pour cocher les pays faits et ceux qui te font envie
+• Une fiche par pays : infos pratiques, sites UNESCO, liens officiels de France Diplomatie
+• Des idées de week-ends de 3 jours et de voyages selon tes envies
+• La préparation d'un voyage : réservations, programme jour par jour, check-list, valise, budget et dépenses partagées entre amis
+• Un journal pour garder tes souvenirs
+
+Elle s'installe sur l'iPhone comme une vraie appli (dans Safari : Partager, puis « Sur l'écran d'accueil ») et marche même sans réseau. Tu crées ton compte avec ton e-mail, tes données restent privées.
+
+${APP_URL()}`;
+const shareAppMsg=()=>S().shareMsg||SHARE_APP_MSG();
 function drawSettings(){
   const body=$("#sheet-body"); if(!body||!document.querySelector('[aria-label="Réglages"]')) return;
   const sc=$("#sheet-root .sheet").scrollTop;
   body.innerHTML=`<div class="ov-body settings">
+    <section class="blk share-app"><h3>Partager l'appli</h3>
+      <p class="small muted" style="margin:0">Envoie le lien à tes proches avec un petit mot qui explique l'appli. Chacun crée son compte : ses pays et ses voyages restent privés.</p>
+      <textarea class="inp" id="sa-msg" aria-label="Message de partage">${esc(shareAppMsg())}</textarea>
+      <div class="row-ctl"><button class="btn pri" id="sa-send">Partager</button><button class="btn" id="sa-copy">Copier</button>${S().shareMsg?`<button class="linkbtn" id="sa-reset">Message d'origine</button>`:""}</div>
+    </section>
     <section class="blk"><h3>Apparence</h3>
       <div class="set-field"><span>Thème</span>${seg("theme",[["auto","Auto"],["light","Clair"],["dark","Sombre"]])}</div>
       <div class="set-field"><span>Couleur principale</span>${swatches("accent",ACCENTS)}</div>
@@ -1057,6 +1124,10 @@ function drawSettings(){
     if(k==="defFilter"){ fSt=v; [...$("#f-st").children].forEach(x=>x.setAttribute("aria-pressed",x.dataset.v===fSt)); renderList(); }
     if(k==="weReg"){ wReg=v; renderProps(); } if(k==="weTr"){ wTr=v; renderProps(); } });
   body.querySelectorAll("[data-tog]").forEach(b=>b.onclick=e=>{ e.preventDefault(); setSetting(b.dataset.tog,!S()[b.dataset.tog]); });
+  const sm=$("#sa-msg"); sm.onchange=()=>{ const v=sm.value.trim(); setSetting("shareMsg",v&&v!==SHARE_APP_MSG()?v:""); };
+  $("#sa-send").onclick=async()=>{ const t=sm.value.trim(); try{ if(navigator.share){ await navigator.share({title:"Carnet de route",text:t}); return; } }catch(e){ if(e&&e.name==="AbortError") return; } try{ await navigator.clipboard.writeText(t); toast("Message copié : colle-le où tu veux"); }catch(e){ sm.select(); } };
+  $("#sa-copy").onclick=async()=>{ try{ await navigator.clipboard.writeText(sm.value.trim()); toast("Message copié"); }catch(e){ sm.select(); document.execCommand&&document.execCommand("copy"); } };
+  const sr=$("#sa-reset"); if(sr) sr.onclick=()=>setSetting("shareMsg","");
   $("#set-reset").onclick=()=>{ state.settings={}; saveState(); applySettings(true); renderAll(); drawSettings(); toast("Réglages remis par défaut"); };
   $("#set-export").onclick=()=>{
     const data={exporte_le:new Date().toISOString(),pays:state.status,weekends:state.weekends,journaux:journals,projets:projects,reglages:state.settings||{}};
@@ -2384,7 +2455,8 @@ function drawDep(p,id,body,sync){
 
 /* ---------- Onglets ---------- */
 const VIEWS=["pays","weekends","envies","avenir"];
-function show(v){
+const V_TITLES={pays:"Pays",weekends:"Week-ends",envies:"Envies",avenir:"À venir"};
+function show(v){ const vt=$("#v-title"); if(vt) vt.textContent=V_TITLES[v]||"Carnet de route";
   if(!VIEWS.includes(v)) v="pays";
   VIEWS.forEach(x=>{ $("#v-"+x).hidden=x!==v; document.querySelector(`[data-tab="${x}"]`).setAttribute("aria-selected",x===v); });
   if(v==="envies") eMode==="cal"?renderCal():renderSugg();
