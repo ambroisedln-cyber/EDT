@@ -1063,7 +1063,7 @@ function seg(k,opts){ const v=S()[k]; return `<div class="ptabs" style="grid-tem
 function tog(k,label,sub){ const v=!!S()[k]; return `<label class="set-row"><span><b>${label}</b>${sub?`<span class="small muted">${sub}</span>`:""}</span><button type="button" class="switch" role="switch" aria-checked="${v}" data-tog="${k}" aria-label="${label}"><i></i></button></label>`; }
 function swatches(k,map){ const v=S()[k]; return `<div class="swatches">${Object.entries(map).map(([key,val])=>`<button type="button" class="sw-c" data-set="${k}" data-val="${key}" aria-pressed="${v===key}" aria-label="${val[2]}" title="${val[2]}" style="--c1:${val[0]};--c2:${val[1]}"><i></i><span>${val[2]}</span></button>`).join("")}</div>`; }
 function openSettings(){ openSheet(`<div class="sheet-title"><div><h2>Réglages</h2><span class="sub">Personnalise ton carnet</span></div><button class="close" aria-label="Fermer">✕</button></div>`,"Réglages"); drawSettings(); }
-const APP_URL=()=>"https://carnet-de-route-on-addb.vercel.app/";
+const APP_URL=()=>{ const h=location.hostname; return (h==="carnet-de-route-snowy.vercel.app"||h==="carnet-de-route-on-addb.vercel.app")?location.origin+"/":"https://carnet-de-route-on-addb.vercel.app/"; };
 const SHARE_APP_MSG=()=>`Je te partage Carnet de route, l'appli que j'utilise pour mes voyages.
 
 • Une carte du monde pour cocher les pays faits et ceux qui te font envie
