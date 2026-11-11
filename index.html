@@ -2569,7 +2569,11 @@ const norm=()=>{S.g=Object.assign({m:[],j:[],a:[],p:[],c:[],k:[],v:[]},S.g||{});
 const pull=async()=>{PULLING=1;try{const{data,error}=await sb.from('user_data').select('data').eq('user_id',UID).maybeSingle();if(error)throw error;
     const r=data&&data.data,rt=(r&&r.ts)||0;
     // Le serveur a changé depuis notre dernière synchro (autre appareil) : on prend sa version
-    const newer=BASE===null?rt>(S.ts||0):rt>BASE;
+    // Garde-fous : un appareil neuf prend toujours la version du compte ; une version du compte presque vide n'écrase jamais des données bien remplies (et on la répare)
+    const rich=x=>{if(!x)return 0;let n=0;try{n+=Object.values(x.days||{}).reduce((a,d)=>a+((d&&d.r||[]).length)+((d&&d.t||[]).length)+(d&&d.n?1:0),0);n+=((x.notes&&x.notes.l)||[]).length;n+=Object.values(x.g||{}).reduce((a,l)=>a+((l||[]).length),0);n+=(x.vac||[]).length+(x.dates||[]).length}catch(e){}return n};
+    const rr=rich(r),lr=rich(S);
+    if(r&&lr>=15&&rr<lr*0.3){PULLING=0;S.ts=Date.now();try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}push();return 1}
+    const newer=BASE===null?(!!r&&(rr>=lr||rt>(S.ts||0))):rt>BASE;
     if(r&&newer&&rt!==(S.ts||0)){S=r;norm();try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}setBase(rt);mig();PULLING=0;render();again=false;return 1}
     if(BASE===null&&rt&&rt===(S.ts||0))setBase(rt);
     PULLING=0;if(S.ts&&(!r||rt<S.ts))push();else if(again){again=false;push()}return 1}catch(e){PULLING=0;if(again){again=false;push()}return 0}};
