@@ -685,7 +685,7 @@ nav{z-index:1000!important;background:color-mix(in srgb,var(--card) 97%,transpar
 .tsave{flex:1;padding:10px;border-radius:10px;background:var(--c,var(--ac));color:#fff;font-size:14.5px;font-weight:600;text-align:center}
 
 /* Appui long pour déplacer */
-.tk[data-rs]>.it{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.tk[data-rs]>.it,.tk[data-rs]>.it *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-user-drag:none}
 .tk.dragging{transform:scale(1.02);box-shadow:0 10px 24px rgba(0,0,0,.18)!important;border-radius:12px;background:var(--card);z-index:20;position:relative}
 /* ===== Notes : nouvelle organisation ===== */
 .nsec{font-size:13px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--mu);margin:16px 6px 6px}
@@ -2616,12 +2616,15 @@ document.addEventListener('click',e=>{const a=e.target.closest('a[href*="google.
 /* Courses : réordonner en glissant la poignée */
 let DRG=null;
 let LP=null;
-document.addEventListener('pointerdown',e=>{const it=e.target.closest('.tk[data-rs]>.it');if(!it||e.target.closest('input,textarea,select'))return;const row=it.parentElement;
-  LP={row,pt:e.pointerType,x:e.clientX,y:e.clientY,cy:e.clientY,t:setTimeout(()=>{if(!LP)return;if(SW){SW=null}DRG={row,y:LP.cy,touch:LP.pt==='touch'};row.classList.add('dragging');try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}LP=null},650)}});
-document.addEventListener('pointermove',e=>{if(!LP)return;LP.cy=e.clientY;if(Math.abs(e.clientX-LP.x)>8||Math.abs(e.clientY-LP.y)>8){clearTimeout(LP.t);LP=null}});
-const lpEnd=()=>{if(LP){clearTimeout(LP.t);LP=null}};document.addEventListener('pointerup',lpEnd);document.addEventListener('pointercancel',lpEnd);
-document.addEventListener('touchmove',e=>{if(!DRG)return;e.preventDefault();if(e.touches[0])dMove(e.touches[0].clientY)},{passive:false});
-document.addEventListener('touchend',()=>drgEnd());document.addEventListener('touchcancel',()=>drgEnd());
+// Appui long pour réordonner. Au doigt : événements tactiles (l'iPhone annule les « pointer » pendant un appui long).
+const lpStart=(row,x,y,touch)=>{LP={row,touch,x,y,cy:y,t:setTimeout(()=>{if(!LP)return;if(SW){SW=null}DRG={row,y:LP.cy,touch};row.classList.add('dragging');try{navigator.vibrate&&navigator.vibrate(12)}catch(_){}try{const s=getSelection();s&&s.removeAllRanges()}catch(_){}LP=null},touch?420:550)}};
+const lpEnd=()=>{if(LP){clearTimeout(LP.t);LP=null}};
+document.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;const it=e.target.closest('.tk[data-rs]>.it');if(!it||e.target.closest('input,textarea,select'))return;lpStart(it.parentElement,e.clientX,e.clientY,false)});
+document.addEventListener('pointermove',e=>{if(!LP||LP.touch)return;LP.cy=e.clientY;if(Math.abs(e.clientX-LP.x)>8||Math.abs(e.clientY-LP.y)>8)lpEnd()});
+document.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')lpEnd()});
+document.addEventListener('touchstart',e=>{if(e.touches.length!==1){lpEnd();return}const it=e.target.closest&&e.target.closest('.tk[data-rs]>.it');if(!it||e.target.closest('input,textarea,select'))return;const t=e.touches[0];lpStart(it.parentElement,t.clientX,t.clientY,true)},{passive:true});
+document.addEventListener('touchmove',e=>{if(LP&&LP.touch&&e.touches[0]){const t=e.touches[0];LP.cy=t.clientY;if(Math.abs(t.clientX-LP.x)>10||Math.abs(t.clientY-LP.y)>10)lpEnd()}if(!DRG)return;e.preventDefault();if(e.touches[0])dMove(e.touches[0].clientY)},{passive:false});
+document.addEventListener('touchend',e=>{lpEnd();if(DRG){e.preventDefault();drgEnd()}},{passive:false});document.addEventListener('touchcancel',()=>{lpEnd();drgEnd()});
 document.addEventListener('contextmenu',e=>{if(e.target.closest('.tk[data-rs]'))e.preventDefault()});
 document.addEventListener('pointermove',e=>{if(!DRG||DRG.touch)return;e.preventDefault();dMove(e.clientY)},{passive:false});
 function dMove(Y){const r=DRG.row,dy=Y-DRG.y;r.style.transform='translateY('+dy+'px)';
