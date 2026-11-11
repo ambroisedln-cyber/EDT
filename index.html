@@ -2563,7 +2563,13 @@ function syncUI(){let b=document.getElementById('syncb');if(!b){b=document.creat
   const off=!navigator.onLine,pend=UID&&BASE!==null&&(S.ts||0)>(BASE||0)&&Date.now()-(S.ts||0)>5000;
   b.classList.toggle('off',off);b.querySelector('span').textContent=off?'Hors ligne · enregistré sur l’appareil':'Synchronisation en attente…';b.classList.toggle('on',!!UID&&(off||pend))}
 window.__syncUI=syncUI;addEventListener('online',()=>{syncUI();if(UID){pull().then(()=>{if((S.ts||0)>(BASE||0))push()})}});addEventListener('offline',syncUI);setInterval(syncUI,4000);
-const push=async()=>{if(!UID)return;if(pushing||PULLING){again=true;return}pushing=1;const ts=S.ts;try{const{error}=await sb.from('user_data').upsert({user_id:UID,data:S,updated_at:new Date().toISOString()});if(!error)setBase(ts)}catch(e){}pushing=null;try{syncUI()}catch(e){}if(again&&!PULLING){again=false;push()}};
+const mergeIn=(L,R)=>{const id=x=>x&&typeof x==='object'?(x.id!=null?'i'+x.id:x.x!=null?'x'+x.x+'|'+(x.h||''):x.n!=null?'n'+x.n+'|'+(x.d||'').slice(5):JSON.stringify(x)):String(x);const mg=(a,b)=>{a=Array.isArray(a)?a:[];if(!Array.isArray(b))return a;const h=new Set(a.map(id));b.forEach(y=>{if(!h.has(id(y))){a.push(y);h.add(id(y))}});return a};
+      L.days=L.days||{};Object.keys(R.days||{}).forEach(k=>{const r=R.days[k]||{},l=L.days[k];if(!l){L.days[k]=r;return}['r','t','w'].forEach(f=>{l[f]=mg(l[f],r[f])});if(!l.n&&r.n)l.n=r.n});
+      L.dates=mg(L.dates,R.dates);L.vac=mg(L.vac,R.vac);if(R.notes){L.notes=L.notes||{f:[],l:[]};L.notes.l=mg(L.notes.l,R.notes.l);L.notes.f=mg(L.notes.f,R.notes.f)}
+      L.g=L.g||{};Object.keys(R.g||{}).forEach(k=>{L.g[k]=mg(L.g[k],R.g[k])});return L};
+const push=async()=>{if(!UID)return;if(pushing||PULLING){again=true;return}pushing=1;
+  try{if(BASE){const{data:q}=await sb.from('user_data').select('data').eq('user_id',UID).maybeSingle();const r=q&&q.data,rt=(r&&r.ts)||0;if(r&&rt>BASE&&rt!==S.ts){mergeIn(S,r);S.ts=Date.now();try{localStorage.setItem(LSK,JSON.stringify(S))}catch(e){}try{render()}catch(e){}}}}catch(e){}
+  const ts=S.ts;try{const{error}=await sb.from('user_data').upsert({user_id:UID,data:S,updated_at:new Date().toISOString()});if(!error)setBase(ts)}catch(e){}pushing=null;try{syncUI()}catch(e){}if(again&&!PULLING){again=false;push()}};
 window.__push=push;
 const norm=()=>{S.g=Object.assign({m:[],j:[],a:[],p:[],c:[],k:[],v:[]},S.g||{});S.vac=S.vac||[];S.dates=S.dates||[];S.days=S.days||{}};
 const pull=async()=>{PULLING=1;try{const{data,error}=await sb.from('user_data').select('data').eq('user_id',UID).maybeSingle();if(error)throw error;
