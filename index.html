@@ -661,6 +661,27 @@ textarea.nedit{display:block;width:100%;min-height:32vh;border:0;border-radius:1
 .nimg img{width:100%;height:100%;object-fit:cover;display:block}
 .nfile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;aspect-ratio:1;border-radius:12px;background:var(--card);box-shadow:var(--sh);color:var(--tx);font-size:12px;padding:8px;text-align:center;text-decoration:none;word-break:break-word}
 .natx{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;background:var(--tx);color:var(--card);display:flex;align-items:center;justify-content:center}
+.nau{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:10px 14px 10px 10px;border-radius:16px;background:var(--card);box-shadow:var(--sh)}
+.vpl{flex:none;width:40px;height:40px;border-radius:50%;background:#ffb800;color:#fff;display:flex;align-items:center;justify-content:center}
+.vpl .i2,.nau.pl .vpl .i1{display:none}.nau.pl .vpl .i2{display:block}
+.vpm{flex:1;min-width:0}.vpn{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vpb{position:relative;height:22px;display:flex;align-items:center;cursor:pointer}.vpb::before{content:"";position:absolute;left:0;right:0;height:4px;border-radius:2px;background:color-mix(in srgb,var(--tx) 14%,transparent)}
+.vpb i{position:relative;display:block;height:4px;border-radius:2px;background:#ffb800;width:0}
+.nau .natx{position:static;flex:none;width:26px;height:26px;background:color-mix(in srgb,var(--tx) 10%,transparent);color:var(--mu)}
+.vpd{flex:none;font-size:13px;color:var(--mu);font-variant-numeric:tabular-nums}
+.naddv{display:flex;align-items:center;justify-content:center;gap:7px;margin:14px auto 0;padding:9px 16px;border-radius:999px;background:color-mix(in srgb,#ffb800 16%,transparent);color:#b07d00;font-size:14.5px;font-weight:600}
+.nfab.nfab2{bottom:calc(152px + env(safe-area-inset-bottom));width:46px;height:46px;right:22px;background:var(--card);color:#ffb800}
+.vrec{position:fixed;inset:0;z-index:2000;display:flex;align-items:flex-end;background:rgba(0,0,0,0);transition:background .2s;pointer-events:none}
+.vrec.on{background:rgba(0,0,0,.35);pointer-events:auto}
+.vrb{width:100%;background:var(--card);border-radius:22px 22px 0 0;padding:18px 20px calc(22px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);text-align:center}
+.vrec.on .vrb{transform:none}
+.vrt{font-size:15px;font-weight:600;color:var(--mu)}
+.vrw{margin:14px 0 4px}.vrw canvas{width:100%;height:48px;color:#ffb800}
+.vrtime{font-size:34px;font-weight:300;font-variant-numeric:tabular-nums;margin-bottom:14px}
+.vrbt{display:flex;align-items:center;justify-content:space-between}
+.vrx,.vrp{width:96px;padding:10px 0;border-radius:999px;font-size:15px;font-weight:500;color:var(--tx);background:color-mix(in srgb,var(--tx) 8%,transparent)}
+.vrs{width:68px;height:68px;border-radius:50%;border:4px solid color-mix(in srgb,var(--tx) 22%,transparent);display:flex;align-items:center;justify-content:center;background:none}
+.vrs span{width:26px;height:26px;border-radius:7px;background:#ff3b30}
 .naddf{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;margin:12px auto 0;width:fit-content;padding:8px 16px;border-radius:999px;background:var(--tint);color:var(--ac);font-size:14.5px;font-weight:500;overflow:hidden}
 .naddf input{position:absolute;inset:0;opacity:0}
 
@@ -1586,6 +1607,51 @@ async function fall(){const db=await IDB();return new Promise((ok,ko)=>{const o=
 async function upFiles(files,msg){const out=[];if(!files.length)return out;
   try{for(const f of files){if(f.size>25e6){msg.textContent='Fichier trop volumineux.';return null}const b=await prep(f),id='f'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);await fput(id,b);out.push({id,n:f.name.slice(0,40),t:b.type||f.type})}}catch(e){msg.textContent='Enregistrement du fichier impossible.';return null}
   return out}
+/* --- Notes vocales --- */
+const micI=w=>'<svg viewBox="0 0 24 24" width="'+w+'" height="'+w+'" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>';
+const fmtDur=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
+const VP={a:null,id:null,u:{}};
+const vpRow=f=>'<div class="nau" data-au="'+esc(f.id)+'"><button class="vpl" data-vp="'+esc(f.id)+'" aria-label="Lire"><svg class="i1" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg><svg class="i2" viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg></button><div class="vpm"><div class="vpn">'+esc(f.n||'Note vocale')+'</div><div class="vpb" data-vps="'+esc(f.id)+'"><i></i></div></div><span class="vpd">'+fmtDur(f.d)+'</span><button class="natx" data-a="natx" data-id="'+esc(f.id)+'" aria-label="Retirer">'+XSVG+'</button></div>';
+const loadNAud=()=>document.querySelectorAll('.nau[data-au]').forEach(async r=>{const id=r.dataset.au;if(VP.u[id])return;try{const b=await fget(id);if(b)VP.u[id]=URL.createObjectURL(b)}catch(e){}});
+function vpUI(){document.querySelectorAll('.nau[data-au]').forEach(r=>{const id=r.dataset.au,a=VP.id===id?VP.a:null;r.classList.toggle('pl',!!(a&&!a.paused));const i=r.querySelector('.vpb i');const du=a&&isFinite(a.duration)&&a.duration>0?a.duration:0;if(i)i.style.width=(a&&du?Math.min(100,a.currentTime/du*100):0)+'%';const d=r.querySelector('.vpd');if(d&&a&&a.currentTime>0)d.textContent=fmtDur(a.currentTime)})}
+function vpPlay(id,url){if(VP.a){VP.a.pause()}const a=new Audio();a.preload='auto';a.src=url;VP.a=a;VP.id=id;['play','pause','timeupdate'].forEach(ev=>a.addEventListener(ev,vpUI));a.addEventListener('ended',()=>{VP.id=null;vpUI();document.querySelectorAll('.nau[data-au="'+id+'"] .vpd').forEach(d=>{const n=NS().l.find(x=>x.id===V.nid),f=n&&(n.a||[]).find(x=>x.id===id);d.textContent=fmtDur(f&&f.d)})});a.play().catch(()=>{});vpUI()}
+document.addEventListener('click',async e=>{const sk=e.target.closest&&e.target.closest('[data-vps]');if(sk){e.preventDefault();e.stopPropagation();const id=sk.dataset.vps,r=sk.getBoundingClientRect(),x=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));
+    if(VP.id!==id){const u=VP.u[id];if(!u)return;vpPlay(id,u)}const a=VP.a;const go=()=>{if(isFinite(a.duration))a.currentTime=x*a.duration;vpUI()};if(isFinite(a.duration)&&a.duration>0)go();else a.addEventListener('loadedmetadata',go,{once:true});return}
+  const b=e.target.closest&&e.target.closest('[data-vp]');if(!b)return;e.preventDefault();e.stopPropagation();const id=b.dataset.vp;
+  if(VP.id===id&&VP.a){if(VP.a.paused)VP.a.play().catch(()=>{});else VP.a.pause();return}
+  let u=VP.u[id];if(u){vpPlay(id,u);return}
+  const bl=await fget(id);if(!bl){alert('Fichier audio introuvable.');return}u=VP.u[id]=URL.createObjectURL(bl);vpPlay(id,u)},true);
+let VR=null;
+const vrElapsed=v=>(v.acc+(v.paused?0:(Date.now()-v.t0)))/1000;
+async function vrStart(nid){if(VR||!nid)return;if(VP.a)VP.a.pause();
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){alert('L’enregistrement audio n’est pas disponible sur cet appareil.');return}
+  let st;try{st=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}catch(e){alert('Le micro est refusé. Autorise-le pour Planning (Réglages de l’iPhone › Safari › Micro, ou Réglages › Planning).');return}
+  const mt=['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus'].find(t=>MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(t))||'';
+  let rec;try{rec=new MediaRecorder(st,mt?{mimeType:mt,audioBitsPerSecond:64000}:undefined)}catch(e){rec=new MediaRecorder(st)}
+  const v=VR={nid,st,rec,ch:[],t0:Date.now(),paused:0,acc:0,cancel:0,lv:[]};rec.ondataavailable=e=>{if(e.data&&e.data.size)v.ch.push(e.data)};
+  let o=document.getElementById('vrec');if(!o){o=document.createElement('div');o.id='vrec';o.className='vrec';document.body.appendChild(o)}
+  o.innerHTML='<div class="vrb"><div class="vrt">Note vocale</div><div class="vrw"><canvas id="vrc" width="600" height="96"></canvas></div><div class="vrtime" id="vrtm">0:00</div><div class="vrbt"><button data-vr="x" class="vrx">Annuler</button><button data-vr="s" class="vrs" aria-label="Terminer et enregistrer"><span></span></button><button data-vr="p" class="vrp">Pause</button></div></div>';
+  requestAnimationFrame(()=>o.classList.add('on'));
+  try{const AC=window.AudioContext||window.webkitAudioContext,ac=new AC(),src=ac.createMediaStreamSource(st),an=ac.createAnalyser();an.fftSize=1024;src.connect(an);v.ac=ac;v.an=an;if(ac.state==='suspended')ac.resume().catch(()=>{})}catch(e){}
+  rec.onstop=async()=>{VR=null;cancelAnimationFrame(v.raf);try{v.st.getTracks().forEach(t=>t.stop())}catch(e){}try{v.ac&&v.ac.close()}catch(e){}
+    const ov=document.getElementById('vrec');if(ov){ov.classList.remove('on');setTimeout(()=>{if(!VR)ov.remove()},260)}
+    const dur=v.fin||vrElapsed(v);if(v.cancel||!v.ch.length||dur<0.7)return;
+    const type=((rec.mimeType||mt||'audio/mp4').split(';')[0])||'audio/mp4',b=new Blob(v.ch,{type});
+    const id='f'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);try{await fput(id,b)}catch(e){alert('Enregistrement de la note vocale impossible.');return}
+    const n=NS().l.find(x=>x.id===v.nid);if(!n)return;const d=new Date();
+    n.a=(n.a||[]).concat([{id,n:'Note vocale · '+pad(d.getHours())+'h'+pad(d.getMinutes()),t:type,d:Math.round(dur)}]);
+    if(!(n.ti||'').trim()&&!(n.t||'').trim())n.ti='Note vocale du '+d.getDate()+(d.getDate()===1?'er':'')+' '+MOIS[d.getMonth()];
+    n.u=Date.now();VP.u[id]=URL.createObjectURL(b);save();render.force=1;try{render()}finally{render.force=0}};
+  rec.start(250);vrTick()}
+function vrTick(){const v=VR;if(!v)return;const el=vrElapsed(v),tm=document.getElementById('vrtm');if(tm)tm.textContent=fmtDur(el);
+  const c=document.getElementById('vrc');if(c){let m=0;if(v.an&&!v.paused){const a=new Uint8Array(v.an.fftSize);v.an.getByteTimeDomainData(a);for(let i=0;i<a.length;i++)m=Math.max(m,Math.abs(a[i]-128))}
+    v.k=(v.k||0)+1;if(v.k%3===0){v.lv.push(m/128);if(v.lv.length>60)v.lv.shift()}
+    const g=c.getContext('2d'),W=c.width,H=c.height,bw=W/60;g.clearRect(0,0,W,H);g.fillStyle='#ffb800';v.lv.forEach((l,i)=>{const h=Math.max(6,Math.min(H,l*H*2.4));const x=W-(v.lv.length-i)*bw;g.beginPath();if(g.roundRect)g.roundRect(x+bw*.22,(H-h)/2,bw*.56,h,3);else g.rect(x+bw*.22,(H-h)/2,bw*.56,h);g.fill()})}
+  if(el>=900){v.fin=el;v.rec.stop();return}v.raf=requestAnimationFrame(vrTick)}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-vr]');if(!b||!VR)return;e.preventDefault();e.stopPropagation();const k=b.dataset.vr,v=VR;
+  if(k==='x'){v.cancel=1;try{v.rec.stop()}catch(er){VR=null}}
+  else if(k==='s'){v.fin=vrElapsed(v);try{if(v.rec.state==='paused')v.rec.resume();v.rec.stop()}catch(er){}}
+  else if(k==='p'){if(v.rec.state==='recording'){v.rec.pause();v.acc+=Date.now()-v.t0;v.paused=1;b.textContent='Reprendre'}else if(v.rec.state==='paused'){v.rec.resume();v.t0=Date.now();v.paused=0;b.textContent='Pause'}}},true);
 document.addEventListener('click',async e=>{const a=e.target.closest('a[data-fid]');if(!a)return;e.preventDefault();e.stopPropagation();
   const w=window.open('','_blank');try{const b=await fget(a.dataset.fid);if(!b){if(w)w.close();alert('Fichier introuvable sur cet appareil.');return}const u=URL.createObjectURL(b);if(w)w.location=u;else location.href=u}catch(er){if(w)w.close()}},true);
 async function addVac(dk,e2,btn){
@@ -1757,13 +1823,14 @@ function vNotes(){const N=NS();
      +'<div class="ndate">'+fd.getDate()+(fd.getDate()===1?'er':'')+' '+MOIS[fd.getMonth()]+' '+fd.getFullYear()+' à '+pad(fd.getHours())+':'+pad(fd.getMinutes())+(fn?' · <b>'+esc(fn)+'</b>':'')+(n.p?' · Épinglée':'')+(n.lk?' · Verrouillée':'')+'</div>'+(n.ev?'<button class="nevl" data-a="nev"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Voir le rendez-vous</button>':'')
      +'<input class="ntitle" data-ntitle="'+n.id+'" placeholder="Titre" value="'+esc(n.ti||'')+'" autocomplete="off" enterkeyhint="next">'
      +'<div class="nedit nrich'+((n.t||'').trim()||(n.h||'').replace(/<[^>]*>/g,'').trim()?'':' nemp')+'" data-rich="'+n.id+'" contenteditable="true" data-ph="Écris ta note…">'+rtHTML(n)+'</div>'
-     +'<div class="natt">'+(n.a||[]).map(f=>'<div class="nat">'+(/^image\//.test(f.t||'')?'<a href="#" data-fid="'+esc(f.id)+'" class="nimg"><img data-nimg="'+esc(f.id)+'" alt=""></a>':'<a href="#" data-fid="'+esc(f.id)+'" class="nfile">'+CLIP+'<span>'+esc(f.n)+'</span></a>')+'<button class="natx" data-a="natx" data-id="'+esc(f.id)+'" aria-label="Retirer">'+XSVG+'</button></div>').join('')+'</div>'
+     +'<div class="natt">'+(n.a||[]).slice().sort((x,y)=>(/^audio\//.test(y.t||'')?1:0)-(/^audio\//.test(x.t||'')?1:0)).map(f=>/^audio\//.test(f.t||'')?vpRow(f):'<div class="nat">'+(/^image\//.test(f.t||'')?'<a href="#" data-fid="'+esc(f.id)+'" class="nimg"><img data-nimg="'+esc(f.id)+'" alt=""></a>':'<a href="#" data-fid="'+esc(f.id)+'" class="nfile">'+CLIP+'<span>'+esc(f.n)+'</span></a>')+'<button class="natx" data-a="natx" data-id="'+esc(f.id)+'" aria-label="Retirer">'+XSVG+'</button></div>').join('')+'</div>'
+     +'<button class="naddv" data-a="nvoice">'+micI(17)+'Enregistrer une note vocale</button>'
      +'<input type="file" id="nfile" hidden data-natt="'+n.id+'" multiple accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt"><div class="sub" id="nmsg" style="text-align:center;margin:4px 0 0"></div>'}
   const q=nz(V.nq||'').trim(),home=V.nf===null||V.nf===undefined,cur=V.nf||'';
   const IX=new Map(N.l.map((n,i)=>[n,i])),inF=(n,k)=>k?n.f===k:!(n.f&&N.f.some(f=>f.k===n.f));
   const FIC=c=>'<span class="nfi" style="--fc:'+c+'"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5h4l2 2h7A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/></svg></span>';
   const row=n=>'<div class="tk nrow" data-ci="'+IX.get(n)+'" data-rs="notes" style="--fc:'+(home&&n.f?nfc(n.f):'transparent')+'"><button hidden class="swdel" data-a="nodel" data-id="'+n.id+'"></button><div class="it"><button class="nopen" data-a="nopen" data-id="'+n.id+'"><b>'+(n.p?'<span class="npin">'+PIN+'</span>':'')+(n.lk?'<span class="nlk">'+NLOCK+'</span>':'')+esc(n.lk&&!n.ti?'Note verrouillée':nTitle(n))+((n.a||[]).length?'<span class="nclip">'+CLIP+'</span>':'')+'</b><small><span class="ndt">'+nDate(n.u)+'</span>'+(n.lk?'Note verrouillée':esc(((n.ti?(n.t||''):(n.t||'').split('\n').slice(1).join(' '))||'').replace(/\s+/g,' ').trim().slice(0,90)||(home&&n.f&&N.f.find(f=>f.k===n.f)?esc(N.f.find(f=>f.k===n.f).n):'Pas de texte')))+'</small></button><span class="nchev">›</span></div></div>';
-  const fab='<button class="nfab" data-a="nnew" aria-label="Nouvelle note"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>';
+  const fab='<button class="nfab nfab2" data-a="nvnew" aria-label="Nouvelle note vocale">'+micI(22)+'</button><button class="nfab" data-a="nnew" aria-label="Nouvelle note"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>';
   if(home){
     let h='<h1 class="hc1">Notes</h1><div class="srch"><input type="search" id="nq" placeholder="Rechercher dans toutes les notes" value="'+esc(V.nq||'')+'" autocomplete="off"></div>';
     if(q){const L=N.l.filter(n=>nHas(n)&&nz((n.ti||'')+' '+(n.lk?'':(n.t||''))).includes(q));return h+'<div class="nsec">Résultats</div><div class="card nlist">'+(L.length?L.map(row).join(''):'<div class="em">Aucune note trouvée</div>')+'</div>'}
@@ -2163,10 +2230,10 @@ function render(){render.n=(render.n||0)+1;{const ae=document.activeElement;if(V
   flushPend();
   try{$('#dls').innerHTML=dataLists()}catch(x){}
   $('#app').innerHTML=(V.tab==='rech'?'<div class="topg"><button class="gback" data-a="tab" data-t="'+(V.ptab||'jour')+'">‹ Retour</button></div>':V.tab==='reg'?(V.rp?'<div class="topg"><button class="gback" data-a="rph">‹ Réglages</button></div>':'<div class="topg"><button class="gback" data-a="tab" data-t="'+(V.ptab||'jour')+'">‹ Retour</button></div>'):(V.tab==='notes'&&V.nid)?'':'<div class="topg"><button class="gear gsr" data-a="tab" data-t="rech" aria-label="Rechercher"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button><button class="gear" data-a="tab" data-t="reg" aria-label="Réglages">'+GEAR+'</button></div>')+({jour:vJour,semaine:vSemaine,mois:vMois,annee:vAnnee,todo:vTodo,suivi:vSuivi,rech:vRech,reg:vReg,notes:vNotes})[V.tab]();
-  try{loadNImgs()}catch(x){}
+  try{loadNImgs()}catch(x){}try{loadNAud()}catch(x){}
   if(V.tab==='rech'){const q=document.getElementById('sq');if(q&&!q.value&&document.activeElement!==q)setTimeout(()=>{try{q.focus()}catch(e){}},50)}
   try{const ed=document.querySelector('.nrich');document.body.classList.remove('rting');const ac=document.getElementById('nacc');if(ac)ac.classList.remove('on');if(ed)rtLinks(ed);if(!V.nid||V.tab!=='notes')nSheetClose(false)}catch(x){}
-  {const fb=document.querySelector('#app .nfab');let fw=$('#fabw');if(!fw){fw=document.createElement('div');fw.id='fabw';document.body.appendChild(fw)}fw.innerHTML='';if(fb)fw.appendChild(fb)}
+  {const fbs=document.querySelectorAll('#app .nfab');let fw=$('#fabw');if(!fw){fw=document.createElement('div');fw.id='fabw';document.body.appendChild(fw)}fw.innerHTML='';fbs.forEach(fb=>fw.appendChild(fb))}
   const ya=document.querySelector('.ypl .on');if(ya&&ya.scrollIntoView)try{ya.scrollIntoView({inline:'center',block:'nearest'})}catch(x){}
   if(V.sc){const id=V.sc;V.sc=0;try{const el=typeof id==='string'?document.querySelector('#'+id):null;if(el&&el.scrollIntoView){el.scrollIntoView({behavior:'smooth',block:'start'});el.classList.add('flash')}else window.scrollTo(0,0)}catch(x){}}
   setTimeout(()=>{if(V.tab==='jour')loadWx()},0);
@@ -2370,7 +2437,9 @@ document.addEventListener('click',e=>{
   else if(a==='ndel1'){const N=NS();N.l=N.l.filter(x=>x.id!==V.nid);V.nid=null}
   else if(a==='nodel'){const N=NS();N.l=N.l.filter(x=>x.id!==b.dataset.id)}
   else if(a==='nfcol'){const f=NS().f.find(x=>x.k===V.nf);if(f)f.c=b.dataset.c}
-  else if(a==='natx'){const n=NS().l.find(x=>x.id===V.nid);if(n){n.a=(n.a||[]).filter(f=>f.id!==b.dataset.id);try{delAsset(b.dataset.id)}catch(e){}n.u=Date.now()}}
+  else if(a==='nvoice'){try{nSheetClose(false)}catch(e){}const ae=document.activeElement;if(ae&&ae.blur)ae.blur();vrStart(V.nid);return}
+  else if(a==='nvnew'){const N=NS(),id='n'+Date.now().toString(36);N.l.unshift({id,f:(V.nf&&V.nf!=='')?V.nf:'',ti:'',t:'',u:Date.now()});V.nid=id;vrStart(id);render();window.scrollTo(0,0);return}
+  else if(a==='natx'){if(VP.id===b.dataset.id&&VP.a){VP.a.pause();VP.id=null}const n=NS().l.find(x=>x.id===V.nid);if(n){n.a=(n.a||[]).filter(f=>f.id!==b.dataset.id);try{delAsset(b.dataset.id)}catch(e){}n.u=Date.now()}}
   else if(a==='nfold'){V.nf=b.dataset.k;V.nfren=0;V.nfm=0;window.scrollTo(0,0)}
   else if(a==='nhome'){V.nf=null;V.nfm=0;V.nfren=0}
   else if(a==='nfmenu'){V.nfm=!V.nfm;V.nfren=0}
@@ -2752,6 +2821,7 @@ function rtMenuHTML(){const N=NS(),n=N.l.find(x=>x.id===V.nid);if(!n)return '';
   +'<button class="nmr" data-a="nlock">'+NLOCK.replace(/width="\d+" height="\d+"/,'width="21" height="21"')+(n.lk?'Retirer le verrou':'Verrouiller (Face ID)')+'</button>'
   +'<label class="nmr">'+NMI('<path d="M3.5 7.5A2.5 2.5 0 0 1 6 5h3.5l2 2H18a2.5 2.5 0 0 1 2.5 2.5v7A2.5 2.5 0 0 1 18 19H6a2.5 2.5 0 0 1-2.5-2.5z"/>')+'Dossier<select data-nmove="'+n.id+'"><option value="">Aucun</option>'+N.f.map(f=>'<option value="'+f.k+'"'+(n.f===f.k?' selected':'')+'>'+esc(f.n)+'</option>').join('')+'</select></label>'
   +'<label class="nmr" for="nfile">'+CLIP.replace('width="16" height="16"','width="21" height="21"')+'Ajouter une photo ou un fichier</label>'
+  +'<button class="nmr" data-a="nvoice">'+micI(21)+'Enregistrer une note vocale</button>'
   +'<button class="nmr" data-a="nshare">'+NMI('<path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>')+'Partager</button>'
   +'<button class="nmr dng" data-a="ndel1">'+NMI('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>')+'Supprimer la note</button>'}
 function nSheet(kind){let sh=document.getElementById('nsh');if(!sh){sh=document.createElement('div');sh.id='nsh';sh.className='nsh';sh.innerHTML='<div class="nshb" data-nsx></div><div class="nshp"></div>';document.body.appendChild(sh)}
@@ -2762,7 +2832,7 @@ function nSheetClose(refocus){const sh=document.getElementById('nsh');if(!sh||!s
 const nSheetOpen=()=>{const sh=document.getElementById('nsh');return sh&&sh.classList.contains('on')?sh.dataset.k:''};
 // Barre d'accessoires (au-dessus du clavier)
 function nAcc(){let b=document.getElementById('nacc');if(b)return b;b=document.createElement('div');b.id='nacc';b.className='nacc';
-  b.innerHTML='<div><button data-acc2="fmt" aria-label="Mise en forme">Aa</button><button data-acc2="ul" data-st="insertUnorderedList" aria-label="Liste">'+RTI(RTLI[0])+'</button><button data-acc2="b" data-st="bold" aria-label="Gras"><b style="font-size:17px">B</b></button><label for="nfile" aria-label="Joindre">'+CLIP.replace('width="16" height="16"','width="19" height="19"')+'</label><button data-acc2="done" aria-label="Fermer le clavier">'+RTI('<path d="M6 9l6 6 6-6"/>')+'</button></div>';document.body.appendChild(b);return b}
+  b.innerHTML='<div><button data-acc2="fmt" aria-label="Mise en forme">Aa</button><button data-acc2="ul" data-st="insertUnorderedList" aria-label="Liste">'+RTI(RTLI[0])+'</button><button data-acc2="b" data-st="bold" aria-label="Gras"><b style="font-size:17px">B</b></button><button data-acc2="mic" aria-label="Note vocale">'+micI(20)+'</button><label for="nfile" aria-label="Joindre">'+CLIP.replace('width="16" height="16"','width="19" height="19"')+'</label><button data-acc2="done" aria-label="Fermer le clavier">'+RTI('<path d="M6 9l6 6 6-6"/>')+'</button></div>';document.body.appendChild(b);return b}
 function nAccPos(){const b=document.getElementById('nacc');if(!b||!b.classList.contains('on'))return;const vv=window.visualViewport;const kb=vv?Math.max(0,innerHeight-vv.height-vv.offsetTop):0;b.style.transform='translate3d(0,'+(-kb)+'px,0)';b.style.paddingBottom=kb>40?'8px':'calc(8px + env(safe-area-inset-bottom))'}
 if(window.visualViewport){const f=()=>{cancelAnimationFrame(nAccPos.r);nAccPos.r=requestAnimationFrame(nAccPos)};visualViewport.addEventListener('resize',f);visualViewport.addEventListener('scroll',f)}
 function rtState(){let blk='';try{blk=(document.queryCommandValue('formatBlock')||'').toUpperCase()}catch(e){}if(blk==='DIV'||blk==='')blk='P';
@@ -2798,7 +2868,7 @@ document.addEventListener('touchend',e=>{if(!NTAP)return;const c=e.changedTouche
 document.addEventListener('click',e=>{
   if(e.target.closest&&e.target.closest('[data-nsx]')){e.preventDefault();e.stopPropagation();nSheetClose(nSheetOpen()==='fmt');return}
   const ac=e.target.closest&&e.target.closest('[data-acc2]');if(ac){e.preventDefault();e.stopPropagation();const k=ac.dataset.acc2,ed=document.querySelector('.nrich');
-    if(k==='done'){if(ed)ed.blur();return}if(k==='fmt'){rtOpenFmt();return}if(k==='ul'){rtCmd('insertUnorderedList');return}if(k==='b'){rtCmd('bold');return}return}
+    if(k==='done'){if(ed)ed.blur();return}if(k==='mic'){if(ed)ed.blur();vrStart(V.nid);return}if(k==='fmt'){rtOpenFmt();return}if(k==='ul'){rtCmd('insertUnorderedList');return}if(k==='b'){rtCmd('bold');return}return}
   const bt=e.target.closest&&e.target.closest('.nshp [data-rt]');if(bt){e.preventDefault();e.stopPropagation();rtCmd(bt.dataset.rt,bt.dataset.v);return}
   const a=e.target.closest&&e.target.closest('[data-a]');if(a){const k=a.dataset.a;
     if(k==='nfmt'){e.preventDefault();e.stopPropagation();rtOpenFmt();return}
