@@ -682,6 +682,11 @@ textarea.nedit{display:block;width:100%;min-height:32vh;border:0;border-radius:1
 .vrx,.vrp{width:96px;padding:10px 0;border-radius:999px;font-size:15px;font-weight:500;color:var(--tx);background:color-mix(in srgb,var(--tx) 8%,transparent)}
 .vrs{width:68px;height:68px;border-radius:50%;border:4px solid color-mix(in srgb,var(--tx) 22%,transparent);display:flex;align-items:center;justify-content:center;background:none}
 .vrs span{width:26px;height:26px;border-radius:7px;background:#ff3b30}
+.bkv{margin-top:16px;padding-top:14px;border-top:.5px solid color-mix(in srgb,var(--tx) 12%,transparent)}
+.bkvb{display:block;margin:0 auto;padding:9px 18px;border-radius:999px;background:var(--tint);color:var(--ac);font-size:14.5px;font-weight:600}
+.bkr{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:.5px solid color-mix(in srgb,var(--tx) 8%,transparent)}
+.bkr:last-child{border-bottom:0}.bkr div{flex:1;min-width:0}.bkr small{display:block;color:var(--mu);font-size:12.5px}
+.bkr button{flex:none;padding:6px 12px;border-radius:999px;background:var(--tint);color:var(--ac);font-size:13.5px;font-weight:600}
 .naddf{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;margin:12px auto 0;width:fit-content;padding:8px 16px;border-radius:999px;background:var(--tint);color:var(--ac);font-size:14.5px;font-weight:500;overflow:hidden}
 .naddf input{position:absolute;inset:0;opacity:0}
 
@@ -1607,6 +1612,20 @@ async function fall(){const db=await IDB();return new Promise((ok,ko)=>{const o=
 async function upFiles(files,msg){const out=[];if(!files.length)return out;
   try{for(const f of files){if(f.size>25e6){msg.textContent='Fichier trop volumineux.';return null}const b=await prep(f),id='f'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);await fput(id,b);out.push({id,n:f.name.slice(0,40),t:b.type||f.type})}}catch(e){msg.textContent='Enregistrement du fichier impossible.';return null}
   return out}
+/* --- Copies automatiques du compte --- */
+const bkRich=d=>{let n=0;try{Object.values(d.days||{}).forEach(x=>{n+=((x&&x.r)||[]).length+((x&&x.t)||[]).length});n+=((d.notes||{}).l||[]).length+(d.dates||[]).length+(d.vac||[]).length;Object.values(d.g||{}).forEach(L=>{if(Array.isArray(L))n+=L.length})}catch(e){}return n};
+async function bkList(){const el=document.getElementById('bkvl');if(el)el.innerHTML='<p class="sub" style="text-align:center">Chargement…</p>';
+  try{if(!window.SB)throw 0;const{data,error}=await SB.from('user_data_backup').select('id,saved_at,reason,data').neq('reason','blocked').order('saved_at',{ascending:false}).limit(80);if(error)throw error;
+    const L=(data||[]);const f=t=>{const d=new Date(t);return d.getDate()+' '+MOIS[d.getMonth()]+' '+d.getFullYear()+' à '+pad(d.getHours())+'h'+pad(d.getMinutes())};
+    V.bkv=L.length?L.map(b=>'<div class="bkr"><div>'+f(b.saved_at)+'<small>'+bkRich(b.data)+' éléments'+(b.reason==='shrink'?' · avant une suppression':'')+'</small></div><button data-bkr="'+b.id+'">Restaurer</button></div>').join(''):'<p class="sub" style="text-align:center">Pas encore de copie : la première sera faite à ta prochaine modification.</p>';
+    V.bkd={};L.forEach(b=>V.bkd[b.id]=b.data)}catch(e){V.bkv='<p class="sub" style="text-align:center">Impossible de charger les copies (connexion ?).</p>'}
+  const el2=document.getElementById('bkvl');if(el2)el2.innerHTML=V.bkv}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-bkv],[data-bkr]');if(!a)return;e.preventDefault();e.stopPropagation();
+  if(a.dataset.bkv){bkList();return}
+  const d=V.bkd&&V.bkd[a.dataset.bkr];if(!d)return;const n=bkRich(d),c=bkRich(S);
+  if(!confirm('Restaurer cette copie ('+n+' éléments) ? Ton planning actuel ('+c+' éléments) sera remplacé, mais il est lui-même gardé en copie.'))return;
+  const ts=Date.now();S=JSON.parse(JSON.stringify(d));S.ts=ts;if(n<c*0.3)S.wipe='1';try{mig()}catch(er){}save();V.bkv=null;render();setTimeout(()=>{if(S.wipe){delete S.wipe;try{localStorage.setItem(LSK,JSON.stringify(S))}catch(er){}}},15000);
+  alert('Copie restaurée ✓')},true);
 /* --- Notes vocales --- */
 const micI=w=>'<svg viewBox="0 0 24 24" width="'+w+'" height="'+w+'" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>';
 const fmtDur=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
@@ -1999,7 +2018,8 @@ function regParts(){const w=(S.cfg&&S.cfg.w)||{};
   SEC('jour');h+='<div class="card"><h2>Onglet Jour</h2><div class="grp">'+[['soon','À venir · 7 prochains jours'],['wx','Météo et soleil'],['saint','Saint du jour']].map(([q,n])=>'<button class="row" data-a="shw" data-k="'+q+'"><span class="rl">'+n+'</span><span class="sw'+(SH(q)?' on':'')+'"></span></button>').join('')+'</div></div>';
   SEC('geo');h+='<div class="card"><h2>Localisation</h2><div class="grp"><button class="row" data-a="geo"><span class="rl">Autoriser la géolocalisation</span><span class="sw'+(S.auto?' on':'')+'"></span></button></div><p class="sub" style="margin:8px 2px 0">Pour la météo et le lever / coucher du soleil là où tu es. L’iPhone te demandera ton accord la première fois.</p><p class="sub" id="gmsg" style="margin:6px 2px 0;color:var(--ac)"></p></div>';
   SEC('lang');h+='<div class="card"><h2>Langue</h2><div class="seg" style="--c:var(--ac);margin:0">'+[['fr','Français'],['en','English']].map(([k,n])=>'<button class="'+((S.lang||'fr')===k?'on':'')+'" data-a="lang" data-s="'+k+'">'+n+'</button>').join('')+'</div></div>';
-  SEC('bak');h+='<div class="card"><h2>Sauvegarde des données</h2><p class="sub" style="margin:0 0 10px">Tes données sont enregistrées dans ton compte. Tu peux aussi en garder une copie dans un fichier.</p><div class="rbt"><button data-bkx="1">Exporter</button><label class="rbtl">Importer<input type="file" data-bki="1" accept=".json,application/json,text/plain"></label></div><div class="bkm sub" style="margin:8px 0 0;text-align:center"></div></div>';
+  SEC('bak');h+='<div class="card"><h2>Sauvegarde des données</h2><p class="sub" style="margin:0 0 10px">Tes données sont enregistrées dans ton compte. Tu peux aussi en garder une copie dans un fichier.</p><div class="rbt"><button data-bkx="1">Exporter</button><label class="rbtl">Importer<input type="file" data-bki="1" accept=".json,application/json,text/plain"></label></div><div class="bkm sub" style="margin:8px 0 0;text-align:center"></div>'
+    +'<div class="bkv"><b>Copies automatiques sur ton compte</b><p class="sub" style="margin:4px 0 8px">Une copie est faite toutes les heures et avant toute grosse suppression. Elles sont gardées 4 mois.</p><div id="bkvl">'+(V.bkv?V.bkv:'<button class="bkvb" data-bkv="1">Voir les copies</button>')+'</div></div></div>';
   SEC('acc');h+='<div class="card"><h2>Compte</h2><div class="grp"><button class="row" data-acc="out"><span class="rl">Se déconnecter</span><span class="rc">›</span></button><button class="row" data-acc="del"><span class="rl" style="color:#ff3b30">Supprimer mon compte</span><span class="rc">›</span></button></div><p class="sub" style="margin:8px 2px 0">La suppression efface définitivement ton compte, ton planning et tes pièces jointes.</p></div>';
   SEC('end');return P}
 
