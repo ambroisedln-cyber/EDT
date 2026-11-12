@@ -2319,7 +2319,7 @@ document.addEventListener('click',e=>{
   else if(a==='vsdel'){const v0=S.vac[+b.dataset.i];if(v0&&V.vst){v0.st.splice(+V.vst.i,1);V.vst=null}}
   else if(a==='vesave'){saveVac(b,+b.dataset.i);return}
   else if(a==='vx'){V.vso=null;const v0=S.vac.splice(i,1)[0];if(v0)vacAssets(v0).forEach(qdel)}
-  else if(a==='adg'){const x=v('#g'+s).trim(),d=v('#gd'),nt=v('#gn').trim(),it={x,f:0};if(d)it.d=d;if(nt)it.nt=nt;const rc=v('#gr');if(rc)it.rc=rc;const ra=remVal('gra',d);if(ra)it.ra=ra;if(s==='c')it.sh=V.cs||'l';if(x){S.g[s].push(it);if(s!=='c')V.tadd=null}}
+  else if(a==='adg'){const x=v('#g'+s).trim(),d=v('#gd'),nt=v('#gn').trim(),it={x,f:0};if(d)it.d=d;if(nt)it.nt=nt;const rc=v('#gr');if(rc)it.rc=rc;const ra=remVal('gra',d);if(ra){it.ra=ra;it.d=ra.slice(0,10)}if(s==='c')it.sh=V.cs||'l';if(x){S.g[s].push(it);if(s!=='c')V.tadd=null}}
   else if(a==='cs')V.cs=s;
   else if(a==='gopt'){const el=$('#gx');if(el)el.hidden=!el.hidden;return}
   else if(a==='gundate'){const it=(S.g[b.dataset.src]||[])[i];if(it)delete it.d}
@@ -2475,7 +2475,7 @@ document.addEventListener('change',e=>{
   if(t.classList&&(t.classList.contains('rmd')||t.classList.contains('rmt')))rmSync(t);
   if(t.dataset.natt){const n=NS().l.find(x=>x.id===t.dataset.natt),fl=[...(t.files||[])],msg=$('#nmsg')||{};if(n&&fl.length){msg.textContent='Envoi…';upFiles(fl,msg).then(df=>{if(!df)return;n.a=(n.a||[]).concat(df);n.u=Date.now();if(!(n.ti||'').trim()&&!(n.t||'').trim())n.ti=df[0].n;save();render()})}return}
   if(t.dataset.nmove){const n=NS().l.find(x=>x.id===t.dataset.nmove);if(n){n.f=t.value;save()}return}
-  {const w=t.closest&&t.closest('.remw[data-gra]');if(w){const[s,i]=w.dataset.gra.split('|'),x=s==='d'?D(key(V.d)).t[+i]:(S.g[s]||[])[+i];if(x){const ra=remVal(w.id,s==='d'?key(V.d):x.d);if(ra)x.ra=ra;else delete x.ra;save()}return}}
+  {const w=t.closest&&t.closest('.remw[data-gra]');if(w){const[s,i]=w.dataset.gra.split('|'),x=s==='d'?D(key(V.d)).t[+i]:(S.g[s]||[])[+i];if(x){const ra=remVal(w.id,s==='d'?key(V.d):x.d);if(ra){x.ra=ra;if(s!=='d'&&/^\d{4}-\d\d-\d\d/.test(ra)&&x.d!==ra.slice(0,10)){x.d=ra.slice(0,10);save();render();return}}else delete x.ra;save()}return}}
   if(t.dataset.rdup!==undefined&&t.value){const[k0,i0]=t.dataset.rdup.split('|'),x=(S.days[k0]&&S.days[k0].r||[])[+i0];if(x&&!(Date.now()-(V.gt0||0)<600&&t.value===k0)){const c=JSON.parse(JSON.stringify(x));delete c.shid;delete c.id;D(t.value).r.push(c);save();render();noteToast('✓ Dupliqué au '+fdate(t.value))}return}
   if(t.dataset.tdup!==undefined&&t.value){const[s0,i0]=t.dataset.tdup.split('|'),x=s0==='d'?D(key(V.d)).t[+i0]:(S.g[s0]||[])[+i0];if(x){const c={x:x.x,f:0};if(x.nt)c.nt=x.nt;if(s0==='d')D(t.value).t.push(c);else{c.d=t.value;S.g[s0].push(c)}save();render();noteToast('✓ Dupliquée au '+fdate(t.value))}return}
   if(t.dataset.tht&&t.value){S.cfg=S.cfg||{w:{}};S.cfg[t.dataset.tht]=t.value;save();render();return}
@@ -2527,6 +2527,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('click',e=>{const q=e.target;if(q&&q.dataset&&(q.dataset.gdate!==undefined||q.dataset.evdate!==undefined||q.dataset.rdate!==undefined)){try{if(q.showPicker)q.showPicker()}catch(x){}}});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type!=='date'){const c=e.target.closest('.add,.ef'),bt=c&&[...c.querySelectorAll('button')].find(q=>q.dataset.a&&q.dataset.a!=='gopt');bt&&bt.click()}});
 function mig(){
+  Object.values(S.g||{}).forEach(L=>(L||[]).forEach(x=>{if(x&&x.ra&&!x.d&&/^\d{4}-\d\d-\d\d/.test(x.ra))x.d=x.ra.slice(0,10)}));
   Object.values(S.days||{}).forEach(d=>(d.r||[]).forEach(x=>{if(typeof x.nt==='string')x.nt=x.nt.replace(/^🧾 /,'')}));
   Object.values(S.days||{}).forEach(d=>(d.r||[]).forEach(x=>{if(x.pr&&String(x.pr).trim()){x.nt=(x.nt?x.nt+'\n':'')+'À prévoir : '+x.pr}delete x.pr}));
   S.g=Object.assign({m:[],j:[],a:[],p:[],c:[],k:[],v:[]},S.g||{});S.gn=S.gn||{};S.cg=S.cg||{};
