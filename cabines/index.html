@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cabine +1</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Cabine +1">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#ffffff; --ink:#000000; --mute:#8a8a8a; --line:#e6e6e6; --soft:#f5f5f5; --red:#d4351c; }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  html,body{background:var(--bg);color:var(--ink);font-family:Inter,"Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;padding:calc(env(safe-area-inset-top) + 28px) 20px calc(env(safe-area-inset-bottom) + 28px)}
+  .wrap{max-width:820px;margin:0 auto}
+  header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px}
+  h1{font-size:30px;font-weight:600;letter-spacing:-0.03em;line-height:1}
+  .sync{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);margin-top:10px}
+  .sync i{width:7px;height:7px;border-radius:50%;background:var(--line);display:inline-block}
+  .sync.live{color:var(--ink)} .sync.live i{background:#000;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .total{text-align:right}
+  .total b{display:block;font-size:30px;font-weight:600;letter-spacing:-0.03em;line-height:1}
+  .total span{font-size:13px;color:var(--mute)}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:420px){.grid{gap:10px}}
+  .cab{border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;min-height:260px;transition:border-color .2s}
+  .cab.busy{border-color:var(--ink)}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:6px}
+  .name{font-size:15px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap}
+  .pmr{display:inline-block;margin-left:6px;padding:2px 7px;border:1px solid var(--ink);border-radius:999px;font-size:10px;font-weight:600;letter-spacing:.04em;vertical-align:2px}
+  .state{font-size:12px;color:var(--mute);display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--line)}
+  .busy .dot{background:var(--ink)} .busy .state{color:var(--ink)}
+  .count{font-size:84px;font-weight:600;letter-spacing:-0.06em;line-height:1;margin:auto 0 4px;font-variant-numeric:tabular-nums}
+  .label{font-size:13px;color:var(--mute);margin-bottom:16px}
+  .ctrl{display:flex;gap:8px}
+  .btn{flex:1;height:52px;border-radius:999px;border:1px solid var(--line);background:var(--bg);font:inherit;font-size:24px;font-weight:500;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .08s}
+  .btn:active{transform:scale(.96)}
+  .btn.plus{background:var(--ink);border-color:var(--ink);color:#fff}
+  .btn:disabled{opacity:.3;cursor:default}
+  .free{margin-top:8px;height:42px;border-radius:999px;border:none;background:var(--soft);font:inherit;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer}
+  .free:disabled{color:var(--mute);cursor:default}
+
+  .veil{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:flex-end;justify-content:center;z-index:10}
+  .veil.on{display:flex}
+  .sheet{background:#fff;width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:28px 22px calc(env(safe-area-inset-bottom) + 22px);animation:up .22s ease-out}
+  @media (min-width:600px){.veil{align-items:center}.sheet{border-radius:24px}}
+  @keyframes up{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+  .sheet h2{font-size:22px;font-weight:600;letter-spacing:-0.02em}
+  .sheet p{color:var(--mute);font-size:14px;margin:8px 0 22px;line-height:1.45}
+  .sheet .big{font-size:56px;font-weight:600;letter-spacing:-0.05em;line-height:1;color:var(--ink);margin:4px 0 20px}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .pill{height:54px;border-radius:999px;font:inherit;font-size:16px;font-weight:500;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink)}
+  .pill.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+  .pill.ghost{border:none;color:var(--mute);height:44px}
+  .pill:disabled{opacity:.5}
+  footer{margin-top:26px;font-size:12px;color:var(--mute);text-align:center;line-height:1.7}
+  footer button{background:none;border:none;font:inherit;color:var(--ink);text-decoration:underline;cursor:pointer}
+
+  /* Connexion */
+  .auth{max-width:380px;margin:12vh auto 0}
+  .auth h1{margin-bottom:10px}
+  .auth .lead{color:var(--mute);font-size:14px;margin-bottom:28px;line-height:1.45}
+  .field{width:100%;height:54px;border:1px solid var(--line);border-radius:16px;padding:0 18px;font:inherit;font-size:16px;margin-bottom:10px;background:#fff;color:var(--ink);outline:none}
+  .field:focus{border-color:var(--ink)}
+  .msg{font-size:13px;min-height:20px;margin:6px 2px 12px;color:var(--mute);line-height:1.4}
+  .msg.err{color:var(--red)}
+  .switch{display:flex;justify-content:center;gap:18px;margin-top:14px}
+  .switch button{background:none;border:none;font:inherit;font-size:13px;color:var(--mute);cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- Connexion -->
+<div class="auth" id="auth" hidden>
+  <h1>Cabine +1</h1>
+  <p class="lead" id="aLead">Connecte-toi avec ton adresse mail.</p>
+  <form id="aForm" autocomplete="on">
+    <input class="field" id="aEmail" type="email" placeholder="Adresse mail" autocomplete="email" required>
+    <input class="field" id="aPass" type="password" placeholder="Mot de passe" autocomplete="current-password" minlength="6" required>
+    <div class="msg" id="aMsg"></div>
+    <button class="pill dark" style="width:100%" id="aGo" type="submit">Se connecter</button>
+  </form>
+  <div class="switch" id="aSwitch"></div>
+</div>
+
+<!-- Application -->
+<div class="wrap" id="app" hidden>
+  <header>
+    <div>
+      <h1>Cabine +1</h1>
+      <div class="sync" id="sync"><i></i><span id="syncTxt">Connexion…</span></div>
+    </div>
+    <div class="total"><b id="total">0</b><span>articles en cabine</span></div>
+  </header>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>
+    Comptez les articles avant de donner l'accès · Vérifiez au retour<br>
+    <span id="who"></span> · <button id="logout">Se déconnecter</button>
+  </footer>
+</div>
+
+<div class="veil" id="veil">
+  <div class="sheet">
+    <h2 id="sTitle">Cabine 1</h2>
+    <p>Articles donnés. Le client a-t-il tout rendu ?</p>
+    <div class="big" id="sCount">0</div>
+    <div class="stack">
+      <button class="pill dark" id="sOk">Tout est rendu · Libérer</button>
+      <button class="pill ghost" id="sCancel">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script src="supabase.js"></script>
+<script>
+  const SB_URL = "https://ozdvmpftfpausbrroeki.supabase.co";
+  const SB_KEY = "sb_publishable_fhSFbxBzc5b3ay0xyWYQOg_omvCSwhL";
+  const sb = supabase.createClient(SB_URL, SB_KEY, {auth:{storageKey:"cabines-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const $ = id => document.getElementById(id);
+  const N = 4;
+  let state = Array.from({length:N}, () => ({n:0, since:null}));
+  let channel = null, started = false;
+  const busyCab = new Set();
+
+  /* ---------- Connexion ---------- */
+  let aMode = "login";
+  const MODES = {
+    login:  {lead:"Connecte-toi avec ton adresse mail.", go:"Se connecter", pass:true,
+             links:[["signup","Créer un compte"],["reset","Mot de passe oublié"]]},
+    signup: {lead:"Crée ton compte avec ton adresse mail et un mot de passe (6 caractères minimum).", go:"Créer mon compte", pass:true,
+             links:[["login","J'ai déjà un compte"]]},
+    reset:  {lead:"Entre ton adresse mail : tu recevras un lien pour choisir un nouveau mot de passe.", go:"Envoyer le lien", pass:false,
+             links:[["login","Retour"]]},
+    newpass:{lead:"Choisis ton nouveau mot de passe.", go:"Enregistrer", pass:true, noEmail:true, links:[]}
+  };
+  function authUI(mode){
+    aMode = mode; const m = MODES[mode];
+    $("auth").hidden = false; $("app").hidden = true;
+    $("aLead").textContent = m.lead; $("aGo").textContent = m.go;
+    $("aEmail").hidden = !!m.noEmail; $("aEmail").required = !m.noEmail;
+    $("aPass").hidden = !m.pass; $("aPass").required = m.pass;
+    $("aPass").autocomplete = mode === "login" ? "current-password" : "new-password";
+    $("aMsg").textContent = ""; $("aMsg").className = "msg";
+    $("aSwitch").innerHTML = m.links.map(([k,t]) => `<button type="button" data-m="${k}">${t}</button>`).join("");
+  }
+  $("aSwitch").addEventListener("click", e => { const b = e.target.closest("button"); if(b) authUI(b.dataset.m); });
+  $("aForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const email = $("aEmail").value.trim().toLowerCase(), pass = $("aPass").value;
+    const msg = $("aMsg"); msg.className = "msg"; msg.textContent = "…"; $("aGo").disabled = true;
+    const back = location.origin + location.pathname;
+    try{
+      if(aMode === "login"){
+        const {error} = await sb.auth.signInWithPassword({email, password:pass}); if(error) throw error;
+        msg.textContent = "";
+      } else if(aMode === "signup"){
+        const {data, error} = await sb.auth.signUp({email, password:pass, options:{emailRedirectTo:back}}); if(error) throw error;
+        if(!data.session){ authUI("login"); $("aEmail").value = email; $("aMsg").textContent = "Compte créé. Confirme ton adresse avec le lien reçu par mail, puis connecte-toi ici."; }
+      } else if(aMode === "reset"){
+        const {error} = await sb.auth.resetPasswordForEmail(email, {redirectTo:back}); if(error) throw error;
+        msg.textContent = "Lien envoyé. Regarde ta boîte mail.";
+      } else if(aMode === "newpass"){
+        const {error} = await sb.auth.updateUser({password:pass}); if(error) throw error;
+        start();
+      }
+    }catch(err){
+      msg.className = "msg err";
+      const t = (err && err.message || "").toLowerCase();
+      msg.textContent = t.includes("invalid login") ? "Adresse mail ou mot de passe incorrect."
+        : t.includes("not confirmed") ? "Adresse pas encore confirmée : clique sur le lien reçu par mail."
+        : t.includes("already registered") ? "Un compte existe déjà avec cette adresse. Connecte-toi."
+        : t.includes("password") ? "Mot de passe trop court (6 caractères minimum)."
+        : "Ça n'a pas marché. Vérifie ta connexion et réessaie.";
+    }
+    $("aGo").disabled = false;
+  });
+
+  sb.auth.onAuthStateChange((ev, session) => {
+    if(ev === "PASSWORD_RECOVERY"){ authUI("newpass"); return; }
+    if(session && aMode !== "newpass") start(session);
+    if(ev === "SIGNED_OUT"){ stop(); authUI("login"); }
+  });
+  sb.auth.getSession().then(({data}) => { if(data.session) start(data.session); else if(aMode !== "newpass") authUI("login"); });
+
+  $("logout").onclick = () => sb.auth.signOut();
+
+  /* ---------- Cabines ---------- */
+  const grid = $("grid");
+  function setSync(mode){
+    $("sync").classList.toggle("live", mode === "live");
+    $("syncTxt").textContent = {live:"En direct", wait:"Connexion…", off:"Hors ligne — reconnexion…"}[mode];
+  }
+  function ago(t){
+    if(!t) return "";
+    const m = Math.floor((Date.now() - new Date(t).getTime())/60000);
+    return m < 1 ? "à l'instant" : m + " min";
+  }
+  function render(){
+    grid.innerHTML = "";
+    let total = 0;
+    state.forEach((c,i) => {
+      total += c.n;
+      const busy = c.n > 0;
+      const el = document.createElement("div");
+      el.className = "cab" + (busy ? " busy" : "");
+      el.innerHTML = `
+        <div class="top">
+          <div class="name">Cabine ${i+1}${i===3?' <span class="pmr">PMR</span>':''}</div>
+          <div class="state"><span class="dot"></span>${busy ? ago(c.since) : "Libre"}</div>
+        </div>
+        <div class="count">${c.n}</div>
+        <div class="label">${c.n === 1 ? "article" : "articles"}</div>
+        <div class="ctrl">
+          <button class="btn" data-a="-" data-i="${i}" ${busy?"":"disabled"} aria-label="Retirer un article">−</button>
+          <button class="btn plus" data-a="+" data-i="${i}" aria-label="Ajouter un article">+</button>
+        </div>
+        <button class="free" data-a="free" data-i="${i}" ${busy?"":"disabled"}>Libérer</button>`;
+      grid.appendChild(el);
+    });
+    $("total").textContent = total;
+  }
+  function apply(row){
+    if(!row || !(row.id >= 1 && row.id <= N)) return;
+    state[row.id-1] = {n: Math.max(0, row.n|0), since: row.since};
+  }
+  async function load(){
+    const {data, error} = await sb.from("cabines").select("id,n,since").order("id");
+    if(error){ setSync("off"); return; }
+    data.forEach(apply); render();
+  }
+  async function act(fn, args, i){
+    const prev = {...state[i]};
+    const {data, error} = await sb.rpc(fn, args);
+    if(error){ state[i] = prev; render(); setSync("off"); load(); return; }
+    apply(Array.isArray(data) ? data[0] : data); render();
+  }
+
+  grid.addEventListener("click", e => {
+    const b = e.target.closest("button"); if(!b || b.disabled) return;
+    const i = +b.dataset.i, c = state[i];
+    if(b.dataset.a === "free"){
+      target = i; $("sTitle").textContent = "Cabine " + (i+1); $("sCount").textContent = c.n;
+      $("veil").classList.add("on"); return;
+    }
+    const d = b.dataset.a === "+" ? 1 : -1;
+    // affichage immédiat, la base fait le calcul exact
+    c.n = Math.max(0, c.n + d); if(d === 1 && c.n === 1) c.since = new Date().toISOString(); if(c.n === 0) c.since = null;
+    render();
+    act("cabine_step", {p_id:i+1, p_delta:d}, i);
+  });
+
+  let target = null;
+  $("sOk").onclick = () => {
+    if(target !== null){ const i = target; state[i] = {n:0, since:null}; render(); act("cabine_liberer", {p_id:i+1}, i); }
+    target = null; $("veil").classList.remove("on");
+  };
+  $("sCancel").onclick = () => { target = null; $("veil").classList.remove("on"); };
+  $("veil").addEventListener("click", e => { if(e.target === $("veil")) $("sCancel").click(); });
+
+  function start(session){
+    $("auth").hidden = true; $("app").hidden = false;
+    if(session) $("who").textContent = session.user.email;
+    if(started) return; started = true;
+    render(); setSync("wait"); load();
+    channel = sb.channel("cabines-live")
+      .on("postgres_changes", {event:"*", schema:"public", table:"cabines"}, p => { apply(p.new); render(); })
+      .subscribe(s => { if(s === "SUBSCRIBED"){ setSync("live"); load(); } else if(s === "CHANNEL_ERROR" || s === "TIMED_OUT" || s === "CLOSED") setSync("off"); });
+  }
+  function stop(){
+    started = false;
+    if(channel){ sb.removeChannel(channel); channel = null; }
+  }
+  // Retour sur l'appli (iPhone en veille, onglet caché) : on recharge l'état
+  document.addEventListener("visibilitychange", () => { if(!document.hidden && started) load(); });
+  setInterval(() => { if(started) render(); }, 30000);
+</script>
+</body>
+</html>
