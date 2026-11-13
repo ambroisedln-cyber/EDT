@@ -131,6 +131,7 @@
   const sb = supabase.createClient(SB_URL, SB_KEY, {auth:{storageKey:"cabines-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   const $ = id => document.getElementById(id);
   const N = 4;
+  const DOMAIN = "@on-running.com";
   let state = Array.from({length:N}, () => ({n:0, since:null}));
   let channel = null, started = false;
   const busyCab = new Set();
@@ -140,7 +141,7 @@
   const MODES = {
     login:  {lead:"Connecte-toi avec ton adresse mail.", go:"Se connecter", pass:true,
              links:[["signup","Créer un compte"],["reset","Mot de passe oublié"]]},
-    signup: {lead:"Crée ton compte avec ton adresse mail et un mot de passe (6 caractères minimum).", go:"Créer mon compte", pass:true,
+    signup: {lead:"Crée ton compte avec ton adresse @on-running.com et un mot de passe (6 caractères minimum).", go:"Créer mon compte", pass:true,
              links:[["login","J'ai déjà un compte"]]},
     reset:  {lead:"Entre ton adresse mail : tu recevras un lien pour choisir un nouveau mot de passe.", go:"Envoyer le lien", pass:false,
              links:[["login","Retour"]]},
@@ -167,6 +168,7 @@
         const {error} = await sb.auth.signInWithPassword({email, password:pass}); if(error) throw error;
         msg.textContent = "";
       } else if(aMode === "signup"){
+        if(!email.endsWith(DOMAIN)){ msg.className = "msg err"; msg.textContent = "Utilise ton adresse " + DOMAIN + "."; $("aGo").disabled = false; return; }
         const {data, error} = await sb.auth.signUp({email, password:pass, options:{emailRedirectTo:back}}); if(error) throw error;
         if(!data.session){ authUI("login"); $("aEmail").value = email; $("aMsg").textContent = "Compte créé. Confirme ton adresse avec le lien reçu par mail, puis connecte-toi ici."; }
       } else if(aMode === "reset"){
@@ -239,6 +241,7 @@
   async function load(){
     const {data, error} = await sb.from("cabines").select("id,n,since").order("id");
     if(error){ setSync("off"); return; }
+    if(!data.length){ refuse(); return; }
     data.forEach(apply); render();
   }
   async function act(fn, args, i){
@@ -278,6 +281,12 @@
     channel = sb.channel("cabines-live")
       .on("postgres_changes", {event:"*", schema:"public", table:"cabines"}, p => { apply(p.new); render(); })
       .subscribe(s => { if(s === "SUBSCRIBED"){ setSync("live"); load(); } else if(s === "CHANNEL_ERROR" || s === "TIMED_OUT" || s === "CLOSED") setSync("off"); });
+  }
+  async function refuse(){
+    await sb.auth.signOut();
+    authUI("login");
+    $("aMsg").className = "msg err";
+    $("aMsg").textContent = "Accès réservé aux adresses " + DOMAIN + ".";
   }
   function stop(){
     started = false;
