@@ -27,6 +27,16 @@
   .sync i{width:7px;height:7px;border-radius:50%;background:var(--line);display:inline-block}
   .sync.live{color:var(--ink)} .sync.live i{background:#000;animation:pulse 2s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .online{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:5px 11px 5px 9px;border:1px solid var(--line);border-radius:999px;background:#fff;font:inherit;font-size:12px;font-weight:500;color:var(--ink);cursor:pointer}
+  .faces{display:flex}
+  .faces span{width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;border:2px solid #fff;margin-left:-6px}
+  .faces span:first-child{margin-left:0}
+  .people{list-style:none;margin:6px 0 18px;max-height:50vh;overflow:auto}
+  .people li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .people li:last-child{border-bottom:none}
+  .people .av{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .people small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+  .people .me{margin-left:auto;font-size:11px;color:var(--mute)}
   .total{text-align:right}
   .total b{display:block;font-size:30px;font-weight:600;letter-spacing:-0.03em;line-height:1}
   .total span{font-size:13px;color:var(--mute)}
@@ -100,6 +110,7 @@
     <div>
       <h1>Cabine +1</h1>
       <div class="sync" id="sync"><i></i><span id="syncTxt">Connexion…</span></div>
+      <button class="online" id="online" hidden><span class="faces" id="faces"></span><span id="onlineTxt"></span></button>
     </div>
     <div class="total"><b id="total">0</b><span>articles en cabine</span></div>
   </header>
@@ -121,6 +132,15 @@
       <button class="pill dark" id="sOk">Tout est rendu · Libérer</button>
       <button class="pill ghost" id="sCancel">Annuler</button>
     </div>
+  </div>
+</div>
+
+<div class="veil" id="pVeil">
+  <div class="sheet">
+    <h2>Connectés</h2>
+    <p id="pSub">En ce moment sur Cabine +1</p>
+    <ul class="people" id="pList"></ul>
+    <button class="pill" style="width:100%" id="pClose">Fermer</button>
   </div>
 </div>
 
@@ -273,6 +293,38 @@
   $("sCancel").onclick = () => { target = null; $("veil").classList.remove("on"); };
   $("veil").addEventListener("click", e => { if(e.target === $("veil")) $("sCancel").click(); });
 
+  /* ---------- Qui est connecté ---------- */
+  let pres = null, online = [], myEmail = "";
+  function niceName(email){
+    const local = (email || "").split("@")[0];
+    return local.split(/[._-]+/).filter(Boolean).map(w => w[0].toUpperCase() + w.slice(1)).join(" ") || email;
+  }
+  function initials(email){
+    const parts = niceName(email).split(" ");
+    return ((parts[0]||"")[0] || "" ) + ((parts[1]||"")[0] || "");
+  }
+  const esc = t => String(t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  function renderOnline(){
+    const n = online.length;
+    $("online").hidden = n === 0;
+    $("faces").innerHTML = online.slice(0,3).map(e => `<span>${esc(initials(e))}</span>`).join("");
+    $("onlineTxt").textContent = n + (n > 1 ? " connectés" : " connecté");
+    $("pSub").textContent = n + (n > 1 ? " personnes" : " personne") + " en ce moment sur Cabine +1";
+    $("pList").innerHTML = online.map(e => `<li><span class="av">${esc(initials(e))}</span><div>${esc(niceName(e))}<small>${esc(e)}</small></div>${e === myEmail ? '<span class="me">toi</span>' : ""}</li>`).join("");
+  }
+  async function startPresence(session){
+    myEmail = (session.user.email || "").toLowerCase();
+    try { sb.realtime.setAuth(session.access_token); } catch(e){}
+    pres = sb.channel("cabines-presence", {config:{private:true, presence:{key:myEmail}}});
+    pres.on("presence", {event:"sync"}, () => {
+      online = Object.keys(pres.presenceState()).sort((a,b) => a === myEmail ? -1 : b === myEmail ? 1 : a.localeCompare(b));
+      renderOnline();
+    }).subscribe(async s => { if(s === "SUBSCRIBED") await pres.track({depuis: new Date().toISOString()}); });
+  }
+  $("online").onclick = () => $("pVeil").classList.add("on");
+  $("pClose").onclick = () => $("pVeil").classList.remove("on");
+  $("pVeil").addEventListener("click", e => { if(e.target === $("pVeil")) $("pVeil").classList.remove("on"); });
+
   function start(session){
     $("auth").hidden = true; $("app").hidden = false;
     if(session) $("who").textContent = session.user.email;
@@ -281,6 +333,8 @@
     channel = sb.channel("cabines-live")
       .on("postgres_changes", {event:"*", schema:"public", table:"cabines"}, p => { apply(p.new); render(); })
       .subscribe(s => { if(s === "SUBSCRIBED"){ setSync("live"); load(); } else if(s === "CHANNEL_ERROR" || s === "TIMED_OUT" || s === "CLOSED") setSync("off"); });
+    if(session) startPresence(session);
+    else sb.auth.getSession().then(({data}) => { if(data.session) startPresence(data.session); });
   }
   async function refuse(){
     await sb.auth.signOut();
@@ -291,6 +345,8 @@
   function stop(){
     started = false;
     if(channel){ sb.removeChannel(channel); channel = null; }
+    if(pres){ sb.removeChannel(pres); pres = null; }
+    online = []; renderOnline();
   }
   // Retour sur l'appli (iPhone en veille, onglet caché) : on recharge l'état
   document.addEventListener("visibilitychange", () => { if(!document.hidden && started) load(); });
