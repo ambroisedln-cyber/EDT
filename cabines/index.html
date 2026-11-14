@@ -78,35 +78,13 @@
   footer{margin-top:26px;font-size:12px;color:var(--mute);text-align:center;line-height:1.7}
   footer button{background:none;border:none;font:inherit;color:var(--ink);text-decoration:underline;cursor:pointer}
 
-  /* Connexion */
-  .auth{max-width:380px;margin:12vh auto 0}
-  .auth h1{margin-bottom:10px}
-  .auth .lead{color:var(--mute);font-size:14px;margin-bottom:28px;line-height:1.45}
-  .field{width:100%;height:54px;border:1px solid var(--line);border-radius:16px;padding:0 18px;font:inherit;font-size:16px;margin-bottom:10px;background:#fff;color:var(--ink);outline:none}
+  .field{width:100%;height:54px;border:1px solid var(--line);border-radius:16px;padding:0 18px;font:inherit;font-size:16px;margin-bottom:12px;background:#fff;color:var(--ink);outline:none}
   .field:focus{border-color:var(--ink)}
-  .msg{font-size:13px;min-height:20px;margin:6px 2px 12px;color:var(--mute);line-height:1.4}
-  .msg.err{color:var(--red)}
-  .switch{display:flex;justify-content:center;gap:18px;margin-top:14px}
-  .switch button{background:none;border:none;font:inherit;font-size:13px;color:var(--mute);cursor:pointer;text-decoration:underline}
 </style>
 </head>
 <body>
 
-<!-- Connexion -->
-<div class="auth" id="auth" hidden>
-  <h1>Cabine +1</h1>
-  <p class="lead" id="aLead">Connecte-toi avec ton adresse mail.</p>
-  <form id="aForm" autocomplete="on">
-    <input class="field" id="aEmail" type="email" placeholder="Adresse mail" autocomplete="email" required>
-    <input class="field" id="aPass" type="password" placeholder="Mot de passe" autocomplete="current-password" minlength="6" required>
-    <div class="msg" id="aMsg"></div>
-    <button class="pill dark" style="width:100%" id="aGo" type="submit">Se connecter</button>
-  </form>
-  <div class="switch" id="aSwitch"></div>
-</div>
-
-<!-- Application -->
-<div class="wrap" id="app" hidden>
+<div class="wrap">
   <header>
     <div>
       <h1>Cabine +1</h1>
@@ -120,7 +98,7 @@
 
   <footer>
     Comptez les articles avant de donner l'accès · Vérifiez au retour<br>
-    <span id="who"></span> · <button id="logout">Se déconnecter</button>
+    <span id="who"></span> · <button id="rename">Changer de prénom</button>
   </footer>
 </div>
 
@@ -145,80 +123,34 @@
   </div>
 </div>
 
+<div class="veil" id="nVeil">
+  <div class="sheet">
+    <h2>Ton prénom</h2>
+    <p>Pour que l'équipe voie qui est connecté.</p>
+    <form id="nForm">
+      <input class="field" id="nInput" maxlength="24" placeholder="Prénom" autocomplete="given-name" required>
+      <button class="pill dark" style="width:100%" type="submit">C'est parti</button>
+    </form>
+  </div>
+</div>
+
 <script src="supabase.js"></script>
 <script>
   const SB_URL = "https://ozdvmpftfpausbrroeki.supabase.co";
   const SB_KEY = "sb_publishable_fhSFbxBzc5b3ay0xyWYQOg_omvCSwhL";
-  const sb = supabase.createClient(SB_URL, SB_KEY, {auth:{storageKey:"cabines-auth",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const sb = supabase.createClient(SB_URL, SB_KEY, {auth:{persistSession:false, autoRefreshToken:false, detectSessionInUrl:false}});
   const $ = id => document.getElementById(id);
   const N = 4;
-  const DOMAIN = "@on-running.com";
+  const ICON = '<svg class="pmr" viewBox="0 0 24 24" aria-label="Cabine accessible PMR" role="img" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="1.8" fill="currentColor" stroke="none"/><path d="M11 7.5v5.5h5l2.5 5.5"/><path d="M11 10.2h4"/><path d="M8.2 11.3a5.6 5.6 0 1 0 7.6 6.2"/></svg>';
   let state = Array.from({length:N}, () => ({n:0, since:null}));
-  let channel = null, started = false;
-  const busyCab = new Set();
 
-  /* ---------- Connexion ---------- */
-  let aMode = "login";
-  const MODES = {
-    login:  {lead:"Connecte-toi avec ton adresse mail.", go:"Se connecter", pass:true,
-             links:[["signup","Créer un compte"],["reset","Mot de passe oublié"]]},
-    signup: {lead:"Crée ton compte avec ton adresse @on-running.com et un mot de passe (6 caractères minimum).", go:"Créer mon compte", pass:true,
-             links:[["login","J'ai déjà un compte"]]},
-    reset:  {lead:"Entre ton adresse mail : tu recevras un lien pour choisir un nouveau mot de passe.", go:"Envoyer le lien", pass:false,
-             links:[["login","Retour"]]},
-    newpass:{lead:"Choisis ton nouveau mot de passe.", go:"Enregistrer", pass:true, noEmail:true, links:[]}
+  const store = {
+    get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+    set(k,v){ try { localStorage.setItem(k, v); } catch(e){} }
   };
-  function authUI(mode){
-    aMode = mode; const m = MODES[mode];
-    $("auth").hidden = false; $("app").hidden = true;
-    $("aLead").textContent = m.lead; $("aGo").textContent = m.go;
-    $("aEmail").hidden = !!m.noEmail; $("aEmail").required = !m.noEmail;
-    $("aPass").hidden = !m.pass; $("aPass").required = m.pass;
-    $("aPass").autocomplete = mode === "login" ? "current-password" : "new-password";
-    $("aMsg").textContent = ""; $("aMsg").className = "msg";
-    $("aSwitch").innerHTML = m.links.map(([k,t]) => `<button type="button" data-m="${k}">${t}</button>`).join("");
-  }
-  $("aSwitch").addEventListener("click", e => { const b = e.target.closest("button"); if(b) authUI(b.dataset.m); });
-  $("aForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    const email = $("aEmail").value.trim().toLowerCase(), pass = $("aPass").value;
-    const msg = $("aMsg"); msg.className = "msg"; msg.textContent = "…"; $("aGo").disabled = true;
-    const back = location.origin + location.pathname;
-    try{
-      if(aMode === "login"){
-        const {error} = await sb.auth.signInWithPassword({email, password:pass}); if(error) throw error;
-        msg.textContent = "";
-      } else if(aMode === "signup"){
-        if(!email.endsWith(DOMAIN)){ msg.className = "msg err"; msg.textContent = "Utilise ton adresse " + DOMAIN + "."; $("aGo").disabled = false; return; }
-        const {data, error} = await sb.auth.signUp({email, password:pass, options:{emailRedirectTo:back}}); if(error) throw error;
-        if(!data.session){ authUI("login"); $("aEmail").value = email; $("aMsg").textContent = "Compte créé. Confirme ton adresse avec le lien reçu par mail, puis connecte-toi ici."; }
-      } else if(aMode === "reset"){
-        const {error} = await sb.auth.resetPasswordForEmail(email, {redirectTo:back}); if(error) throw error;
-        msg.textContent = "Lien envoyé. Regarde ta boîte mail.";
-      } else if(aMode === "newpass"){
-        const {error} = await sb.auth.updateUser({password:pass}); if(error) throw error;
-        start();
-      }
-    }catch(err){
-      msg.className = "msg err";
-      const t = (err && err.message || "").toLowerCase();
-      msg.textContent = t.includes("invalid login") ? "Adresse mail ou mot de passe incorrect."
-        : t.includes("not confirmed") ? "Adresse pas encore confirmée : clique sur le lien reçu par mail."
-        : t.includes("already registered") ? "Un compte existe déjà avec cette adresse. Connecte-toi."
-        : t.includes("password") ? "Mot de passe trop court (6 caractères minimum)."
-        : "Ça n'a pas marché. Vérifie ta connexion et réessaie.";
-    }
-    $("aGo").disabled = false;
-  });
-
-  sb.auth.onAuthStateChange((ev, session) => {
-    if(ev === "PASSWORD_RECOVERY"){ authUI("newpass"); return; }
-    if(session && aMode !== "newpass") start(session);
-    if(ev === "SIGNED_OUT"){ stop(); authUI("login"); }
-  });
-  sb.auth.getSession().then(({data}) => { if(data.session) start(data.session); else if(aMode !== "newpass") authUI("login"); });
-
-  $("logout").onclick = () => sb.auth.signOut();
+  let deviceId = store.get("cabines-device");
+  if(!deviceId){ deviceId = Math.random().toString(36).slice(2) + Date.now().toString(36); store.set("cabines-device", deviceId); }
+  let myName = store.get("cabines-nom") || "";
 
   /* ---------- Cabines ---------- */
   const grid = $("grid");
@@ -241,7 +173,7 @@
       el.className = "cab" + (busy ? " busy" : "");
       el.innerHTML = `
         <div class="top">
-          <div class="name">Cabine ${i+1}${i===3?'<svg class="pmr" viewBox="0 0 24 24" aria-label="Cabine accessible PMR" role="img" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="1.8" fill="currentColor" stroke="none"/><path d="M11 7.5v5.5h5l2.5 5.5"/><path d="M11 10.2h4"/><path d="M8.2 11.3a5.6 5.6 0 1 0 7.6 6.2"/></svg>':''}</div>
+          <div class="name">Cabine ${i+1}${i===3 ? ICON : ""}</div>
           <div class="state"><span class="dot"></span>${busy ? "" : "Libre"}</div>
         </div>
         <div class="count">${c.n}</div>
@@ -262,7 +194,6 @@
   async function load(){
     const {data, error} = await sb.from("cabines").select("id,n,since").order("id");
     if(error){ setSync("off"); return; }
-    if(!data.length){ refuse(); return; }
     data.forEach(apply); render();
   }
   async function act(fn, args, i){
@@ -280,7 +211,6 @@
       $("veil").classList.add("on"); return;
     }
     const d = b.dataset.a === "+" ? 1 : -1;
-    // affichage immédiat, la base fait le calcul exact
     c.n = Math.max(0, c.n + d); if(d === 1 && c.n === 1) c.since = new Date().toISOString(); if(c.n === 0) c.since = null;
     render();
     act("cabine_step", {p_id:i+1, p_delta:d}, i);
@@ -295,63 +225,51 @@
   $("veil").addEventListener("click", e => { if(e.target === $("veil")) $("sCancel").click(); });
 
   /* ---------- Qui est connecté ---------- */
-  let pres = null, online = [], myEmail = "";
-  function niceName(email){
-    const local = (email || "").split("@")[0];
-    return local.split(/[._-]+/).filter(Boolean).map(w => w[0].toUpperCase() + w.slice(1)).join(" ") || email;
-  }
-  function initials(email){
-    const parts = niceName(email).split(" ");
-    return ((parts[0]||"")[0] || "" ) + ((parts[1]||"")[0] || "");
-  }
+  let pres = null, online = [];
   const esc = t => String(t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const initials = n => ((n || "?").trim()[0] || "?").toUpperCase();
   function renderOnline(){
     const n = online.length;
     $("online").hidden = n === 0;
-    $("faces").innerHTML = online.slice(0,3).map(e => `<span>${esc(initials(e))}</span>`).join("");
+    $("faces").innerHTML = online.slice(0,3).map(p => `<span>${esc(initials(p.nom))}</span>`).join("");
     $("onlineTxt").textContent = n + (n > 1 ? " connectés" : " connecté");
     $("pSub").textContent = n + (n > 1 ? " personnes" : " personne") + " en ce moment sur Cabine +1";
-    $("pList").innerHTML = online.map(e => `<li><span class="av">${esc(initials(e))}</span><div>${esc(niceName(e))}<small>${esc(e)}</small></div>${e === myEmail ? '<span class="me">toi</span>' : ""}</li>`).join("");
+    $("pList").innerHTML = online.map(p => `<li><span class="av">${esc(initials(p.nom))}</span><div>${esc(p.nom || "Sans prénom")}</div>${p.id === deviceId ? '<span class="me">toi</span>' : ""}</li>`).join("");
   }
-  async function startPresence(session){
-    myEmail = (session.user.email || "").toLowerCase();
-    try { sb.realtime.setAuth(session.access_token); } catch(e){}
-    pres = sb.channel("cabines-presence", {config:{private:true, presence:{key:myEmail}}});
+  function startPresence(){
+    pres = sb.channel("cabines-presence", {config:{presence:{key:deviceId}}});
     pres.on("presence", {event:"sync"}, () => {
-      online = Object.keys(pres.presenceState()).sort((a,b) => a === myEmail ? -1 : b === myEmail ? 1 : a.localeCompare(b));
+      const st = pres.presenceState();
+      online = Object.keys(st).map(k => ({id:k, nom: String((st[k][0] || {}).nom || "").slice(0,24)}))
+        .sort((a,b) => a.id === deviceId ? -1 : b.id === deviceId ? 1 : a.nom.localeCompare(b.nom));
       renderOnline();
-    }).subscribe(async s => { if(s === "SUBSCRIBED") await pres.track({depuis: new Date().toISOString()}); });
+    }).subscribe(s => { if(s === "SUBSCRIBED") pres.track({nom: myName}); });
   }
   $("online").onclick = () => $("pVeil").classList.add("on");
   $("pClose").onclick = () => $("pVeil").classList.remove("on");
   $("pVeil").addEventListener("click", e => { if(e.target === $("pVeil")) $("pVeil").classList.remove("on"); });
 
-  function start(session){
-    $("auth").hidden = true; $("app").hidden = false;
-    if(session) $("who").textContent = session.user.email;
-    if(started) return; started = true;
-    render(); setSync("wait"); load();
-    channel = sb.channel("cabines-live")
-      .on("postgres_changes", {event:"*", schema:"public", table:"cabines"}, p => { apply(p.new); render(); })
-      .subscribe(s => { if(s === "SUBSCRIBED"){ setSync("live"); load(); } else if(s === "CHANNEL_ERROR" || s === "TIMED_OUT" || s === "CLOSED") setSync("off"); });
-    if(session) startPresence(session);
-    else sb.auth.getSession().then(({data}) => { if(data.session) startPresence(data.session); });
-  }
-  async function refuse(){
-    await sb.auth.signOut();
-    authUI("login");
-    $("aMsg").className = "msg err";
-    $("aMsg").textContent = "Accès réservé aux adresses " + DOMAIN + ".";
-  }
-  function stop(){
-    started = false;
-    if(channel){ sb.removeChannel(channel); channel = null; }
-    if(pres){ sb.removeChannel(pres); pres = null; }
-    online = []; renderOnline();
-  }
-  // Retour sur l'appli (iPhone en veille, onglet caché) : on recharge l'état
-  document.addEventListener("visibilitychange", () => { if(!document.hidden && started) load(); });
-  setInterval(() => { if(started) render(); }, 30000);
+  /* ---------- Prénom ---------- */
+  function showWho(){ $("who").textContent = myName ? "Connecté en tant que " + myName : "Sans prénom"; }
+  function askName(){ $("nInput").value = myName; $("nVeil").classList.add("on"); setTimeout(() => $("nInput").focus(), 250); }
+  $("nForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const v = $("nInput").value.trim().slice(0,24); if(!v) return;
+    myName = v; store.set("cabines-nom", v); showWho();
+    $("nVeil").classList.remove("on");
+    if(pres) pres.track({nom: myName});
+  });
+  $("rename").onclick = askName;
+
+  /* ---------- Démarrage ---------- */
+  render(); setSync("wait"); showWho(); load();
+  sb.channel("cabines-live")
+    .on("postgres_changes", {event:"*", schema:"public", table:"cabines"}, p => { apply(p.new); render(); })
+    .subscribe(s => { if(s === "SUBSCRIBED"){ setSync("live"); load(); } else if(s === "CHANNEL_ERROR" || s === "TIMED_OUT" || s === "CLOSED") setSync("off"); });
+  startPresence();
+  if(!myName) askName();
+  document.addEventListener("visibilitychange", () => { if(!document.hidden) load(); });
+  setInterval(render, 30000);
 </script>
 </body>
 </html>
