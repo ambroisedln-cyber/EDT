@@ -28,16 +28,6 @@
   .sync i{width:7px;height:7px;border-radius:50%;background:var(--line);display:inline-block}
   .sync.live{color:var(--ink)} .sync.live i{background:#000;animation:pulse 2s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-  .online{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:5px 11px 5px 9px;border:1px solid var(--line);border-radius:999px;background:#fff;font:inherit;font-size:12px;font-weight:500;color:var(--ink);cursor:pointer}
-  .faces{display:flex}
-  .faces span{width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;border:2px solid #fff;margin-left:-6px}
-  .faces span:first-child{margin-left:0}
-  .people{list-style:none;margin:6px 0 18px;max-height:50vh;overflow:auto}
-  .people li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
-  .people li:last-child{border-bottom:none}
-  .people .av{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .people small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
-  .people .me{margin-left:auto;font-size:11px;color:var(--mute)}
   .total{text-align:right}
   .total b{display:block;font-size:30px;font-weight:600;letter-spacing:-0.03em;line-height:1}
   .total span{font-size:13px;color:var(--mute)}
@@ -78,8 +68,6 @@
   footer{margin-top:26px;font-size:12px;color:var(--mute);text-align:center;line-height:1.7}
   footer button{background:none;border:none;font:inherit;color:var(--ink);text-decoration:underline;cursor:pointer}
 
-  .field{width:100%;height:54px;border:1px solid var(--line);border-radius:16px;padding:0 18px;font:inherit;font-size:16px;margin-bottom:12px;background:#fff;color:var(--ink);outline:none}
-  .field:focus{border-color:var(--ink)}
 </style>
 </head>
 <body>
@@ -89,7 +77,6 @@
     <div>
       <h1>Cabine +1</h1>
       <div class="sync" id="sync"><i></i><span id="syncTxt">Connexion…</span></div>
-      <button class="online" id="online" hidden><span class="faces" id="faces"></span><span id="onlineTxt"></span></button>
     </div>
     <div class="total"><b id="total">0</b><span>articles en cabine</span></div>
   </header>
@@ -97,8 +84,7 @@
   <div class="grid" id="grid"></div>
 
   <footer>
-    Comptez les articles avant de donner l'accès · Vérifiez au retour<br>
-    <span id="who"></span> · <button id="rename">Changer de prénom</button>
+    Comptez les articles avant de donner l'accès · Vérifiez au retour
   </footer>
 </div>
 
@@ -114,26 +100,6 @@
   </div>
 </div>
 
-<div class="veil" id="pVeil">
-  <div class="sheet">
-    <h2>Connectés</h2>
-    <p id="pSub">En ce moment sur Cabine +1</p>
-    <ul class="people" id="pList"></ul>
-    <button class="pill" style="width:100%" id="pClose">Fermer</button>
-  </div>
-</div>
-
-<div class="veil" id="nVeil">
-  <div class="sheet">
-    <h2>Ton prénom</h2>
-    <p>Pour que l'équipe voie qui est connecté.</p>
-    <form id="nForm">
-      <input class="field" id="nInput" maxlength="24" placeholder="Prénom" autocomplete="given-name" required>
-      <button class="pill dark" style="width:100%" type="submit">C'est parti</button>
-    </form>
-  </div>
-</div>
-
 <script src="supabase.js"></script>
 <script>
   const SB_URL = "https://ozdvmpftfpausbrroeki.supabase.co";
@@ -144,13 +110,6 @@
   const ICON = '<svg class="pmr" viewBox="0 0 24 24" aria-label="Cabine accessible PMR" role="img" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="1.8" fill="currentColor" stroke="none"/><path d="M11 7.5v5.5h5l2.5 5.5"/><path d="M11 10.2h4"/><path d="M8.2 11.3a5.6 5.6 0 1 0 7.6 6.2"/></svg>';
   let state = Array.from({length:N}, () => ({n:0, since:null}));
 
-  const store = {
-    get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
-    set(k,v){ try { localStorage.setItem(k, v); } catch(e){} }
-  };
-  let deviceId = store.get("cabines-device");
-  if(!deviceId){ deviceId = Math.random().toString(36).slice(2) + Date.now().toString(36); store.set("cabines-device", deviceId); }
-  let myName = store.get("cabines-nom") || "";
 
   /* ---------- Cabines ---------- */
   const grid = $("grid");
@@ -224,50 +183,11 @@
   $("sCancel").onclick = () => { target = null; $("veil").classList.remove("on"); };
   $("veil").addEventListener("click", e => { if(e.target === $("veil")) $("sCancel").click(); });
 
-  /* ---------- Qui est connecté ---------- */
-  let pres = null, online = [];
-  const esc = t => String(t).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  const initials = n => ((n || "?").trim()[0] || "?").toUpperCase();
-  function renderOnline(){
-    const n = online.length;
-    $("online").hidden = n === 0;
-    $("faces").innerHTML = online.slice(0,3).map(p => `<span>${esc(initials(p.nom))}</span>`).join("");
-    $("onlineTxt").textContent = n + (n > 1 ? " connectés" : " connecté");
-    $("pSub").textContent = n + (n > 1 ? " personnes" : " personne") + " en ce moment sur Cabine +1";
-    $("pList").innerHTML = online.map(p => `<li><span class="av">${esc(initials(p.nom))}</span><div>${esc(p.nom || "Sans prénom")}</div>${p.id === deviceId ? '<span class="me">toi</span>' : ""}</li>`).join("");
-  }
-  function startPresence(){
-    pres = sb.channel("cabines-presence", {config:{presence:{key:deviceId}}});
-    pres.on("presence", {event:"sync"}, () => {
-      const st = pres.presenceState();
-      online = Object.keys(st).map(k => ({id:k, nom: String((st[k][0] || {}).nom || "").slice(0,24)}))
-        .sort((a,b) => a.id === deviceId ? -1 : b.id === deviceId ? 1 : a.nom.localeCompare(b.nom));
-      renderOnline();
-    }).subscribe(s => { if(s === "SUBSCRIBED") pres.track({nom: myName}); });
-  }
-  $("online").onclick = () => $("pVeil").classList.add("on");
-  $("pClose").onclick = () => $("pVeil").classList.remove("on");
-  $("pVeil").addEventListener("click", e => { if(e.target === $("pVeil")) $("pVeil").classList.remove("on"); });
-
-  /* ---------- Prénom ---------- */
-  function showWho(){ $("who").textContent = myName ? "Connecté en tant que " + myName : "Sans prénom"; }
-  function askName(){ $("nInput").value = myName; $("nVeil").classList.add("on"); setTimeout(() => $("nInput").focus(), 250); }
-  $("nForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const v = $("nInput").value.trim().slice(0,24); if(!v) return;
-    myName = v; store.set("cabines-nom", v); showWho();
-    $("nVeil").classList.remove("on");
-    if(pres) pres.track({nom: myName});
-  });
-  $("rename").onclick = askName;
-
   /* ---------- Démarrage ---------- */
-  render(); setSync("wait"); showWho(); load();
+  render(); setSync("wait"); load();
   sb.channel("cabines-live")
     .on("postgres_changes", {event:"*", schema:"public", table:"cabines"}, p => { apply(p.new); render(); })
     .subscribe(s => { if(s === "SUBSCRIBED"){ setSync("live"); load(); } else if(s === "CHANNEL_ERROR" || s === "TIMED_OUT" || s === "CLOSED") setSync("off"); });
-  startPresence();
-  if(!myName) askName();
   document.addEventListener("visibilitychange", () => { if(!document.hidden) load(); });
   setInterval(render, 30000);
 </script>
